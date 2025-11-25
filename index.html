@@ -10,11 +10,12 @@
     <meta name="keywords" content="Toronto food critic, honest restaurant reviews, MsJAG, Google Local Guide Level 7, Burger Drops review, Toronto eats, travel reviews">
     <meta name="author" content="MsJAG">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://msjag.com/">
+    <!-- Updated to your actual domain -->
+    <link rel="canonical" href="https://torontoeatsandreviews.com/">
 
     <!-- Open Graph / Facebook / LinkedIn -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://msjag.com/">
+    <meta property="og:url" content="https://torontoeatsandreviews.com/">
     <meta property="og:title" content="MsJAG | Honest Google Reviews & Food Critic">
     <meta property="og:description" content="I eat it. I rate it. No BS. Read the latest uncensored reviews on Toronto dining and global travel.">
     <meta property="og:image" content="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200">
@@ -35,7 +36,7 @@
       "@context": "https://schema.org",
       "@type": "Person",
       "name": "MsJAG",
-      "url": "https://msjag.com",
+      "url": "https://torontoeatsandreviews.com",
       "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1",
       "jobTitle": "Google Level 7 Reviewer",
       "description": "Honest food and travel critic covering Toronto and international destinations.",
@@ -325,14 +326,21 @@
                         Send the details. If it's good, I'll say so. If it's not... well, you know the drill.
                     </p>
                     
-                    <form id="contactForm" class="space-y-4 max-w-lg mx-auto" onsubmit="sendEmail(event)">
-                        <input type="text" id="name" placeholder="Who are you?" required aria-label="Name"
+                    <!-- 
+                        Formspree Setup:
+                        1. Go to formspree.io and create a free account.
+                        2. Create a new form and get your unique ID (e.g., https://formspree.io/f/xvRZZRn).
+                        3. Replace the URL in the 'action' attribute below.
+                    -->
+                    <!-- FIXED: Removed duplicate URL prefix -->
+                    <form action="https://formspree.io/f/xgvbdlpv" method="POST" class="space-y-4 max-w-lg mx-auto">
+                        <input type="text" name="name" placeholder="Who are you?" required aria-label="Name"
                             class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
                         
-                        <input type="email" id="email" placeholder="Your Email" required aria-label="Email"
+                        <input type="email" name="email" placeholder="Your Email" required aria-label="Email"
                             class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
                         
-                        <textarea id="message" rows="3" placeholder="What's the spot? Why should I go?" required aria-label="Message"
+                        <textarea name="message" rows="3" placeholder="What's the spot? Why should I go?" required aria-label="Message"
                             class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold resize-none"></textarea>
                         
                         <button type="submit" 
@@ -340,9 +348,6 @@
                             SEND IT
                         </button>
                     </form>
-                    <p id="statusMessage" class="text-sm mt-4 font-bold text-yellow-300 hidden">
-                        <i class="fas fa-envelope-open-text mr-2"></i> Opening your email app...
-                    </p>
                 </div>
             </div>
         </section>
@@ -370,31 +375,7 @@
         </div>
     </footer>
 
-    <script>
-        function sendEmail(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
-            const destination = "msjag416@gmail.com";
-            
-            const subject = encodeURIComponent("Review Suggestion from: " + name);
-            const body = encodeURIComponent(
-                "Name: " + name + "\n" +
-                "Email: " + email + "\n\n" +
-                "Suggestion/Message:\n" + message
-            );
-            
-            const statusMsg = document.getElementById('statusMessage');
-            statusMsg.classList.remove('hidden');
-            
-            // Wait slightly so the user sees the feedback before the browser tries to open the app
-            setTimeout(() => {
-                window.location.href = `mailto:${destination}?subject=${subject}&body=${body}`;
-            }, 800);
-        }
-    </script>
 </body>
 </html>
+
 
