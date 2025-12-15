@@ -4,256 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Favicon (The little icon in the browser tab) -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍴</text></svg>">
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
 
     <!-- SEO Meta Tags -->
-    <title>Toronto Food Reviews | Restaurant Critic & Dining Guide - MsJAG</title>
-    <meta name="description" content="Brutally honest Toronto restaurant reviews from Level 7 Google Guide MsJAG. Real photos, no sponsored posts. Find the best (and worst) places to eat in Liberty Village, Queens Quay, and beyond.">
-    <meta name="keywords" content="Toronto food critic, honest restaurant reviews, MsJAG, Google Local Guide Level 7, Burger Drops review, Toronto eats, travel reviews">
-    <meta name="author" content="MsJAG">
-    <meta name="robots" content="index, follow">
-    <!-- Updated to your actual domain -->
+    <title>MsJAG Reviews | Global Critic for Food, Events, Travel & Services</title>
+    <meta name="description" content="Brutally honest reviews of restaurants, events, travel destinations, and services from Level 7 Google Guide MsJAG. Covering Toronto, Canada, and global experiences. No sponsorships.">
+    <meta name="keywords" content="Toronto critic, honest reviews, MsJAG, Google Local Guide Level 7, travel reviews, event reviews, service reviews, global dining">
     <link rel="canonical" href="https://torontoeatsandreviews.com/">
 
-    <!-- Open Graph / Facebook / LinkedIn -->
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://torontoeatsandreviews.com/">
-    <meta property="og:title" content="MsJAG | Honest Google Reviews & Food Critic">
-    <meta property="og:description" content="I eat it. I rate it. No BS. Read the latest uncensored reviews on Toronto dining and global travel.">
+    <meta property="og:title" content="MsJAG Reviews | Global Critic for Food, Events, Travel & Services">
+    <meta property="og:description" content="Brutally honest reviews of restaurants, events, travel destinations, and services from Level 7 Google Guide MsJAG. No sponsorships.">
     <meta property="og:image" content="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200">
 
-    <!-- Twitter Card -->
+    <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="MsJAG Reviews: No Filters, No Freebies">
-    <meta property="twitter:description" content="Level 7 Google Guide reviewing Toronto's best and worst.">
+    <meta property="twitter:url" content="https://torontoeatsandreviews.com/">
+    <meta property="twitter:title" content="MsJAG Reviews | Global Critic for Food, Events, Travel & Services">
+    <meta property="twitter:description" content="Brutally honest reviews of restaurants, events, travel destinations, and services from Level 7 Google Guide MsJAG. No sponsorships.">
     <meta property="twitter:image" content="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200">
-
+    
     <!-- Tailwind & Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Structured Data (JSON-LD): Person -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "MsJAG",
-      "url": "https://torontoeatsandreviews.com",
-      "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1",
-      "jobTitle": "Google Level 7 Reviewer",
-      "description": "Honest food and travel critic covering Toronto and international destinations.",
-      "sameAs": [
-        "https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic",
-        "https://instagram.com/chowhoundgta"
-      ],
-      "knowsAbout": ["Food Criticism", "Travel", "Toronto Restaurants"]
-    }
-    </script>
-    
-    <!-- FAQ Schema -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [{
-        "@type": "Question",
-        "name": "Who is MsJAG?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "MsJAG is a Level 7 Google Local Guide and independent Toronto food critic who writes honest, unsponsored restaurant reviews."
-        }
-      }, {
-        "@type": "Question",
-        "name": "Do you accept free meals or sponsorships?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Absolutely not. I pay for every single meal out of my own pocket. This ensures that my reviews are 100% unbiased and not influenced by special treatment."
-        }
-      }, {
-        "@type": "Question",
-        "name": "How can I suggest a restaurant for review?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "You can use the 'Invite or Suggest' form at the bottom of this page to send me your recommendations. I read every suggestion."
-        }
-      }]
-    }
-    </script>
-
-    <!-- Breadcrumb Schema -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [{
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://torontoeatsandreviews.com/"
-      }, {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Reviews",
-        "item": "https://torontoeatsandreviews.com/#reviews"
-      }]
-    }
-    </script>
-
-    <!-- Reviews Schema (Individual Entries) -->
-    <script type="application/ld+json">
-    [
-      {
-        "@context": "https://schema.org/",
-        "@type": "Review",
-        "itemReviewed": {
-          "@type": "Restaurant",
-          "name": "Burger Drops",
-          "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Toronto",
-            "addressRegion": "ON",
-            "streetAddress": "Liberty Village"
-          }
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "1",
-          "bestRating": "5"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "MsJAG"
-        },
-        "reviewBody": "I went with the Original Burger. At first bite, decent enough. But halfway through, I got a surprise side order of mystery bone. Twice. Nothing like chewing your way through what feels like beef mixed with gravel."
-      },
-      {
-        "@context": "https://schema.org/",
-        "@type": "Review",
-        "itemReviewed": {
-          "@type": "AutoRepair",
-          "name": "Speedy Glass",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Etobicoke",
-            "addressRegion": "ON"
-          }
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "1",
-          "bestRating": "5"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "MsJAG"
-        },
-        "reviewBody": "Walked in. No greeting. Just stood there while Jordan chatted with two men... No eye contact. I waited two minutes before speaking up. His response? 'Good for you.'"
-      },
-      {
-        "@context": "https://schema.org/",
-        "@type": "Review",
-        "itemReviewed": {
-          "@type": "AutoDealer",
-          "name": "BMW Etobicoke",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Etobicoke",
-            "addressRegion": "ON"
-          }
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "MsJAG"
-        },
-        "reviewBody": "Might've been the best 'car maintenance' experience I've ever had. We were greeted warmly and shown the lounge. There were several cozy, private seating areas... Just peaceful oil-changing serenity."
-      },
-      {
-        "@context": "https://schema.org/",
-        "@type": "Review",
-        "itemReviewed": {
-          "@type": "EventVenue",
-          "name": "Geary Ave Warehouse",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Toronto",
-            "addressRegion": "ON"
-          }
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "MsJAG"
-        },
-        "reviewBody": "Went for ART OF US with Miss Tara. The atmosphere was EDM electric. The room layout, lighting, and ceiling lasers gave it a creative underground feel."
-      },
-      {
-        "@context": "https://schema.org/",
-        "@type": "Review",
-        "itemReviewed": {
-          "@type": "Resort",
-          "name": "Secrets Resort",
-          "address": {
-            "@type": "PostalAddress",
-            "addressCountry": "Dominican Republic"
-          }
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "3",
-          "bestRating": "5"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "MsJAG"
-        },
-        "reviewBody": "Pickup at the airport was confusing... The room was decent but not spotless: drawers still had items from the previous guest."
-      },
-      {
-        "@context": "https://schema.org/",
-        "@type": "Review",
-        "itemReviewed": {
-          "@type": "Restaurant",
-          "name": "Queens Harbour",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Toronto",
-            "addressRegion": "ON",
-            "streetAddress": "Queens Quay"
-          }
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "MsJAG"
-        },
-        "reviewBody": "The Caesar salad was absolutely delicious... dressing was a 10 out of 10. The miso and black cod was delicious."
-      }
-    ]
-    </script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #ffffff;
             color: #1a202c;
-            scroll-behavior: smooth;
         }
 
         /* Brand Colors */
@@ -280,17 +68,63 @@
         }
         
         .star-rating { color: #facc15; }
-        
-        .review-text {
-            display: -webkit-box;
-            -webkit-line-clamp: 7;
-            -webkit-box-orient: vertical;
+
+        /* Navigation transitions */
+        #mobile-menu {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
             overflow: hidden;
-            flex-grow: 1;
+        }
+        #mobile-menu.open {
+            max-height: 500px;
+            opacity: 1;
         }
     </style>
 </head>
-<body class="antialiased flex flex-col min-h-screen">
+<body class="antialiased flex flex-col min-h-screen pt-16">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white shadow-md z-50 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-2 group">
+                    <span class="bg-brand-green text-white w-8 h-8 flex items-center justify-center rounded-full font-black text-sm group-hover:bg-brand-orange transition-colors">M</span>
+                    <span class="font-black text-xl tracking-tighter text-gray-900 group-hover:text-brand-orange transition-colors">MsJAG<span class="text-brand-green group-hover:text-brand-orange">.</span></span>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-600 hover:text-brand-green font-bold text-sm transition-colors">Home</a>
+                    <a href="#reviews" class="text-gray-600 hover:text-brand-green font-bold text-sm transition-colors">Latest Verdicts</a>
+                    <a href="#contact" class="text-gray-600 hover:text-brand-green font-bold text-sm transition-colors">Suggest a Spot</a>
+                    <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" class="bg-brand-orange hover:bg-orange-700 text-white font-bold text-xs px-4 py-2 rounded-full transition-transform hover:-translate-y-0.5 shadow-sm">
+                        <i class="fab fa-google mr-1"></i> Full Archive
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-brand-green focus:outline-none p-2">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 shadow-lg">
+            <div class="px-6 py-4 space-y-3 flex flex-col">
+                <a href="#" class="text-gray-800 hover:text-brand-orange font-bold block py-2 border-b border-gray-50">Home</a>
+                <a href="#reviews" class="text-gray-800 hover:text-brand-orange font-bold block py-2 border-b border-gray-50">Latest Verdicts</a>
+                <a href="#contact" class="text-gray-800 hover:text-brand-orange font-bold block py-2 border-b border-gray-50">Suggest a Spot</a>
+                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" class="text-brand-green hover:text-brand-orange font-bold block py-2">
+                    <i class="fab fa-google mr-2"></i>View Full Archive
+                </a>
+            </div>
+        </div>
+    </nav>
 
     <!-- Header -->
     <header class="bg-brand-green text-white py-24 px-6 shadow-xl relative">
@@ -298,7 +132,7 @@
             
             <!-- Avatar -->
             <div class="w-40 h-40 flex-shrink-0 rounded-full border-4 border-yellow-400 overflow-hidden shadow-2xl bg-white flex items-center justify-center transform hover:scale-105 transition duration-300">
-                <i class="fas fa-utensils text-6xl text-brand-green"></i>
+                <i class="fas fa-search-location text-6xl text-brand-green"></i>
             </div>
             
             <div class="text-center md:text-left">
@@ -309,13 +143,13 @@
                     MsJAG
                 </h1>
                 <h2 class="text-2xl font-bold text-white mt-4 mb-4">
-                    Toronto Restaurant Critic & Food Reviewer
+                    Global Critic: Food, Events & Services
                 </h2>
                 <p class="text-2xl md:text-3xl font-bold text-yellow-300 mb-3">
-                    No Freebies. No Nonsense.
+                    Toronto • Canada • The World
                 </p>
                 <p class="text-lg text-green-50 max-w-2xl leading-relaxed mb-8 font-medium">
-                    Most critics are terrified of losing their invite list; they lie to you about dry chicken because they want to stay relevant. I don't play that game. If it sucks, I say it sucks. If it's life-changing, I tell you why.
+                    Most critics are terrified of losing their invite list; they lie to you about bad service or dirty rooms because they want to stay relevant. I don't play that game. Whether it's a burger joint, a mechanic, or a 5-star resort, if it sucks, I say it sucks.
                 </p>
                 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -324,7 +158,7 @@
                         <i class="fab fa-google mr-2"></i> Read The Verdicts
                     </a>
                     <a href="#contact" 
-                       class="bg-white text-brand-green font-bold py-4 px-10 rounded-lg shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1 flex items-center justify-center">
+                       class="bg-white text-brand-green font-bold py-4 px-10 rounded-lg shadow-lg hover:bg-gray-100 transition transform hover:scale-105 flex items-center justify-center">
                         Suggest A Spot
                     </a>
                 </div>
@@ -335,9 +169,12 @@
     <!-- Neighborhood Coverage Section -->
     <section class="bg-white py-8 border-b">
       <div class="max-w-6xl mx-auto px-6">
-        <p class="text-center text-gray-600">
-          Covering Toronto's best dining: Liberty Village • Queen West • 
-          Etobicoke • Waterfront • King West • Yorkville
+        <p class="text-center text-gray-600 font-medium">
+          Covering experiences in Toronto & Global Destinations: 
+          <span class="text-brand-green">Dining</span> • 
+          <span class="text-brand-green">Nightlife</span> • 
+          <span class="text-brand-green">Services</span> • 
+          <span class="text-brand-green">Travel</span>
         </p>
       </div>
     </section>
@@ -352,7 +189,7 @@
                 <i class="fas fa-check-circle mr-2 text-brand-orange"></i> No Paid Promos
             </div>
             <div class="flex items-center">
-                <i class="fas fa-check-circle mr-2 text-brand-orange"></i> Real Photos
+                <i class="fas fa-check-circle mr-2 text-brand-orange"></i> Real Experience
             </div>
         </div>
     </div>
@@ -365,20 +202,20 @@
             <ol class="list-none p-0 inline-flex">
                 <li class="flex items-center">
                     <a href="#" class="hover:text-brand-orange">Home</a>
-                    <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg>
+                    <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-24.569 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg>
                 </li>
                 <li>
-                    <span class="text-gray-900" aria-current="page">Reviews</span>
+                    <span class="text-gray-900" aria-current="page">Latest Verdicts</span>
                 </li>
             </ol>
         </nav>
 
         <!-- The Reviews Section -->
-        <section id="reviews" class="max-w-7xl mx-auto px-6 pb-16 pt-8">
+        <section id="reviews" class="max-w-7xl mx-auto px-6 pb-16 pt-8 scroll-mt-24">
             <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b-2 border-gray-100 pb-4">
                 <div class="text-center md:text-left w-full md:w-auto">
                     <h2 class="text-4xl font-black text-brand-green mb-2">THE LATEST DROPS</h2>
-                    <p class="text-gray-500 font-medium">My recent visits from Google Maps. Uncensored.</p>
+                    <p class="text-gray-500 font-medium">Dining, Services, and Travel. Uncensored.</p>
                 </div>
                 <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" rel="noopener noreferrer" class="text-brand-orange font-bold hover:text-orange-700 mt-6 md:mt-0 flex items-center justify-center">
                     View Full Archive <i class="fas fa-external-link-alt ml-2"></i>
@@ -392,7 +229,6 @@
                 <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <!-- Specific Review Link Added -->
                             <a href="https://maps.app.goo.gl/2Q564Qw6q58HRUTg9" target="_blank" rel="noopener noreferrer" class="hover:text-brand-orange transition-colors">
                                 <h3 class="font-bold text-xl text-gray-900">Burger Drops <i class="fas fa-external-link-alt text-xs ml-1 text-gray-400"></i></h3>
                             </a>
@@ -403,20 +239,53 @@
                     <div class="star-rating mb-4 text-lg" aria-label="1 out of 5 stars">
                         <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                     </div>
-                    <p class="text-gray-700 leading-relaxed font-medium review-text">
+                    <p class="text-gray-700 leading-relaxed font-medium line-clamp-[7] flex-grow">
                         "I went with the Original Burger. At first bite, decent enough. But halfway through, I got a surprise side order of mystery bone. Twice. Nothing like chewing your way through what feels like beef mixed with gravel. It honestly felt unsafe to eat. The curly fries? Solid. The burgers? Wet, greasy, and occasionally had bone shards in it. Not worth the dental risk."
                     </p>
                     <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
                         <span><i class="far fa-clock mr-1"></i> Sep 12, 2025</span>
                         <span class="text-gray-500 font-bold">Food Safety Concern</span>
                     </div>
+
+                    <!-- Schema for Burger Drops -->
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "Review",
+                      "itemReviewed": {
+                        "@type": "Restaurant",
+                        "name": "Burger Drops",
+                        "address": {
+                          "@type": "PostalAddress",
+                          "streetAddress": "Liberty Village",
+                          "addressLocality": "Toronto",
+                          "addressRegion": "ON",
+                          "postalCode": "M6K",
+                          "addressCountry": "CA"
+                        },
+                        "servesCuisine": "Burgers",
+                        "priceRange": "$$"
+                      },
+                      "author": {
+                        "@type": "Person",
+                        "name": "MsJAG"
+                      },
+                      "reviewRating": {
+                        "@type": "Rating",
+                        "ratingValue": "1",
+                        "bestRating": "5",
+                        "worstRating": "1"
+                      },
+                      "datePublished": "2025-09-12",
+                      "reviewBody": "I went with the Original Burger. At first bite, decent enough. But halfway through, I got a surprise side order of mystery bone. Twice. Nothing like chewing your way through what feels like beef mixed with gravel. It honestly felt unsafe to eat. The curly fries? Solid. The burgers? Wet, greasy, and occasionally had bone shards in it. Not worth the dental risk."
+                    }
+                    </script>
                 </article>
 
                 <!-- Review 2: Speedy Glass Etobicoke -->
                 <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <!-- Specific Review Link Added -->
                             <a href="https://maps.app.goo.gl/N5nY4DgjN1XYW9Y29" target="_blank" rel="noopener noreferrer" class="hover:text-brand-orange transition-colors">
                                 <h3 class="font-bold text-xl text-gray-900">Speedy Glass <i class="fas fa-external-link-alt text-xs ml-1 text-gray-400"></i></h3>
                             </a>
@@ -427,20 +296,50 @@
                     <div class="star-rating mb-4 text-lg" aria-label="1 out of 5 stars">
                         <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                     </div>
-                    <p class="text-gray-700 leading-relaxed font-medium review-text">
+                    <p class="text-gray-700 leading-relaxed font-medium line-clamp-[7] flex-grow">
                         "Walked in. No greeting. Just stood there while Jordan chatted with two men like the front desk was his personal podcast studio. No eye contact. I waited two minutes before speaking up. His response? 'Good for you.' Weirdly aggressive, like just existing in front of him was annoying. Later he finally addressed me as 'the girl in the black hat.' Alpha male behavior we should all recognize."
                     </p>
                     <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
                         <span><i class="far fa-clock mr-1"></i> Oct 20, 2025</span>
                         <span class="text-gray-500 font-bold">Rude Service</span>
                     </div>
+
+                    <!-- Schema for Speedy Glass -->
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "Review",
+                      "itemReviewed": {
+                        "@type": "AutoRepair",
+                        "name": "Speedy Glass",
+                        "address": {
+                          "@type": "PostalAddress",
+                          "addressLocality": "Etobicoke",
+                          "addressRegion": "ON",
+                          "addressCountry": "CA"
+                        },
+                        "priceRange": "$$"
+                      },
+                      "author": {
+                        "@type": "Person",
+                        "name": "MsJAG"
+                      },
+                      "reviewRating": {
+                        "@type": "Rating",
+                        "ratingValue": "1",
+                        "bestRating": "5",
+                        "worstRating": "1"
+                      },
+                      "datePublished": "2025-10-20",
+                      "reviewBody": "Walked in. No greeting. Just stood there while Jordan chatted with two men like the front desk was his personal podcast studio. No eye contact. I waited two minutes before speaking up. His response? 'Good for you.' Weirdly aggressive, like just existing in front of him was annoying. Later he finally addressed me as 'the girl in the black hat.' Alpha male behavior we should all recognize."
+                    }
+                    </script>
                 </article>
 
                 <!-- Review 3: BMW Etobicoke -->
                 <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <!-- Specific Review Link Added -->
                             <a href="https://maps.app.goo.gl/RjExVzb9zTJFM7b99" target="_blank" rel="noopener noreferrer" class="hover:text-brand-orange transition-colors">
                                 <h3 class="font-bold text-xl text-gray-900">BMW Etobicoke <i class="fas fa-external-link-alt text-xs ml-1 text-gray-400"></i></h3>
                             </a>
@@ -451,20 +350,50 @@
                     <div class="star-rating mb-4 text-lg" aria-label="5 out of 5 stars">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-gray-700 leading-relaxed font-medium review-text">
+                    <p class="text-gray-700 leading-relaxed font-medium line-clamp-[7] flex-grow">
                         "Might've been the best 'car maintenance' experience I've ever had. We were greeted warmly and shown the lounge. There were several cozy, private seating areas, each with its own TV, like little introvert pods designed for civilized waiting. Genius. No loud noises, nothing disruptive. Just peaceful oil-changing serenity. Etobicoke BMW has officially won us over."
                     </p>
                     <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
                         <span><i class="far fa-clock mr-1"></i> Nov 21, 2025</span>
                         <span class="text-brand-orange font-bold">Exceptional</span>
                     </div>
+
+                    <!-- Schema for BMW Etobicoke -->
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "Review",
+                      "itemReviewed": {
+                        "@type": "AutoDealer",
+                        "name": "BMW Etobicoke",
+                        "address": {
+                          "@type": "PostalAddress",
+                          "addressLocality": "Etobicoke",
+                          "addressRegion": "ON",
+                          "addressCountry": "CA"
+                        },
+                        "priceRange": "$$$$"
+                      },
+                      "author": {
+                        "@type": "Person",
+                        "name": "MsJAG"
+                      },
+                      "reviewRating": {
+                        "@type": "Rating",
+                        "ratingValue": "5",
+                        "bestRating": "5",
+                        "worstRating": "1"
+                      },
+                      "datePublished": "2025-11-21",
+                      "reviewBody": "Might've been the best 'car maintenance' experience I've ever had. We were greeted warmly and shown the lounge. There were several cozy, private seating areas, each with its own TV, like little introvert pods designed for civilized waiting. Genius. No loud noises, nothing disruptive. Just peaceful oil-changing serenity. Etobicoke BMW has officially won us over."
+                    }
+                    </script>
                 </article>
 
                 <!-- Review 4: Geary Avenue Warehouse -->
                 <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <!-- Specific Review Link Added -->
                             <a href="https://maps.app.goo.gl/183iZ3svGwkQAXdn7" target="_blank" rel="noopener noreferrer" class="hover:text-brand-orange transition-colors">
                                 <h3 class="font-bold text-xl text-gray-900">Geary Ave Warehouse <i class="fas fa-external-link-alt text-xs ml-1 text-gray-400"></i></h3>
                             </a>
@@ -475,20 +404,50 @@
                     <div class="star-rating mb-4 text-lg" aria-label="5 out of 5 stars">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-gray-700 leading-relaxed font-medium review-text">
+                    <p class="text-gray-700 leading-relaxed font-medium line-clamp-[7] flex-grow">
                         "Went for ART OF US with Miss Tara. The atmosphere was EDM electric. The room layout, lighting, and ceiling lasers gave it a creative underground feel while still being comfortable to move around. The sound system was powerful and crisp, with deep bass that carried through the whole warehouse. Perfect balance of energy and ambience."
                     </p>
                     <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
                         <span><i class="far fa-clock mr-1"></i> Oct 10, 2025</span>
                         <span class="text-brand-orange font-bold">Vibe</span>
                     </div>
+
+                    <!-- Schema for Geary Ave Warehouse -->
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "Review",
+                      "itemReviewed": {
+                        "@type": "EventVenue",
+                        "name": "Geary Ave Warehouse",
+                        "address": {
+                          "@type": "PostalAddress",
+                          "addressLocality": "Toronto",
+                          "addressRegion": "ON",
+                          "addressCountry": "CA"
+                        },
+                        "publicAccess": true
+                      },
+                      "author": {
+                        "@type": "Person",
+                        "name": "MsJAG"
+                      },
+                      "reviewRating": {
+                        "@type": "Rating",
+                        "ratingValue": "5",
+                        "bestRating": "5",
+                        "worstRating": "1"
+                      },
+                      "datePublished": "2025-10-10",
+                      "reviewBody": "Went for ART OF US with Miss Tara. The atmosphere was EDM electric. The room layout, lighting, and ceiling lasers gave it a creative underground feel while still being comfortable to move around. The sound system was powerful and crisp, with deep bass that carried through the whole warehouse. Perfect balance of energy and ambience."
+                    }
+                    </script>
                 </article>
 
                 <!-- Review 5: Secrets Resort -->
                 <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <!-- Specific Review Link Added -->
                             <a href="https://maps.app.goo.gl/9AW6enesfRrP5sAU9" target="_blank" rel="noopener noreferrer" class="hover:text-brand-orange transition-colors">
                                 <h3 class="font-bold text-xl text-gray-900">Secrets Resort <i class="fas fa-external-link-alt text-xs ml-1 text-gray-400"></i></h3>
                             </a>
@@ -499,20 +458,48 @@
                     <div class="star-rating mb-4 text-lg" aria-label="3 out of 5 stars">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                     </div>
-                    <p class="text-gray-700 leading-relaxed font-medium review-text">
+                    <p class="text-gray-700 leading-relaxed font-medium line-clamp-[7] flex-grow">
                         "Pickup at the airport was confusing, no clear signage, bit of a scramble. At Secrets, we were greeted with sparkling drinks. The room was decent but not spotless: drawers still had items from the previous guest, dirt on the bathroom wall, and an uncomfortable mattress with a strange lump. Pros: Great adult-only pool areas and excellent coffee at the Coco Cafe."
                     </p>
                     <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
                         <span><i class="far fa-clock mr-1"></i> Aug 15, 2025</span>
                         <span class="text-gray-500 font-bold">Mixed Bag</span>
                     </div>
+
+                    <!-- Schema for Secrets Resort -->
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "Review",
+                      "itemReviewed": {
+                        "@type": "Resort",
+                        "name": "Secrets Resort",
+                        "address": {
+                          "@type": "PostalAddress",
+                          "addressCountry": "Dominican Republic"
+                        },
+                        "priceRange": "$$$$"
+                      },
+                      "author": {
+                        "@type": "Person",
+                        "name": "MsJAG"
+                      },
+                      "reviewRating": {
+                        "@type": "Rating",
+                        "ratingValue": "3",
+                        "bestRating": "5",
+                        "worstRating": "1"
+                      },
+                      "datePublished": "2025-08-15",
+                      "reviewBody": "Pickup at the airport was confusing, no clear signage, bit of a scramble. At Secrets, we were greeted with sparkling drinks. The room was decent but not spotless: drawers still had items from the previous guest, dirt on the bathroom wall, and an uncomfortable mattress with a strange lump. Pros: Great adult-only pool areas and excellent coffee at the Coco Cafe."
+                    }
+                    </script>
                 </article>
 
                 <!-- Review 6: Queens Harbour -->
                 <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <!-- Specific Review Link Added -->
                             <a href="https://maps.app.goo.gl/GeUwCns3zYVkRaAH7" target="_blank" rel="noopener noreferrer" class="hover:text-brand-orange transition-colors">
                                 <h3 class="font-bold text-xl text-gray-900">Queens Harbour <i class="fas fa-external-link-alt text-xs ml-1 text-gray-400"></i></h3>
                             </a>
@@ -523,13 +510,46 @@
                     <div class="star-rating mb-4 text-lg" aria-label="5 out of 5 stars">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-gray-700 leading-relaxed font-medium review-text">
+                    <p class="text-gray-700 leading-relaxed font-medium line-clamp-[7] flex-grow">
                         "The Caesar salad was absolutely delicious... dressing was a 10 out of 10. The miso and black cod was delicious. The Negroni was amazing—house special with real depth, chilled but not watered down. We sat on the front patio, but when we left we were surprised to find a live DJ in the back with a full party scene going on."
                     </p>
                     <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
                         <span><i class="far fa-clock mr-1"></i> Aug 16, 2025</span>
                         <span class="text-brand-orange font-bold">Recommended</span>
                     </div>
+
+                    <!-- Schema for Queens Harbour -->
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "Review",
+                      "itemReviewed": {
+                        "@type": "Restaurant",
+                        "name": "Queens Harbour",
+                        "address": {
+                          "@type": "PostalAddress",
+                          "streetAddress": "Queens Quay",
+                          "addressLocality": "Toronto",
+                          "addressRegion": "ON",
+                          "addressCountry": "CA"
+                        },
+                        "servesCuisine": "Seafood",
+                        "priceRange": "$$$"
+                      },
+                      "author": {
+                        "@type": "Person",
+                        "name": "MsJAG"
+                      },
+                      "reviewRating": {
+                        "@type": "Rating",
+                        "ratingValue": "5",
+                        "bestRating": "5",
+                        "worstRating": "1"
+                      },
+                      "datePublished": "2025-08-16",
+                      "reviewBody": "The Caesar salad was absolutely delicious... dressing was a 10 out of 10. The miso and black cod was delicious. The Negroni was amazing—house special with real depth, chilled but not watered down. We sat on the front patio, but when we left we were surprised to find a live DJ in the back with a full party scene going on."
+                    }
+                    </script>
                 </article>
 
             </div>
@@ -539,38 +559,41 @@
         <section class="py-10 bg-gray-50">
             <h2 class="text-center text-3xl font-black text-brand-green mb-8">THE VISUALS</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2 px-2">
+                <!-- Image 1: Food -->
                 <div class="overflow-hidden h-64 relative group">
                     <img 
-                        src="images/burger-drops-liberty-village-toronto.jpg" 
-                        onerror="this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop'; this.onerror=null;" 
-                        alt="Overhead view of a vibrant gourmet salad with fresh greens and strawberries on a dark ceramic plate" 
+                        src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop" 
+                        alt="Overhead view of a vibrant gourmet salad with fresh greens" 
                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     >
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
                 </div>
+                
+                <!-- Image 2: Resort/Travel -->
                 <div class="overflow-hidden h-64 relative group">
                     <img 
-                        src="images/queens-harbour-steak-dinner-toronto.jpg" 
-                        onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop'; this.onerror=null;" 
-                        alt="Sliced medium-rare steak with a side of roasted root vegetables plated elegantly" 
+                        src="https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800&auto=format&fit=crop" 
+                        alt="Luxury resort pool with palm trees" 
                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     >
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
                 </div>
+
+                <!-- Image 3: Concert/Event -->
                 <div class="overflow-hidden h-64 relative group">
                     <img 
-                        src="images/toronto-craft-cocktails-bar.jpg" 
-                        onerror="this.src='https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=800&auto=format&fit=crop'; this.onerror=null;" 
-                        alt="Two amber craft cocktails with dried citrus garnishes sitting on a wooden bar top" 
+                        src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=800&auto=format&fit=crop" 
+                        alt="Concert crowd at a live event with stage lights" 
                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     >
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
                 </div>
+
+                <!-- Image 4: Food -->
                 <div class="overflow-hidden h-64 relative group">
                     <img 
-                        src="images/pad-thai-gourmet-toronto.jpg" 
-                        onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=800&auto=format&fit=crop'; this.onerror=null;" 
-                        alt="Traditional Pad Thai noodles with shrimp, tofu, and crushed peanuts in a rustic bowl" 
+                        src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=800&auto=format&fit=crop" 
+                        alt="Traditional Pad Thai noodles" 
                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     >
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
@@ -587,7 +610,7 @@
                 <div class="bg-white border-l-4 border-brand-orange shadow-md p-6 rounded-r-lg">
                     <h3 class="text-xl font-bold text-gray-900 mb-2">Who is MsJAG?</h3>
                     <p class="text-gray-700 leading-relaxed">
-                        MsJAG is a Level 7 Google Local Guide and independent Toronto food critic who writes honest, unsponsored restaurant reviews.
+                        MsJAG is a Level 7 Google Local Guide and independent critic who writes honest, unsponsored reviews of restaurants, travel destinations, events, and local services in Toronto and globally.
                     </p>
                 </div>
 
@@ -595,15 +618,15 @@
                 <div class="bg-white border-l-4 border-brand-green shadow-md p-6 rounded-r-lg">
                     <h3 class="text-xl font-bold text-gray-900 mb-2">Do you accept free meals or sponsorships?</h3>
                     <p class="text-gray-700 leading-relaxed">
-                        Absolutely not. I pay for every single meal out of my own pocket. This ensures that my reviews are 100% unbiased and not influenced by special treatment.
+                        Absolutely not. I pay for every single meal, ticket, and service out of my own pocket. This ensures that my reviews are 100% unbiased and not influenced by special treatment.
                     </p>
                 </div>
 
                 <!-- Q3 -->
                 <div class="bg-white border-l-4 border-yellow-400 shadow-md p-6 rounded-r-lg">
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">How can I suggest a restaurant for review?</h3>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">How can I suggest a spot for review?</h3>
                     <p class="text-gray-700 leading-relaxed">
-                        You can use the <a href="#contact" class="text-brand-orange font-bold hover:underline">Invite or Suggest</a> form at the bottom of this page to send me your recommendations. I read every suggestion.
+                        You can use the <a href="#contact" class="text-brand-orange font-bold hover:underline">Invite or Suggest</a> form at the bottom of this page to send me your recommendations for dining, events, or businesses. I read every suggestion.
                     </p>
                 </div>
 
@@ -611,7 +634,7 @@
         </section>
 
         <!-- Contact Section -->
-        <section id="contact" class="max-w-4xl mx-auto px-6 py-20">
+        <section id="contact" class="max-w-4xl mx-auto px-6 py-20 scroll-mt-24">
             <div class="bg-brand-green rounded-3xl p-10 shadow-2xl relative overflow-hidden text-white text-center">
                 <div class="relative z-10">
                     <h2 class="text-4xl font-black mb-4">INVITE OR SUGGEST?</h2>
@@ -620,11 +643,6 @@
                         Send the details. If it's good, I'll say so. If it's not... well, you know the drill.
                     </p>
                     
-                    <!-- 
-                        Formsubmit Setup:
-                        1. The action uses your email for initial activation.
-                        2. Once activated, you can swap this back to the random string (token).
-                    -->
                     <form action="https://formsubmit.co/059727adc8a94c1eefc0c97ab5a1068b" method="POST" class="space-y-4 max-w-lg mx-auto">
                         <!-- Hidden Settings for Formsubmit -->
                         <input type="hidden" name="_subject" value="New Tip for MsJAG">
@@ -643,10 +661,6 @@
                             class="w-full bg-brand-yellow hover:bg-yellow-300 text-green-900 font-black py-4 px-8 rounded-lg shadow-lg transform transition hover:scale-105">
                             SEND IT
                         </button>
-                        
-                        <p class="text-xs text-green-200 mt-3 text-center opacity-80">
-                            You will see a confirmation page to ensure your message is delivered.
-                        </p>
                     </form>
                 </div>
             </div>
@@ -658,7 +672,7 @@
         <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
             <div class="mb-6 md:mb-0 text-center md:text-left">
                 <h4 class="text-white font-black text-2xl tracking-tighter">MsJAG<span class="text-brand-orange">.</span></h4>
-                <p class="text-sm mt-2">Honest Reviews. Real Food. Toronto & Global.</p>
+                <p class="text-sm mt-2">Honest Reviews. Real Experiences. Toronto & Global.</p>
             </div>
             
             <div class="flex space-x-6 justify-center md:justify-end w-full md:w-auto">
@@ -677,6 +691,14 @@
 
     <script>
         document.getElementById('copyright-year').textContent = new Date().getFullYear();
+        
+        // Mobile Menu Toggle Logic
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('open');
+        });
     </script>
 
 </body>
