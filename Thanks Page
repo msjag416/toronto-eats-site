@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanks for the Tip! - MsJAG</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍴</text></svg>">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-brand-green { background-color: #15803d; }
+        .bg-brand-yellow { background-color: #facc15; }
+        .text-brand-green { color: #15803d; }
+    </style>
+</head>
+<body class="bg-brand-green flex items-center justify-center min-h-screen">
+    <div class="text-center text-white px-6 max-w-2xl">
+        <div class="text-8xl mb-6">🍴</div>
+        <h1 class="text-5xl font-black mb-4">GOT IT. 👍</h1>
+        <p class="text-xl mb-8 text-green-100">
+            I'll check it out if it sounds legit. If it's trash, you'll know. If it's fire, you'll get credit.
+        </p>
+        <a href="/" class="inline-block bg-brand-yellow text-brand-green font-bold py-4 px-8 rounded-lg hover:bg-yellow-300 transition transform hover:scale-105">
+            Back to Reviews
+        </a>
+    </div>
+</body>
+</html>
