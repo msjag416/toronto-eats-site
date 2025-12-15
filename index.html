@@ -8,8 +8,8 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍴</text></svg>">
 
     <!-- SEO Meta Tags -->
-    <title>MsJAG | Honest Google Reviews & Food Critic Toronto</title>
-    <meta name="description" content="Unfiltered food reviews by MsJAG, a Google Level 7 Local Guide. Real talk on Toronto restaurants like Burger Drops and Aloette. No freebies, no fluff.">
+    <title>Toronto Food Reviews | Restaurant Critic & Dining Guide - MsJAG</title>
+    <meta name="description" content="Brutally honest Toronto restaurant reviews from Level 7 Google Guide MsJAG. Real photos, no sponsored posts. Find the best (and worst) places to eat in Liberty Village, Queens Quay, and beyond.">
     <meta name="keywords" content="Toronto food critic, honest restaurant reviews, MsJAG, Google Local Guide Level 7, Burger Drops review, Toronto eats, travel reviews">
     <meta name="author" content="MsJAG">
     <meta name="robots" content="index, follow">
@@ -33,7 +33,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured Data (JSON-LD): Person -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -49,6 +49,201 @@
       ],
       "knowsAbout": ["Food Criticism", "Travel", "Toronto Restaurants"]
     }
+    </script>
+    
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{
+        "@type": "Question",
+        "name": "Who is MsJAG?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "MsJAG is a Level 7 Google Local Guide and independent Toronto food critic who writes honest, unsponsored restaurant reviews."
+        }
+      }, {
+        "@type": "Question",
+        "name": "Do you accept free meals or sponsorships?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely not. I pay for every single meal out of my own pocket. This ensures that my reviews are 100% unbiased and not influenced by special treatment."
+        }
+      }, {
+        "@type": "Question",
+        "name": "How can I suggest a restaurant for review?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can use the 'Invite or Suggest' form at the bottom of this page to send me your recommendations. I read every suggestion."
+        }
+      }]
+    }
+    </script>
+
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://torontoeatsandreviews.com/"
+      }, {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Reviews",
+        "item": "https://torontoeatsandreviews.com/#reviews"
+      }]
+    }
+    </script>
+
+    <!-- Reviews Schema (Individual Entries) -->
+    <script type="application/ld+json">
+    [
+      {
+        "@context": "https://schema.org/",
+        "@type": "Review",
+        "itemReviewed": {
+          "@type": "Restaurant",
+          "name": "Burger Drops",
+          "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Toronto",
+            "addressRegion": "ON",
+            "streetAddress": "Liberty Village"
+          }
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "1",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "MsJAG"
+        },
+        "reviewBody": "I went with the Original Burger. At first bite, decent enough. But halfway through, I got a surprise side order of mystery bone. Twice. Nothing like chewing your way through what feels like beef mixed with gravel."
+      },
+      {
+        "@context": "https://schema.org/",
+        "@type": "Review",
+        "itemReviewed": {
+          "@type": "AutoRepair",
+          "name": "Speedy Glass",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Etobicoke",
+            "addressRegion": "ON"
+          }
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "1",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "MsJAG"
+        },
+        "reviewBody": "Walked in. No greeting. Just stood there while Jordan chatted with two men... No eye contact. I waited two minutes before speaking up. His response? 'Good for you.'"
+      },
+      {
+        "@context": "https://schema.org/",
+        "@type": "Review",
+        "itemReviewed": {
+          "@type": "AutoDealer",
+          "name": "BMW Etobicoke",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Etobicoke",
+            "addressRegion": "ON"
+          }
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "MsJAG"
+        },
+        "reviewBody": "Might've been the best 'car maintenance' experience I've ever had. We were greeted warmly and shown the lounge. There were several cozy, private seating areas... Just peaceful oil-changing serenity."
+      },
+      {
+        "@context": "https://schema.org/",
+        "@type": "Review",
+        "itemReviewed": {
+          "@type": "EventVenue",
+          "name": "Geary Ave Warehouse",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Toronto",
+            "addressRegion": "ON"
+          }
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "MsJAG"
+        },
+        "reviewBody": "Went for ART OF US with Miss Tara. The atmosphere was EDM electric. The room layout, lighting, and ceiling lasers gave it a creative underground feel."
+      },
+      {
+        "@context": "https://schema.org/",
+        "@type": "Review",
+        "itemReviewed": {
+          "@type": "Resort",
+          "name": "Secrets Resort",
+          "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "Dominican Republic"
+          }
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "3",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "MsJAG"
+        },
+        "reviewBody": "Pickup at the airport was confusing... The room was decent but not spotless: drawers still had items from the previous guest."
+      },
+      {
+        "@context": "https://schema.org/",
+        "@type": "Review",
+        "itemReviewed": {
+          "@type": "Restaurant",
+          "name": "Queens Harbour",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Toronto",
+            "addressRegion": "ON",
+            "streetAddress": "Queens Quay"
+          }
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "MsJAG"
+        },
+        "reviewBody": "The Caesar salad was absolutely delicious... dressing was a 10 out of 10. The miso and black cod was delicious."
+      }
+    ]
     </script>
 
     <style>
@@ -110,9 +305,12 @@
                 <div class="inline-block bg-brand-orange text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wider shadow-sm">
                     Level 7 Google Reviewer
                 </div>
-                <h1 class="text-5xl md:text-7xl font-black mb-4 tracking-tight leading-none text-white drop-shadow-md">
+                <h1 class="text-5xl md:text-7xl font-black mb-0 tracking-tight leading-none text-white drop-shadow-md">
                     MsJAG
                 </h1>
+                <h2 class="text-2xl font-bold text-white mt-4 mb-4">
+                    Toronto Restaurant Critic & Food Reviewer
+                </h2>
                 <p class="text-2xl md:text-3xl font-bold text-yellow-300 mb-3">
                     No Freebies. No Nonsense.
                 </p>
@@ -121,7 +319,7 @@
                 </p>
                 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                    <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" 
+                    <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" rel="noopener noreferrer"
                        class="bg-brand-orange hover-bg-brand-orange text-white font-bold py-4 px-10 rounded-lg shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center">
                         <i class="fab fa-google mr-2"></i> Read The Verdicts
                     </a>
@@ -133,6 +331,16 @@
             </div>
         </div>
     </header>
+
+    <!-- Neighborhood Coverage Section -->
+    <section class="bg-white py-8 border-b">
+      <div class="max-w-6xl mx-auto px-6">
+        <p class="text-center text-gray-600">
+          Covering Toronto's best dining: Liberty Village • Queen West • 
+          Etobicoke • Waterfront • King West • Yorkville
+        </p>
+      </div>
+    </section>
 
     <!-- Manifesto Bar -->
     <div class="bg-brand-yellow py-8 px-6 shadow-inner">
@@ -152,14 +360,27 @@
     <!-- Main Content -->
     <main class="flex-grow">
         
+        <!-- Breadcrumbs UI -->
+        <nav class="max-w-7xl mx-auto px-6 pt-8 text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="#" class="hover:text-brand-orange">Home</a>
+                    <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg>
+                </li>
+                <li>
+                    <span class="text-gray-900" aria-current="page">Reviews</span>
+                </li>
+            </ol>
+        </nav>
+
         <!-- The Reviews Section -->
-        <section class="max-w-7xl mx-auto px-6 py-16">
+        <section id="reviews" class="max-w-7xl mx-auto px-6 pb-16 pt-8">
             <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b-2 border-gray-100 pb-4">
                 <div class="text-center md:text-left w-full md:w-auto">
                     <h2 class="text-4xl font-black text-brand-green mb-2">THE LATEST DROPS</h2>
                     <p class="text-gray-500 font-medium">My recent visits from Google Maps. Uncensored.</p>
                 </div>
-                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" class="text-brand-orange font-bold hover:text-orange-700 mt-6 md:mt-0 flex items-center justify-center">
+                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" rel="noopener noreferrer" class="text-brand-orange font-bold hover:text-orange-700 mt-6 md:mt-0 flex items-center justify-center">
                     View Full Archive <i class="fas fa-external-link-alt ml-2"></i>
                 </a>
             </div>
@@ -263,7 +484,7 @@
                     </div>
                 </article>
 
-                <!-- Review 5: Secrets Playa Esmeralda -->
+                <!-- Review 5: Secrets Resort -->
                 <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
                     <div class="flex justify-between items-start mb-4">
                         <div>
@@ -319,21 +540,73 @@
             <h2 class="text-center text-3xl font-black text-brand-green mb-8">THE VISUALS</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2 px-2">
                 <div class="overflow-hidden h-64 relative group">
-                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop" alt="Fine dining dish presentation" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <img 
+                        src="images/burger-drops-liberty-village-toronto.jpg" 
+                        onerror="this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop'; this.onerror=null;" 
+                        alt="Overhead view of a vibrant gourmet salad with fresh greens and strawberries on a dark ceramic plate" 
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    >
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
                 </div>
                 <div class="overflow-hidden h-64 relative group">
-                    <img src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop" alt="Steak dinner plating" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <img 
+                        src="images/queens-harbour-steak-dinner-toronto.jpg" 
+                        onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop'; this.onerror=null;" 
+                        alt="Sliced medium-rare steak with a side of roasted root vegetables plated elegantly" 
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    >
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
                 </div>
                 <div class="overflow-hidden h-64 relative group">
-                    <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=800&auto=format&fit=crop" alt="Craft cocktails" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <img 
+                        src="images/toronto-craft-cocktails-bar.jpg" 
+                        onerror="this.src='https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=800&auto=format&fit=crop'; this.onerror=null;" 
+                        alt="Two amber craft cocktails with dried citrus garnishes sitting on a wooden bar top" 
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    >
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
                 </div>
                 <div class="overflow-hidden h-64 relative group">
-                    <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=800&auto=format&fit=crop" alt="Gourmet thai food" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <img 
+                        src="images/pad-thai-gourmet-toronto.jpg" 
+                        onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=800&auto=format&fit=crop'; this.onerror=null;" 
+                        alt="Traditional Pad Thai noodles with shrimp, tofu, and crushed peanuts in a rustic bowl" 
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    >
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
                 </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="max-w-4xl mx-auto px-6 py-16">
+            <h2 class="text-3xl font-black text-brand-green mb-10 text-center uppercase">Common Questions</h2>
+            <div class="space-y-6">
+                
+                <!-- Q1 -->
+                <div class="bg-white border-l-4 border-brand-orange shadow-md p-6 rounded-r-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Who is MsJAG?</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        MsJAG is a Level 7 Google Local Guide and independent Toronto food critic who writes honest, unsponsored restaurant reviews.
+                    </p>
+                </div>
+
+                <!-- Q2 -->
+                <div class="bg-white border-l-4 border-brand-green shadow-md p-6 rounded-r-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Do you accept free meals or sponsorships?</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Absolutely not. I pay for every single meal out of my own pocket. This ensures that my reviews are 100% unbiased and not influenced by special treatment.
+                    </p>
+                </div>
+
+                <!-- Q3 -->
+                <div class="bg-white border-l-4 border-yellow-400 shadow-md p-6 rounded-r-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">How can I suggest a restaurant for review?</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        You can use the <a href="#contact" class="text-brand-orange font-bold hover:underline">Invite or Suggest</a> form at the bottom of this page to send me your recommendations. I read every suggestion.
+                    </p>
+                </div>
+
             </div>
         </section>
 
@@ -348,12 +621,17 @@
                     </p>
                     
                     <!-- 
-                        Formspree Setup:
-                        1. Go to formspree.io and create a free account.
-                        2. Create a new form and get your unique ID (e.g., https://formspree.io/f/xvRZZRn).
-                        3. Replace the URL in the 'action' attribute below.
+                        Formsubmit Setup:
+                        1. The email is set to info@torontoeatsandreviews.com.
+                        2. The first time you test it, you will need to confirm your email via the activation link sent to this inbox.
                     -->
-                    <form action="https://formspree.io/f/xgvbdlpv" method="POST" class="space-y-4 max-w-lg mx-auto">
+                    <form action="https://formsubmit.co/info@torontoeatsandreviews.com" method="POST" class="space-y-4 max-w-lg mx-auto">
+                        <!-- Hidden Settings for Formsubmit -->
+                        <input type="hidden" name="_subject" value="New Tip for MsJAG">
+                        <input type="hidden" name="_captcha" value="false">
+                        <input type="hidden" name="_next" value="https://torontoeatsandreviews.com/thanks.html">
+                        <!-- If you don't have a thanks page yet, remove the _next line or creating one is the next step -->
+
                         <input type="text" name="name" placeholder="Who are you?" required aria-label="Name"
                             class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
                         
@@ -382,20 +660,22 @@
             </div>
             
             <div class="flex space-x-6 justify-center md:justify-end w-full md:w-auto">
-                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" aria-label="Google Maps Profile" class="text-gray-400 hover:text-brand-orange transition transform hover:scale-110">
+                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" rel="noopener noreferrer" aria-label="Google Maps Profile" class="text-gray-400 hover:text-brand-orange transition transform hover:scale-110">
                     <i class="fab fa-google text-2xl"></i>
                 </a>
-                <a href="https://instagram.com/chowhoundgta" target="_blank" aria-label="Instagram Profile" class="text-gray-400 hover:text-brand-orange transition transform hover:scale-110">
+                <a href="https://instagram.com/chowhoundgta" target="_blank" rel="noopener noreferrer" aria-label="Instagram Profile" class="text-gray-400 hover:text-brand-orange transition transform hover:scale-110">
                     <i class="fab fa-instagram text-2xl"></i>
                 </a>
             </div>
         </div>
         <div class="text-center mt-10 text-xs text-gray-700">
-            &copy; 2026 MsJAG Reviews. Content is opinion based on experience.
+            &copy; <span id="copyright-year"></span> MsJAG Reviews. Content is opinion based on experience.
         </div>
     </footer>
 
+    <script>
+        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    </script>
+
 </body>
 </html>
-
-
