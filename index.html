@@ -12,6 +12,10 @@
     <meta name="description" content="Brutally honest reviews of restaurants, events, travel destinations, and services from Level 7 Google Guide MsJAG. Covering Toronto, Canada, and global experiences. No sponsorships.">
     <meta name="keywords" content="Toronto critic, honest reviews, MsJAG, Google Local Guide Level 7, travel reviews, event reviews, service reviews, global dining">
     <link rel="canonical" href="https://torontoeatsandreviews.com/">
+    
+    <!-- Robots & Sitemap -->
+    <meta name="robots" content="index, follow">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -31,6 +35,36 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Main Entity Schema (Person & Website) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "name": "MsJAG Reviews",
+          "url": "https://torontoeatsandreviews.com/",
+          "description": "Honest reviews of global dining, events, and services.",
+          "author": {
+            "@id": "https://torontoeatsandreviews.com/#person"
+          }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://torontoeatsandreviews.com/#person",
+          "name": "MsJAG",
+          "url": "https://torontoeatsandreviews.com",
+          "jobTitle": "Google Level 7 Reviewer",
+          "description": "Independent critic covering food, travel, and services.",
+          "sameAs": [
+            "https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic",
+            "https://instagram.com/chowhoundgta"
+          ]
+        }
+      ]
+    }
+    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
@@ -116,7 +150,7 @@
 
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-brand-green focus:outline-none p-2">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-brand-green focus:outline-none p-2" aria-label="Open mobile menu">
                         <i class="fas fa-bars text-2xl"></i>
                     </button>
                 </div>
@@ -141,8 +175,8 @@
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 relative z-10">
             
             <!-- Avatar -->
-            <div class="w-40 h-40 flex-shrink-0 rounded-full border-4 border-yellow-400 overflow-hidden shadow-2xl bg-white flex items-center justify-center transform hover:scale-105 transition duration-300">
-                <i class="fas fa-search-location text-6xl text-brand-green"></i>
+            <div class="w-40 h-40 flex-shrink-0 rounded-full border-4 border-yellow-400 overflow-hidden shadow-2xl bg-white flex items-center justify-center transform hover:scale-105 transition duration-300" role="img" aria-label="MsJAG Avatar">
+                <i class="fas fa-search-location text-6xl text-brand-green" aria-hidden="true"></i>
             </div>
             
             <div class="text-center md:text-left">
@@ -653,10 +687,11 @@
                         Send the details. If it's good, I'll say so. If it's not... well, you know the drill.
                     </p>
                     
-                    <form action="https://formsubmit.co/redbrandmedia@gmail.com" method="POST" target="_blank" class="space-y-4 max-w-lg mx-auto">
+                    <form action="https://formsubmit.co/redbrandmedia@gmail.com" method="POST" class="space-y-4 max-w-lg mx-auto">
                         <!-- Hidden Settings for Formsubmit -->
                         <input type="hidden" name="_subject" value="New Tip for MsJAG">
                         <input type="hidden" name="_captcha" value="false">
+                        <input type="hidden" name="_next" value="https://torontoeatsandreviews.com/#contact">
                         
                         <input type="text" name="name" placeholder="Who are you?" required aria-label="Name"
                             class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
@@ -705,9 +740,18 @@
         // Mobile Menu Toggle Logic
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
+        // Get all links inside the mobile menu
+        const menuLinks = menu.querySelectorAll('a');
 
         btn.addEventListener('click', () => {
             menu.classList.toggle('open');
+        });
+
+        // Close the menu automatically when a link is clicked
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.remove('open');
+            });
         });
     </script>
 
