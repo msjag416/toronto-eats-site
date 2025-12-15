@@ -67,7 +67,17 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         
-        .star-rating { color: #facc15; }
+        .star-rating { 
+            color: #facc15; 
+            transform-origin: left;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            display: inline-block;
+        }
+
+        .review-card:hover .star-rating {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.4));
+        }
 
         /* Navigation transitions */
         #mobile-menu {
