@@ -124,6 +124,11 @@
             max-height: 500px;
             opacity: 1;
         }
+
+        /* Utility for hiding/showing elements */
+        .hidden-el {
+            display: none;
+        }
     </style>
 </head>
 <body class="antialiased flex flex-col min-h-screen pt-16">
@@ -687,28 +692,40 @@
                         Send the details. If it's good, I'll say so. If it's not... well, you know the drill.
                     </p>
                     
-                    <!-- Updated with Token, Box Template, and Autoresponse -->
-                    <form action="https://formsubmit.co/059727adc8a94c1eefc0c97ab5a1068b" method="POST" target="_blank" class="space-y-4 max-w-lg mx-auto">
-                        <!-- Hidden Settings for Formsubmit -->
-                        <input type="hidden" name="_subject" value="New Tip for MsJAG">
-                        <input type="hidden" name="_captcha" value="false">
-                        <input type="hidden" name="_template" value="box">
-                        <input type="hidden" name="_autoresponse" value="Thanks for the tip! MsJAG will check it out.">
-                        
-                        <input type="text" name="name" placeholder="Who are you?" required aria-label="Name"
-                            class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
-                        
-                        <input type="email" name="email" placeholder="Your Email" required aria-label="Email"
-                            class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
-                        
-                        <textarea name="message" rows="3" placeholder="What's the spot? Why should I go?" required aria-label="Message"
-                            class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold resize-none"></textarea>
-                        
-                        <button type="submit" 
-                            class="w-full bg-brand-yellow hover:bg-yellow-300 text-green-900 font-black py-4 px-8 rounded-lg shadow-lg transform transition hover:scale-105">
-                            SEND IT
-                        </button>
-                    </form>
+                    <!-- Form Container -->
+                    <div id="form-container" class="max-w-lg mx-auto">
+                        <!-- AJAX Form -->
+                        <form id="suggestionForm" action="#" method="POST" class="space-y-4">
+                            
+                            <!-- Hidden Settings for Formsubmit (Keep subject/captcha just in case, removing redirects) -->
+                            <input type="hidden" name="_subject" value="New Tip for MsJAG">
+                            <input type="hidden" name="_captcha" value="false">
+                            <!-- We don't need _template or _autoresponse for AJAX generally, but keeping them doesn't hurt -->
+                            
+                            <input type="text" name="name" placeholder="Who are you?" required aria-label="Name"
+                                class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
+                            
+                            <input type="email" name="email" placeholder="Your Email" required aria-label="Email"
+                                class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
+                            
+                            <textarea name="message" rows="3" placeholder="What's the spot? Why should I go?" required aria-label="Message"
+                                class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold resize-none"></textarea>
+                            
+                            <button type="submit" id="submitBtn"
+                                class="w-full bg-brand-yellow hover:bg-yellow-300 text-green-900 font-black py-4 px-8 rounded-lg shadow-lg transform transition hover:scale-105">
+                                SEND IT
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Success Message (Hidden by default) -->
+                    <div id="successMessage" class="hidden-el max-w-lg mx-auto py-10">
+                        <i class="fas fa-check-circle text-5xl text-brand-yellow mb-4"></i>
+                        <h3 class="text-3xl font-black text-white">RECEIVED.</h3>
+                        <p class="text-yellow-100 text-lg mt-2">I'll check it out. No promises on mercy.</p>
+                        <button onclick="resetForm()" class="mt-6 text-sm underline hover:text-brand-yellow">Send another one</button>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -742,19 +759,59 @@
         // Mobile Menu Toggle Logic
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
-        // Get all links inside the mobile menu
         const menuLinks = menu.querySelectorAll('a');
 
         btn.addEventListener('click', () => {
             menu.classList.toggle('open');
         });
 
-        // Close the menu automatically when a link is clicked
         menuLinks.forEach(link => {
             link.addEventListener('click', () => {
                 menu.classList.remove('open');
             });
         });
+
+        // AJAX Form Submission Logic
+        const form = document.getElementById('suggestionForm');
+        const successMsg = document.getElementById('successMessage');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Stop the browser from jumping to formsubmit.co
+
+            // Visual feedback - change button text so they know it's working
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = 'SENDING...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData(form);
+
+            // Use the AJAX endpoint provided by FormSubmit
+            fetch("https://formsubmit.co/ajax/059727adc8a94c1eefc0c97ab5a1068b", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide form, show success message
+                form.classList.add('hidden-el');
+                successMsg.classList.remove('hidden-el');
+            })
+            .catch(error => {
+                console.log(error);
+                submitBtn.innerText = 'ERROR - TRY AGAIN';
+                submitBtn.disabled = false;
+                alert("Something went wrong with the submission. Give it another shot.");
+            });
+        });
+
+        function resetForm() {
+            form.reset();
+            submitBtn.innerText = 'SEND IT';
+            submitBtn.disabled = false;
+            successMsg.classList.add('hidden-el');
+            form.classList.remove('hidden-el');
+        }
     </script>
 
 </body>
