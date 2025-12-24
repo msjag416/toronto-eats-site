@@ -702,14 +702,28 @@
                             <input type="hidden" name="_captcha" value="false">
                             <!-- We don't need _template or _autoresponse for AJAX generally, but keeping them doesn't hurt -->
                             
+                            <!-- Re-added Field: Name -->
                             <input type="text" name="name" placeholder="Who are you?" required aria-label="Name"
                                 class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
+
+                            <!-- Updated Field: Place Name -->
+                            <input type="text" name="place_name" placeholder="Name of Restaurant, Venue, Place, or Store" required aria-label="Place Name"
+                                class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
                             
+                            <!-- New Field: Location -->
+                            <input type="text" name="location" placeholder="City, Province, Country" required aria-label="Location"
+                                class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
+                            
+                            <!-- Kept Email for auto-response functionality -->
                             <input type="email" name="email" placeholder="Your Email" required aria-label="Email"
                                 class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold">
                             
-                            <textarea name="message" rows="3" placeholder="What's the spot? Why should I go?" required aria-label="Message"
-                                class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold resize-none"></textarea>
+                            <!-- Updated Field: Reason with Word Limit -->
+                            <div>
+                                <textarea id="reasonInput" name="reason" rows="3" placeholder="Why should I go? (Max 100 words)" required aria-label="Reason"
+                                    class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 focus:bg-white focus:text-green-900 focus:border-white outline-none transition font-bold resize-none"></textarea>
+                                <div id="wordCount" class="text-right text-xs text-green-200 font-bold mt-1">0 / 100 words</div>
+                            </div>
                             
                             <button type="submit" id="submitBtn"
                                 class="w-full bg-brand-yellow hover:bg-yellow-300 text-green-900 font-black py-4 px-8 rounded-lg shadow-lg transform transition hover:scale-105">
@@ -771,6 +785,32 @@
             });
         });
 
+        // Word Count Logic
+        const reasonInput = document.getElementById('reasonInput');
+        const wordCountDisplay = document.getElementById('wordCount');
+
+        reasonInput.addEventListener('input', function() {
+            // Split by whitespace to count words
+            const words = this.value.trim().split(/\s+/).filter(word => word.length > 0);
+            const count = words.length;
+            
+            if (count > 100) {
+                // Determine where to cut off the string
+                // We rejoin the first 100 words to create the limit
+                // This prevents the user from typing the 101st word
+                // Note: This is a simple truncation; it might feel abrupt, but it works.
+                const trimmedWords = words.slice(0, 100);
+                this.value = trimmedWords.join(" ");
+                wordCountDisplay.textContent = "100 / 100 words (Limit Reached)";
+                wordCountDisplay.classList.add('text-brand-orange');
+                wordCountDisplay.classList.remove('text-green-200');
+            } else {
+                wordCountDisplay.textContent = `${count} / 100 words`;
+                wordCountDisplay.classList.remove('text-brand-orange');
+                wordCountDisplay.classList.add('text-green-200');
+            }
+        });
+
         // AJAX Form Submission Logic
         const form = document.getElementById('suggestionForm');
         const successMsg = document.getElementById('successMessage');
@@ -807,6 +847,9 @@
 
         function resetForm() {
             form.reset();
+            wordCountDisplay.textContent = "0 / 100 words";
+            wordCountDisplay.classList.remove('text-brand-orange');
+            wordCountDisplay.classList.add('text-green-200');
             submitBtn.innerText = 'SEND IT';
             submitBtn.disabled = false;
             successMsg.classList.add('hidden-el');
