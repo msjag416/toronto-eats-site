@@ -35,27 +35,94 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Main Entity Schema (Person & Website) -->
+ <!-- Main Entity Schema (Person & Website) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@graph": [
         {
           "@type": "WebSite",
+          "@id": "https://torontoeatsandreviews.com/#website",
           "name": "MsJAG Reviews",
           "url": "https://torontoeatsandreviews.com/",
-          "description": "Honest reviews of global dining, events, and services.",
-          "author": {
-            "@id": "https://torontoeatsandreviews.com/#person"
-          }
+          "description": "Honest reviews of restaurants, events, travel destinations, and services from Level 7 Google Local Guide MsJAG covering Toronto, Canada, and global experiences.",
+          "author": { "@id": "https://torontoeatsandreviews.com/#person" },
+          "publisher": { "@id": "https://torontoeatsandreviews.com/#person" },
+          "inLanguage": "en-CA"
         },
         {
           "@type": "Person",
           "@id": "https://torontoeatsandreviews.com/#person",
           "name": "MsJAG",
-          "url": "https://torontoeatsandreviews.com",
-          "jobTitle": "Critic",
-          "description": "Independent critic covering food, travel, and services.",
+          "alternateName": "Ms. JAG",
+          "url": "https://torontoeatsandreviews.com/",
+          "jobTitle": "Food and Travel Critic",
+          "description": "Level 7 Google Local Guide with hundreds of thousands of review views. Independent critic covering restaurants, hotels, nightlife, events, and services across Toronto, Canada, and international destinations. Known for brutally honest, unsponsored reviews that help consumers make informed decisions.",
+          "hasCredential": [
+            {
+              "@type": "EducationalOccupationalCredential",
+              "credentialCategory": "Certification",
+              "name": "Google Local Guide Level 7",
+              "recognizedBy": {
+                "@type": "Organization",
+                "name": "Google",
+                "url": "https://maps.google.com/localguides"
+              }
+            }
+          ],
+          "hasOccupation": [
+            {
+              "@type": "Occupation",
+              "name": "Food Critic",
+              "skills": ["Restaurant Reviews", "Food Photography", "Culinary Analysis", "Service Evaluation", "Menu Assessment"]
+            },
+            {
+              "@type": "Occupation",
+              "name": "Travel Critic",
+              "skills": ["Hotel Reviews", "Resort Evaluation", "Travel Photography", "Destination Assessment", "Hospitality Analysis"]
+            },
+            {
+              "@type": "Occupation",
+              "name": "Event Critic",
+              "skills": ["Nightlife Reviews", "Concert Coverage", "Venue Assessment", "Entertainment Evaluation"]
+            }
+          ],
+          "knowsAbout": [
+            "Toronto Restaurants",
+            "Fine Dining",
+            "Casual Dining",
+            "Toronto Nightlife",
+            "Toronto Events",
+            "Hotel Reviews",
+            "Resort Reviews",
+            "Travel Destinations",
+            "Food Photography",
+            "Restaurant Service Standards",
+            "Hospitality Industry",
+            "Consumer Advocacy",
+            "GTA Dining Scene",
+            "International Cuisine",
+            "Event Venues"
+          ],
+          "areaServed": [
+            {
+              "@type": "City",
+              "name": "Toronto",
+              "containedInPlace": {
+                "@type": "AdministrativeArea",
+                "name": "Ontario"
+              }
+            },
+            {
+              "@type": "Country",
+              "name": "Canada"
+            },
+            {
+              "@type": "Place",
+              "name": "International Destinations"
+            }
+          ],
+          "award": "Google Local Guide Level 7 with 100,000+ review views",
           "sameAs": [
             "https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic",
             "https://instagram.com/chowhoundgta"
@@ -76,23 +143,39 @@
           "name": "Who is MsJAG?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "MsJAG is a Level 7 Google Local Guide and independent critic who writes honest, unsponsored reviews of restaurants, travel destinations, events, and local services in Toronto and globally."
+            "text": "MsJAG is a Level 7 Google Local Guide with hundreds of thousands of review views. She writes independent, unsponsored reviews of restaurants, hotels, nightlife venues, events, and services across Toronto, Canada, and international destinations. Her reviews are known for brutal honesty and helping consumers make informed decisions."
           }
         },
         {
           "@type": "Question",
-          "name": "Do you accept free meals or sponsorships?",
+          "name": "Does MsJAG accept free meals or sponsorships?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Absolutely not. I pay for every single meal, ticket, and service out of my own pocket. This ensures that my reviews are 100% unbiased and not influenced by special treatment."
+            "text": "No. MsJAG pays for every meal, ticket, hotel stay, and service out of pocket. This policy ensures all reviews remain 100% unbiased and free from influence by special treatment or compensation."
           }
         },
         {
           "@type": "Question",
-          "name": "How can I suggest a spot for review?",
+          "name": "How can restaurants or venues invite MsJAG for a review?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "You can use the Invite or Suggest form at the bottom of this page to send me your recommendations for dining, events, or businesses. I read every suggestion."
+            "text": "Restaurants, venues, hotels, and event organizers in Toronto and beyond can submit invitations through the contact form at torontoeatsandreviews.com. MsJAG reads every submission and selects experiences based on reader interest and her coverage priorities."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What areas does MsJAG cover?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "MsJAG covers dining, nightlife, events, hotels, and services primarily in Toronto and the Greater Toronto Area, but also reviews destinations across Canada and internationally including resorts, restaurants, and travel experiences worldwide."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is a Google Local Guide Level 7?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Google Local Guide Level 7 is an elite tier in Google's contributor program requiring thousands of high-quality reviews, photos, and edits that help millions of users make decisions. Level 7 guides have demonstrated consistent, valuable contributions over years of active reviewing."
           }
         }
       ]
