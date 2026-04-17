@@ -6,62 +6,20 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
 
     <title>MsJAG Reviews | Global Critic for Food, Events, Travel & Services</title>
-    <meta name="description" content="Brutally honest reviews of restaurants, events, travel destinations, and services from Level 7 Google Guide MsJAG. Covering Toronto, Canada, and global experiences. No sponsorships.">
-    <meta name="keywords" content="Toronto critic, honest reviews, MsJAG, Google Local Guide Level 7, travel reviews, event reviews, service reviews, global dining">
-    <link rel="canonical" href="https://torontoeatsandreviews.com/">
-    <meta name="robots" content="index, follow">
-
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://torontoeatsandreviews.com/">
-    <meta property="og:title" content="MsJAG Reviews | Global Critic for Food, Events, Travel & Services">
-    <meta property="og:description" content="Brutally honest reviews of restaurants, events, travel destinations, and services from Level 7 Google Guide MsJAG. No sponsorships.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200">
-
+    <meta name="description" content="Professional, independent reviews of restaurants, events, and luxury travel from Level 7 Google Guide MsJAG. High-authority coverage for Toronto and global destinations.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "WebSite",
-          "@id": "https://torontoeatsandreviews.com/#website",
-          "name": "MsJAG Reviews",
-          "url": "https://torontoeatsandreviews.com/",
-          "description": "Honest reviews of restaurants, events, travel destinations, and services from Level 7 Google Local Guide MsJAG.",
-          "author": { "@id": "https://torontoeatsandreviews.com/#person" },
-          "publisher": { "@id": "https://torontoeatsandreviews.com/#person" },
-          "inLanguage": "en-CA"
-        },
-        {
-          "@type": "Person",
-          "@id": "https://torontoeatsandreviews.com/#person",
-          "name": "MsJAG",
-          "alternateName": "Ms. JAG",
-          "url": "https://torontoeatsandreviews.com/",
-          "jobTitle": "Food and Travel Critic",
-          "description": "Level 7 Google Local Guide with hundreds of thousands of review views.",
-          "award": "Google Local Guide Level 7 with 100,000+ review views",
-          "sameAs": [
-            "https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic",
-            "https://instagram.com/chowhoundgta"
-          ]
-        }
-      ]
-    }
-    </script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #1a202c; }
+        body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #0f172a; }
         .bg-brand-green { background-color: #15803d; } 
         .text-brand-green { color: #15803d; }
         .bg-brand-orange { background-color: #ea580c; }
         .text-brand-orange { color: #ea580c; }
         .bg-brand-yellow { background-color: #facc15; } 
-        .review-card { transition: transform 0.2s ease, box-shadow 0.2s ease; height: 100%; display: flex; flex-direction: column; }
+        .review-card { transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; }
         .review-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         .star-rating { color: #facc15; display: inline-block; }
         #mobile-menu { transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
@@ -70,205 +28,154 @@
 </head>
 <body class="antialiased flex flex-col min-h-screen pt-16">
 
-    <nav class="fixed top-0 w-full bg-white shadow-md z-50 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex justify-between items-center h-16">
-                <a href="#" class="flex items-center gap-2 group">
-                    <span class="bg-brand-green text-white w-8 h-8 flex items-center justify-center rounded-full font-black text-sm group-hover:bg-brand-orange transition-colors">M</span>
-                    <span class="font-black text-xl tracking-tighter text-gray-900 group-hover:text-brand-orange transition-colors">MsJAG<span class="text-brand-green">.</span></span>
-                </a>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#" class="text-gray-600 hover:text-brand-green font-bold text-sm">Home</a>
-                    <a href="#reviews" class="text-gray-600 hover:text-brand-green font-bold text-sm">Latest Verdicts</a>
-                    <a href="#contact" class="text-gray-600 hover:text-brand-green font-bold text-sm">Suggest a Spot</a>
-                    <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" class="bg-brand-orange hover:bg-orange-700 text-white font-bold text-xs px-4 py-2 rounded-full">Archive</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-gray-600 p-2"><i class="fas fa-bars text-2xl"></i></button>
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-sm z-50 border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="#" class="flex items-center gap-2 group">
+                <span class="bg-brand-green text-white w-8 h-8 flex items-center justify-center rounded-full font-black text-sm group-hover:bg-brand-orange transition-colors">M</span>
+                <span class="font-black text-xl tracking-tighter text-slate-900 group-hover:text-brand-orange transition-colors">MsJAG<span class="text-brand-green">.</span></span>
+            </a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#" class="text-slate-600 hover:text-brand-green font-bold text-sm">Home</a>
+                <a href="archive.html" class="text-slate-600 hover:text-brand-green font-bold text-sm">The Vault</a>
+                <a href="#contact" class="bg-brand-orange hover:bg-orange-700 text-white font-bold text-xs px-4 py-2 rounded-lg shadow-md transition-all">Media Inquiries</a>
             </div>
-        </div>
-        <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100">
-            <div class="px-6 py-4 space-y-3 flex flex-col font-bold">
-                <a href="#" class="py-2 border-b border-gray-50">Home</a>
-                <a href="#reviews" class="py-2 border-b border-gray-50">Latest Verdicts</a>
-                <a href="#contact" class="py-2 border-b border-gray-50">Suggest a Spot</a>
-            </div>
+            <button id="mobile-menu-btn" class="md:hidden text-slate-600 p-2"><i class="fas fa-bars text-2xl"></i></button>
         </div>
     </nav>
 
-    <header class="bg-brand-green text-white py-24 px-6 relative">
+    <header class="bg-slate-900 text-white py-24 px-6 relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-brand-green opacity-10 rounded-full blur-3xl"></div>
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 relative z-10">
-            <div class="w-40 h-40 flex-shrink-0 rounded-full border-4 border-yellow-400 overflow-hidden shadow-2xl bg-white flex items-center justify-center">
+            <div class="w-40 h-40 flex-shrink-0 rounded-full border-4 border-brand-orange overflow-hidden shadow-2xl bg-white flex items-center justify-center">
                 <i class="fas fa-search-location text-6xl text-brand-green"></i>
             </div>
             <div class="text-center md:text-left">
-                <div class="inline-block bg-brand-orange text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase">Level 7 Google Guide</div>
+                <div class="inline-block bg-brand-orange text-white text-xs font-black px-3 py-1 rounded mb-4 uppercase tracking-widest">Level 7 Google Guide</div>
                 <h1 class="text-5xl md:text-7xl font-black mb-0 tracking-tight leading-none">MsJAG</h1>
-                <h2 class="text-2xl font-bold mt-4 mb-4">Global Critic: Food, Events & Services</h2>
-                <p class="text-2xl md:text-3xl font-bold text-yellow-300 mb-3">Toronto • Canada • Global</p>
-                <p class="text-lg text-green-50 max-w-2xl leading-relaxed mb-8">I don't play the industry game where critics lie to keep their invite list. Whether it's a hole in the wall or a luxury resort, if the service fails or the room is dirty, I'll say so. You get the real story here.</p>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <a href="#reviews" class="bg-brand-orange text-white font-bold py-4 px-10 rounded-lg shadow-lg text-center">Latest Drops</a>
-                    <a href="#contact" class="bg-white text-brand-green font-bold py-4 px-10 rounded-lg shadow-lg text-center">Suggest A Spot</a>
+                <h2 class="text-2xl font-bold mt-4 mb-4">Professional Critic: Food, Events & Travel</h2>
+                <p class="text-2xl md:text-3xl font-bold text-yellow-300 mb-6">Toronto • Canada • Global Coverage</p>
+                <p class="text-lg text-slate-300 max-w-2xl leading-relaxed mb-8 font-medium">Independent coverage for the modern consumer. I provide unfiltered analysis of Toronto's nightlife, dining, and global hospitality standards. Venues and organizers trust this platform because it values technical accuracy and honest experience over industry favors.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <a href="archive.html" class="bg-brand-orange text-white font-black py-4 px-10 rounded-xl shadow-lg text-center uppercase tracking-widest hover:bg-orange-700 transition-colors">Enter The Vault</a>
+                    <a href="#contact" class="bg-white text-slate-900 font-black py-4 px-10 rounded-xl shadow-lg text-center uppercase tracking-widest hover:bg-slate-100 transition-colors">Media Inquiries</a>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="bg-brand-yellow py-8 px-6">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-green-900 font-bold text-lg">
-            <div class="flex items-center mb-4 md:mb-0"><i class="fas fa-check-circle mr-2 text-brand-orange"></i> 100% Honest</div>
-            <div class="flex items-center mb-4 md:mb-0"><i class="fas fa-check-circle mr-2 text-brand-orange"></i> No Paid Promos</div>
-            <div class="flex items-center"><i class="fas fa-check-circle mr-2 text-brand-orange"></i> Real Experience</div>
-        </div>
-    </div>
-
     <main class="flex-grow">
-        <section id="reviews" class="max-w-7xl mx-auto px-6 py-16 scroll-mt-24">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b-2 border-gray-100 pb-4">
-                <div class="text-center md:text-left">
-                    <h2 class="text-4xl font-black text-brand-green mb-2 uppercase">The Latest Verdicts</h2>
-                    <p class="text-gray-500 font-medium">Fresh data pulled from my Google Guide archive.</p>
+        <section id="reviews" class="max-w-7xl mx-auto px-6 py-20 scroll-mt-24">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-slate-100 pb-6">
+                <div>
+                    <h2 class="text-4xl font-black text-slate-900 mb-2 uppercase tracking-tight">Latest Coverage</h2>
+                    <p class="text-slate-500 font-medium italic">Uncensored verdicts from recent venue visits.</p>
                 </div>
+                <a href="archive.html" class="text-brand-orange font-bold hover:underline mb-2">Full Archive &rarr;</a>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                
-                <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
+                <!-- Most Recent 3 Reviews -->
+                <article class="review-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-t-4 border-t-brand-orange">
                     <div class="mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">BodyStats Toronto</h3>
-                        <p class="text-xs text-gray-400 font-mono">100 Western Battery Rd, Toronto</p>
+                        <h3 class="font-black text-xl text-slate-900">BodyStats Toronto</h3>
+                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">100 Western Battery Rd, Toronto</p>
                     </div>
-                    <div class="star-rating mb-4 text-lg">
+                    <div class="star-rating mb-4 text-sm">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-gray-700 leading-relaxed font-medium flex-grow">
-                        "BodyStats made getting a DEXA scan easy, quick, and stress-free. Paul, the owner, was professional and the appointment only took 15 minutes. The space is clean and welcoming. Results were emailed immediately after the scan, and the image was exactly what I wanted."
+                    <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">
+                        "BodyStats provides a streamlined and professional DEXA scan experience. Paul, the owner, manages the 15-minute appointment efficiently in a clean and organized facility. Results are delivered immediately via email with clear imagery that meets high standards for personal health tracking."
                     </p>
-                    <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400">
-                        <span><i class="far fa-clock mr-1"></i> Apr 06, 2026</span>
+                    <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Apr 06, 2026
                     </div>
                 </article>
 
-                <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
+                <article class="review-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-t-4 border-t-brand-orange">
                     <div class="mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">Queens Harbour</h3>
-                        <p class="text-xs text-gray-400 font-mono">Queens Quay, Toronto</p>
+                        <h3 class="font-black text-xl text-slate-900">Queens Harbour</h3>
+                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Queens Quay, Toronto</p>
                     </div>
-                    <div class="star-rating mb-4 text-lg">
+                    <div class="star-rating mb-4 text-sm">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-gray-700 leading-relaxed font-medium flex-grow">
-                        "The Caesar salad was delicious and the dressing was perfect. Miso and black cod were prepared very well. The house special Negroni had real depth. Great patio during the day, but be prepared for a live DJ and a full party scene if you stay into the evening."
+                    <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">
+                        "Queens Harbour offers a high-caliber dining experience on the water. The Caesar salad and miso black cod are executed with technical precision. The atmosphere shifts from a peaceful patio lunch to a high-energy DJ venue in the evening, making it a versatile destination for Toronto nightlife."
                     </p>
-                    <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400">
-                        <span><i class="far fa-clock mr-1"></i> Aug 16, 2025</span>
+                    <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Aug 16, 2025
                     </div>
                 </article>
 
-                <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
+                <article class="review-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-t-4 border-t-brand-orange">
                     <div class="mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">Secrets Royal Beach</h3>
-                        <p class="text-xs text-gray-400 font-mono">Punta Cana, Dominican Republic</p>
+                        <h3 class="font-black text-xl text-slate-900">Secrets Royal Beach</h3>
+                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Punta Cana, DR</p>
                     </div>
-                    <div class="star-rating mb-4 text-lg">
+                    <div class="star-rating mb-4 text-sm">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                     </div>
-                    <p class="text-gray-700 leading-relaxed font-medium flex-grow">
-                        "The airport pickup lacked clear signage and felt disorganized. The room wasn't spotless upon arrival, with dirt on the walls and an uncomfortable mattress. On the other hand, the adult-only pools are excellent and the coffee at the cafe is great. It's a mixed bag for the price."
+                    <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">
+                        "The arrival logistics and room maintenance at Secrets Royal Beach show significant gaps. While the adult-only pool areas and cafe services are excellent, the lack of attention to detail in room cleanliness impacts the overall value. It remains a mixed destination for high-end travelers."
                     </p>
-                    <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400">
-                        <span><i class="far fa-clock mr-1"></i> Aug 15, 2025</span>
+                    <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Aug 15, 2025
                     </div>
                 </article>
-
-                <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
-                    <div class="mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">Burger Drops</h3>
-                        <p class="text-xs text-gray-400 font-mono">Liberty Village, Toronto</p>
-                    </div>
-                    <div class="star-rating mb-4 text-lg">
-                        <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
-                    </div>
-                    <p class="text-gray-700 leading-relaxed font-medium flex-grow">
-                        "The Original Burger had mystery bone shards in it twice during one meal. It felt unsafe to eat. Curly fries were solid, but the burger itself was wet and greasy. Finding bone in a smash burger is a major fail that I can't ignore."
-                    </p>
-                    <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400">
-                        <span><i class="far fa-clock mr-1"></i> Sep 12, 2025</span>
-                    </div>
-                </article>
-
-                <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
-                    <div class="mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">Speedy Glass</h3>
-                        <p class="text-xs text-gray-400 font-mono">Etobicoke, ON</p>
-                    </div>
-                    <div class="star-rating mb-4 text-lg">
-                        <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
-                    </div>
-                    <p class="text-gray-700 leading-relaxed font-medium flex-grow">
-                        "I stood at the desk for two minutes without a greeting while the staff chatted with each other. When I finally spoke up, the response was weirdly aggressive. Being addressed as 'the girl in the black hat' felt unprofessional. I don't recommend this location for service."
-                    </p>
-                    <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400">
-                        <span><i class="far fa-clock mr-1"></i> Oct 20, 2025</span>
-                    </div>
-                </article>
-
-                <article class="review-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-brand-orange">
-                    <div class="mb-4">
-                        <h3 class="font-bold text-xl text-gray-900">BMW Etobicoke</h3>
-                        <p class="text-xs text-gray-400 font-mono">Etobicoke, ON</p>
-                    </div>
-                    <div class="star-rating mb-4 text-lg">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                    <p class="text-gray-700 leading-relaxed font-medium flex-grow">
-                        "One of the best car maintenance experiences I've had. The lounge has private seating areas with their own TVs, making the wait civilized and peaceful. No loud noises or disruptions. They've won my business for future service needs."
-                    </p>
-                    <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-400">
-                        <span><i class="far fa-clock mr-1"></i> Nov 21, 2025</span>
-                    </div>
-                </article>
-
-            </div>
-            <div class="mt-12 text-center">
-                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" class="inline-block bg-brand-green text-white font-bold py-4 px-12 rounded-lg">View My Full 400+ Review Archive</a>
             </div>
         </section>
 
-        <section id="contact" class="max-w-4xl mx-auto px-6 py-20 scroll-mt-24">
-            <div class="bg-brand-green rounded-3xl p-10 shadow-2xl relative text-white text-center">
-                <h2 class="text-4xl font-black mb-4 uppercase">Invite Or Suggest?</h2>
-                <p class="mb-8 text-yellow-100 text-lg max-w-xl mx-auto">Found a hidden gem? Challenge me to try your spot. Send the details. If it's good, I'll say so. If it's not, you've been warned.</p>
-                <form id="suggestionForm" class="max-w-lg mx-auto space-y-4">
-                    <input type="hidden" name="access_key" value="472a54d7-ca1f-4529-9065-b1978b93cf40">
-                    <input type="text" name="name" placeholder="Your Name" required class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 outline-none font-bold">
-                    <input type="text" name="place_name" placeholder="Venue Name" required class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 outline-none font-bold">
-                    <input type="email" name="email" placeholder="Email" required class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 outline-none font-bold">
-                    <textarea name="reason" rows="3" placeholder="Why should I go?" required class="w-full px-6 py-4 rounded-lg bg-white bg-opacity-10 border-2 border-green-400 text-white placeholder-green-200 outline-none font-bold"></textarea>
-                    <button type="submit" class="w-full bg-brand-yellow text-green-900 font-black py-4 rounded-lg shadow-lg">Send It</button>
-                </form>
+        <!-- New Professional Contact Section -->
+        <section id="contact" class="bg-slate-50 py-24 px-6 border-t border-slate-200">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Partnerships & Event Coverage</h2>
+                <p class="text-slate-600 font-medium mb-12 max-w-2xl mx-auto">MsJAG provides professional, independent media coverage for Toronto venues and global travel destinations. Organizers and brands interested in high-authority reviews or event presence can submit inquiries below.</p>
+                
+                <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-slate-100 text-left">
+                    <form action="https://api.web3forms.com/submit" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <input type="hidden" name="access_key" value="472a54d7-ca1f-4529-9065-b1978b93cf40">
+                        <input type="hidden" name="subject" value="New Media Inquiry - MsJAG Reviews">
+                        
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
+                            <input type="text" name="name" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Venue / Organization</label>
+                            <input type="text" name="venue" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
+                        </div>
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Type (Event, Review Request, etc.)</label>
+                            <input type="text" name="subject_type" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
+                        </div>
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email Address</label>
+                            <input type="email" name="email" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
+                        </div>
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Details</label>
+                            <textarea name="message" rows="4" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all resize-none"></textarea>
+                        </div>
+                        <button type="submit" class="md:col-span-2 bg-slate-900 text-white font-black py-5 rounded-xl shadow-lg hover:bg-black transition-all uppercase tracking-widest text-sm">
+                            Submit Inquiry
+                        </button>
+                    </form>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer class="bg-gray-900 text-gray-500 py-12 border-t border-gray-800">
-        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
-            <div class="mb-6 md:mb-0 text-center md:text-left">
-                <h4 class="text-white font-black text-2xl tracking-tighter">MsJAG<span class="text-brand-orange">.</span></h4>
-                <p class="text-sm mt-2">Honest Reviews. Real Experiences. Toronto & Global.</p>
+    <footer class="bg-slate-900 text-slate-500 py-12 px-6 text-center text-xs">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="font-bold uppercase tracking-widest">&copy; 2026 MsJAG Reviews. Independent. Local. Authority.</p>
+            <div class="flex gap-6 text-lg">
+                <a href="https://instagram.com/chowhoundgta" target="_blank" class="hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" class="hover:text-white transition-colors"><i class="fab fa-google"></i></a>
             </div>
-            <div class="flex space-x-6">
-                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" class="text-gray-400 hover:text-brand-orange"><i class="fab fa-google text-2xl"></i></a>
-                <a href="https://instagram.com/chowhoundgta" target="_blank" class="text-gray-400 hover:text-brand-orange"><i class="fab fa-instagram text-2xl"></i></a>
-            </div>
-        </div>
-        <div class="text-center mt-10 text-xs">
-            &copy; <span id="year"></span> MsJAG Reviews. Content is opinion based on personal experience.
         </div>
     </footer>
 
     <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
         btn.addEventListener('click', () => menu.classList.toggle('open'));
