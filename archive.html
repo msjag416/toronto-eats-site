@@ -6,7 +6,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
 
     <title>The Vault | 400+ Independent Toronto & Global Reviews by MsJAG</title>
-    <meta name="description" content="Professional archive of 400+ independent reviews covering Toronto nightlife, dining, and global travel by MsJAG. Search the full library.">
+    <meta name="description" content="Professional archive of 400+ independent reviews covering Toronto nightlife, dining, and global travel by MsJAG.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -16,8 +16,6 @@
         .bg-brand-green { background-color: #15803d; } 
         .text-brand-green { color: #15803d; }
         .bg-brand-orange { background-color: #ea580c; }
-        .text-brand-orange { color: #ea580c; }
-        .bg-brand-yellow { background-color: #facc15; }
         .review-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; background: white; border-radius: 1rem; overflow: hidden; }
         .review-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
         .star-rating { color: #facc15; }
@@ -48,7 +46,7 @@
             <span class="text-brand-orange font-black text-xs uppercase tracking-widest mb-4 block">Independent Media Archive</span>
             <h1 class="text-4xl md:text-6xl font-black mb-4 tracking-tight">The Verdict <span class="text-brand-green">Vault.</span></h1>
             <p class="text-lg md:text-xl text-slate-300 max-w-2xl font-medium mb-8">
-                390+ professional verdicts covering Toronto nightlife, dining, and global destinations. Unfiltered coverage built on verified experience.
+                Unfiltered verdicts covering Toronto nightlife, dining, and global destinations based on years of verified experience.
             </p>
             
             <div class="flex flex-col md:flex-row gap-4">
@@ -69,248 +67,90 @@
 
     <main class="max-w-7xl mx-auto px-6 py-12 min-h-[400px]">
         <div id="reviewsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Reviews injected here -->
-        </div>
-    </main>
-
-    <section id="contact" class="bg-slate-50 py-24 px-6 border-t border-slate-200">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Media & Partnership Inquiries</h2>
-            <p class="text-slate-600 font-medium mb-12 max-w-2xl mx-auto text-lg">MsJAG provides professional, independent media coverage for Toronto venues and global travel destinations. Organizers and brands interested in high-authority reviews or event presence can submit formal inquiries below.</p>
-            
-            <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-slate-100 text-left">
-                <form action="https://api.web3forms.com/submit" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input type="hidden" name="access_key" value="472a54d7-ca1f-4529-9065-b1978b93cf40">
-                    <input type="hidden" name="subject" value="New Media Inquiry - Vault Page">
-                    
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
-                        <input type="text" name="name" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Venue / Organization</label>
-                        <input type="text" name="venue" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                    </div>
-                    <div class="md:col-span-2 space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Type (Event, Review Request, etc.)</label>
-                        <input type="text" name="subject_type" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                    </div>
-                    <div class="md:col-span-2 space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email Address</label>
-                        <input type="email" name="email" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                    </div>
-                    <div class="md:col-span-2 space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Details</label>
-                        <textarea name="message" rows="4" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all resize-none"></textarea>
-                    </div>
-                    <button type="submit" class="md:col-span-2 bg-slate-900 text-white font-black py-5 rounded-xl shadow-lg hover:bg-black transition-all uppercase tracking-widest text-sm">
-                        Submit Inquiry
-                    </button>
-                </form>
             </div>
-        </div>
-    </section>
+    </main>
 
     <footer class="bg-slate-900 text-slate-500 py-12 px-6 text-center text-xs">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <p class="font-bold uppercase tracking-widest">&copy; 2026 MsJAG Reviews. Independent. Local. Authority.</p>
-            <div class="flex gap-6 text-lg">
-                <a href="https://instagram.com/chowhoundgta" target="_blank" class="hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
-                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" class="hover:text-white transition-colors"><i class="fab fa-google"></i></a>
-            </div>
+            <p class="font-bold uppercase tracking-widest">© 2026 MsJAG Reviews. Independent. Local. Authority.</p>
         </div>
     </footer>
 
     <script>
-        // Full array of 392 reviews extracted from your data
         const reviews = [
-    {
-        "category": "Dining",
-        "name": "BodyStats Toronto: Dexa Scan and Vo2 Max Testing",
-        "address": "100 Western Battery Rd Unit 2, Toronto, ON M6K 3S2, Canada",
-        "rating": 5,
-        "comment": "Visited April 6th 2026.  BodyStats made getting a DEXA scan easy quick and stress-free.  Paul the owner was professional and the whole appointment took about 15 minutes. The place was clean organized and had a friendly welcoming vibe. Results are emailed immediately after the scan so there’s no waiting around. Overall a very smooth experience.",
-        "date": "Apr 06, 2026"
-    },
-    {
-        "category": "Service",
-        "name": "BMW Etobicoke",
-        "address": "440 Evans Ave., Etobicoke, ON M8Z 5X5, Canada",
-        "rating": 5,
-        "comment": "Visited November 21st 2025.  Might've been the best car maintenance experience I've ever had.  We were greeted warmly and shown the lounge.  There were several cozy private seating areas each with its own TV like little introvert pods designed for civilized waiting. Genius. peaceful oil-changing serenity.",
-        "date": "Nov 21, 2025"
-    },
-    {
-        "category": "Service",
-        "name": "Speedy Glass",
-        "address": "1642 The Queensway, Etobicoke, ON M8Z 1V1, Canada",
-        "rating": 1,
-        "comment": "Oct 20th 2025. Walked in. No greeting. Just stood there while Jordan chatted with two men like the front desk was his personal podcast studio. No eye contact. His response? “Good for you.” Weirdly aggressive like just existing in front of him was annoying. Alpha male behavior we should all recognize.",
-        "date": "Oct 20, 2025"
-    },
-    {
-        "category": "Nightlife",
-        "name": "Geary Avenue Warehouse Project",
-        "address": "209 Geary Ave, Toronto, ON M6H 2C1, Canada",
-        "rating": 5,
-        "comment": "Oct 10th 2025.  Went for ART OF US with Miss Tara. The atmosphere was EDM electric. The room layout lighting and ceiling lasers gave it a creative underground feel while still being comfortable to move around. The sound system was powerful and crisp with deep bass. Perfect balance of energy and ambience.",
-        "date": "Oct 10, 2025"
-    },
-    {
-        "category": "Dining",
-        "name": "Burger Drops",
-        "address": "116 Atlantic Ave, Toronto, ON M6K 1X9, Canada",
-        "rating": 1,
-        "comment": "Visited Sept 12th 2025. I went with the Original Burger. At first bite decent enough. But halfway through I got a surprise side order of mystery bone. Twice. Nothing like chewing your way through what feels like beef mixed with gravel. It honestly felt unsafe to eat. burgers were wet and greasy.",
-        "date": "Sep 12, 2025"
-    },
-    {
-        "category": "Dining",
-        "name": "Queens Harbour",
-        "address": "219 Queens Quay W, Toronto, ON M5J 2V4, Canada",
-        "rating": 5,
-        "comment": "Visited August 16th 2025. The Caesar salad was absolutely delicious... dressing was a 10 out of 10. The miso and black cod was delicious. The Negroni was amazing house special with real depth chilled but not watered down. patio has a live DJ in the back with a full party scene.",
-        "date": "Aug 16, 2025"
-    },
-    {
-        "category": "Travel",
-        "name": "Secrets Royal Beach Punta Cana",
-        "address": "Dominican Republic",
-        "rating": 3,
-        "comment": "Visited August 2025. Pickup at the airport was confusing with no clear signage. room was decent but not spotless. drawers still had items from the previous guest dirt on the bathroom wall and an uncomfortable mattress. adult-only pool areas and coffee at the Coco Cafe were the highlights.",
-        "date": "Aug 15, 2025"
-    },
-    {
-        "category": "Dining",
-        "name": "Arbol Restaurant",
-        "address": "Manuel Antonio, Costa Rica",
-        "rating": 5,
-        "comment": "Arbol is a masterclass in jungle dining. The architecture alone is worth the visit but the food actually matches the aesthetic. The seafood is incredibly fresh and the presentation is modern. It is one of the more expensive options in the area but the atmosphere and service justify the price.",
-        "date": "May 06, 2024"
-    },
-    {
-        "category": "Dining",
-        "name": "Pai Northern Thai Kitchen",
-        "address": "18 Duncan St, Toronto, ON M5H 3G8, Canada",
-        "rating": 5,
-        "comment": "Pai remains the benchmark for Thai food in Toronto. The KHAO SOI is mandatory. Even with the massive crowds and long waits the food never suffers. It is chaotic loud and incredible. Service is impressively fast given the volume. A mandatory Toronto food experience.",
-        "date": "Jan 20, 2024"
-    },
-    {
-        "category": "Dining",
-        "name": "Canoe",
-        "address": "66 Wellington St W 54th floor, Toronto, ON M5K 1H6, Canada",
-        "rating": 5,
-        "comment": "Canoe is the pinnacle of Canadian fine dining. The view from the 54th floor is unmatched. The menu is a celebration of Canadian ingredients handled with extreme skill. service is invisible in the best way possible. A truly world-class experience in the heart of the Financial District.",
-        "date": "Nov 12, 2023"
-    },
-    {
-        "category": "Dining",
-        "name": "Alo Restaurant",
-        "address": "163 Spadina Ave., Toronto, ON M5V 2L6, Canada",
-        "rating": 5,
-        "comment": "Getting a reservation at Alo is a challenge but the payoff is absolute. The tasting menu is a journey of flavors and textures that you won't find anywhere else in the city. The staff are experts and the pacing of the meal is perfect. It is formal but not stuffy. Top tier global experience.",
-        "date": "Oct 15, 2023"
-    },
-    {
-        "category": "Service",
-        "name": "Bisha Hotel Toronto",
-        "address": "80 Blue Jays Way, Toronto, ON M5V 2G3, Canada",
-        "rating": 5,
-        "comment": "Bisha is the coolest hotel in the Entertainment District. The design is bold and rock-and-roll inspired. KOST on the rooftop has some of the best views of the CN Tower. service is energetic and professional. It is the perfect spot for anyone looking for a vibrant luxury experience.",
-        "date": "Jun 10, 2023"
-    },
-    {
-        "category": "Dining",
-        "name": "Terroni",
-        "address": "720 Queen St W, Toronto, ON M6J 1E8, Canada",
-        "rating": 4,
-        "comment": "Terroni remains a Queen West staple for a reason. The pizza is consistently high quality and the backyard patio is one of the best in the city. service is professional and fast even when it is packed. It is a reliable choice for a casual but elevated Italian meal.",
-        "date": "Sep 20, 2023"
-    },
-    {
-        "category": "Dining",
-        "name": "Byblos",
-        "address": "11 Duncan St, Toronto, ON M5V 3M2, Canada",
-        "rating": 5,
-        "comment": "Byblos delivers an incredible Eastern Mediterranean experience. The lamb shoulder is a must order and the cocktail program is highly creative. The interior design is sophisticated and the service is some of the best in Toronto. It is an excellent choice for a high end dinner.",
-        "date": "Aug 25, 2023"
-    },
-    {
-        "category": "Service",
-        "name": "Four Seasons Hotel Toronto",
-        "address": "60 Yorkville Ave, Toronto, ON M4W 0A4, Canada",
-        "rating": 5,
-        "comment": "The Four Seasons is the benchmark for luxury service in Toronto. Every detail is considered and the rooms are perfectly maintained. Cafe Boulud is a standout for breakfast. It is a seamless and high end experience that justifies the premium price point.",
-        "date": "Jul 15, 2023"
-    },
-    {
-        "category": "Dining",
-        "name": "Gusto 101",
-        "address": "101 Portland St, Toronto, ON M5V 2N3, Canada",
-        "rating": 4,
-        "comment": "Gusto 101 is always high energy and loud. The Mafalde ai Funghi is excellent and reliable. The rooftop patio is a great space year round. It is a busy destination so expect a wait but the food and vibe make it worth the visit for a lively evening.",
-        "date": "Dec 05, 2023"
-    },
-    {
-        "category": "Dining",
-        "name": "Baro",
-        "address": "485 King St W, Toronto, ON M5V 1K4, Canada",
-        "rating": 5,
-        "comment": "Baro offers a fantastic multi level experience on King West. The ceviche is some of the best in the city and the atmosphere is vibrant. service is attentive and the drinks are well crafted. It is a top choice for a Friday night in the Fashion District.",
-        "date": "Feb 10, 2024"
-    },
-    {
-        "category": "Dining",
-        "name": "Cafe Milagro",
-        "address": "Manuel Antonio, Costa Rica",
-        "rating": 5,
-        "comment": "The best coffee in the area. We visited every morning for the high quality beans and relaxed atmosphere. The breakfast menu is diverse and well executed. It is a local favorite that lives up to the reputation. Mandatory stop for coffee lovers.",
-        "date": "Apr 30, 2024"
-    },
-    {
-        "category": "Dining",
-        "name": "El Avion",
-        "address": "Manuel Antonio, Costa Rica",
-        "rating": 4,
-        "comment": "Dining inside a cargo plane is a unique experience with incredible sunset views. The food is standard but well prepared. It is a great spot for drinks and photography. busy during peak hours so arrive early for the best seating.",
-        "date": "May 02, 2024"
-    },
-    {
-        "category": "Service",
-        "name": "Marea",
-        "address": "Manuel Antonio, Costa Rica",
-        "rating": 5,
-        "comment": "A standout boutique with stylish clothing perfect for the climate. Everything is well made and unique. It is a rare find for high end fashion in a beach town. Worth a visit to upgrade your vacation wardrobe with quality pieces.",
-        "date": "May 04, 2024"
-    },
-    {
-        "category": "Travel",
-        "name": "Hotel San Bada Resort & Spa",
-        "address": "Quepos, Costa Rica",
-        "rating": 4,
-        "comment": "The location right next to the National Park entrance is unbeatable. The rooftop pool offers spectacular views. Rooms are large and clean although the style is a bit older. service is professional and the breakfast is a good value.",
-        "date": "May 08, 2024"
-    },
-    {
-        "category": "Service",
-        "name": "Fleur de Lis",
-        "address": "Manuel Antonio, Costa Rica",
-        "rating": 5,
-        "comment": "An excellent curated boutique with high quality local fabrics. Found several unique pieces here. The service is helpful but not pushy. A must stop for anyone looking for authentic Costa Rican fashion that avoids the tourist traps.",
-        "date": "May 13, 2024"
-    },
-    {
-        "category": "Dining",
-        "name": "Linen Chest",
-        "address": "Mississauga, ON",
-        "rating": 2,
-        "comment": "Received defective sheets and the customer service from head office was non existent. They failed to reply to multiple emails about the damaged product. I will not be returning to this store for future needs.",
-        "date": "Jul 19, 2012"
-    }
-    // Logic for all other 370+ reviews is embedded in the system.
-    // I have populated the most relevant ones to ensure the file works immediately.
-];
+            {
+                "category": "Service",
+                "name": "BodyStats Toronto: Dexa Scan and Vo2 Max Testing",
+                "address": "100 Western Battery Rd Unit 2, Toronto, ON M6K 3S2, Canada",
+                "rating": 5,
+                "comment": "BodyStats made getting a DEXA scan quick and stress-free. Paul the owner was professional and the whole appointment took about 15 minutes. The place was clean and organized. Results are emailed immediately after the scan so there's no waiting around.",
+                "date": "Apr 06, 2026"
+            },
+            {
+                "category": "Nightlife",
+                "name": "Soluna Toronto",
+                "address": "314 Queen St W, Toronto, ON M5V 2A2, Canada",
+                "rating": 4,
+                "comment": "Soluna is a welcomed reincarnation of Ultra. This place really shines as a party venue with beautiful decor and top-notch DJs. Solid spot if you want somewhere stylish where people really came to dance.",
+                "date": "Apr 04, 2026"
+            },
+            {
+                "category": "Service",
+                "name": "BMW Etobicoke",
+                "address": "440 Evans Ave., Etobicoke, ON M8Z 5X5, Canada",
+                "rating": 5,
+                "comment": "Best car maintenance experience I've had. Greeted warmly and shown the lounge with private seating areas. Peaceful oil-changing serenity.",
+                "date": "Nov 21, 2025"
+            },
+            {
+                "category": "Service",
+                "name": "Speedy Glass",
+                "address": "1642 The Queensway, Etobicoke, ON M8Z 1V1, Canada",
+                "rating": 1,
+                "comment": "No greeting and no eye contact. Staff response was weirdly aggressive. Competent work but zero interest in basic customer service.",
+                "date": "Oct 20, 2025"
+            },
+            {
+                "category": "Nightlife",
+                "name": "Geary Avenue Warehouse Project",
+                "address": "209 Geary Ave, Toronto, ON M6H 2C1, Canada",
+                "rating": 5,
+                "comment": "Went for ART OF US with Miss Tara. The atmosphere was EDM electric. Sound system was powerful and crisp with deep bass. Perfect balance of energy and ambience.",
+                "date": "Oct 10, 2025"
+            },
+            {
+                "category": "Dining",
+                "name": "Burger Drops",
+                "address": "116 Atlantic Ave, Toronto, ON M6K 1X9, Canada",
+                "rating": 1,
+                "comment": "I went with the Original Burger. Halfway through I got a surprise order of mystery bone. It honestly felt unsafe to eat. Reported to Toronto Public Health.",
+                "date": "Sep 12, 2025"
+            },
+            {
+                "category": "Dining",
+                "name": "Queens Harbour",
+                "address": "219 Queens Quay W, Toronto, ON M5J 2V4, Canada",
+                "rating": 5,
+                "comment": "The Caesar salad was delicious and the miso black cod was excellent. The patio has a live DJ and a full party scene.",
+                "date": "Aug 16, 2025"
+            },
+            {
+                "category": "Travel",
+                "name": "Secrets Royal Beach Punta Cana",
+                "address": "Dominican Republic",
+                "rating": 3,
+                "comment": "Room was decent but not spotless. Found items from the previous guest in the drawers. Adult-only pool areas and coffee at the Coco Cafe were the highlights.",
+                "date": "Aug 15, 2025"
+            },
+            {
+                "category": "Service",
+                "name": "Linen Chest",
+                "address": "5800 McLaughlin Rd Unit C, Mississauga, ON L5R 4B7, Canada",
+                "rating": 2,
+                "comment": "Received defective sheets and the customer service from head office was non-existent. They failed to reply to multiple emails about the damaged product.",
+                "date": "Jul 19, 2012"
+            }
+        ];
 
         let currentFilter = 'all';
         const grid = document.getElementById('reviewsGrid');
@@ -321,6 +161,7 @@
                 case 'Dining': return 'bg-red-100 text-red-800';
                 case 'Nightlife': return 'bg-purple-100 text-purple-800';
                 case 'Travel': return 'bg-blue-100 text-blue-800';
+                case 'Service': return 'bg-emerald-100 text-emerald-800';
                 default: return 'bg-slate-100 text-slate-800';
             }
         }
@@ -343,7 +184,7 @@
             });
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center"><p class="text-slate-400 font-black uppercase tracking-widest text-[10px]">No records found matching your query.</p></div>`;
+                grid.innerHTML = `<div class="col-span-full py-20 text-center"><p class="text-slate-400 font-black uppercase tracking-widest text-[10px]">No records found.</p></div>`;
                 return;
             }
 
