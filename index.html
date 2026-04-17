@@ -83,21 +83,6 @@
     }
     </script>
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://torontoeatsandreviews.com/"
-        }
-      ]
-    }
-    </script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
@@ -118,7 +103,7 @@
         .stat-value { font-size: 3rem; line-height: 1; font-weight: 900; }
         .stat-card { display: block; text-decoration: none; color: inherit; transition: transform 0.2s ease; }
         .stat-card:hover { transform: translateY(-2px); }
-        .badge-image { height: 48px; width: auto; object-fit: contain; }
+        .badge-container img { height: 50px; width: auto; }
     </style>
 </head>
 <body class="antialiased flex flex-col min-h-screen pt-16">
@@ -126,7 +111,7 @@
     <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-sm z-50 border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
             <a href="#" class="flex items-center gap-2 group" aria-label="MsJAG Reviews home">
-                <img src="msjag-logo.PNG" alt="MsJAG Reviews logo" class="w-10 h-10 rounded-full object-cover" width="150" height="132" onerror="this.src='https://via.placeholder.com/40'">
+                <img src="msjag-logo.PNG" alt="MsJAG Reviews logo" class="w-10 h-10 rounded-full object-cover" width="40" height="40" onerror="this.src='https://via.placeholder.com/40'">
                 <span class="font-black text-xl tracking-tighter text-slate-900 group-hover:text-brand-orange transition-colors">MsJAG<span class="text-brand-green">.</span></span>
             </a>
             <div class="hidden md:flex items-center space-x-8">
@@ -149,19 +134,17 @@
         <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-brand-green opacity-10 rounded-full blur-3xl"></div>
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 relative z-10">
             <div class="w-40 h-40 flex-shrink-0 rounded-full border-4 border-brand-orange overflow-hidden shadow-2xl bg-white">
-                <img src="msjag-logo.PNG" alt="MsJAG Reviews logo - Toronto independent review brand" class="w-full h-full object-cover" width="150" height="132" loading="eager" onerror="this.src='https://via.placeholder.com/160'">
+                <img src="msjag-logo.PNG" alt="MsJAG Reviews logo" class="w-full h-full object-cover" width="160" height="160" loading="eager" onerror="this.src='https://via.placeholder.com/160'">
             </div>
             <div class="text-center md:text-left">
-                <!-- Verified Badge Integrated Here -->
-                <div class="flex justify-center md:justify-start mb-6">
-                    <img src="badge.png" alt="Google Local Guide Level 7 Badge with 9.1M+ views" class="badge-image rounded-lg shadow-md border border-slate-700" onerror="this.style.display='none'">
+                <div class="badge-container mb-4 flex justify-center md:justify-start">
+                    <img src="badge.png" alt="Google Local Guide Level 7 Badge" width="200" height="50" onerror="this.style.display='none'">
                 </div>
-                
                 <h1 class="text-5xl md:text-7xl font-black mb-0 tracking-tight leading-none">MsJAG</h1>
                 <h2 class="text-2xl font-bold mt-4 mb-4">Independent Critic: Nightlife, Food & Travel</h2>
                 <p class="text-2xl md:text-3xl font-bold text-yellow-300 mb-4">Toronto • Canada • International</p>
                 <p class="text-xs text-slate-300 font-bold uppercase tracking-[0.25em] mb-6 border-l-4 border-brand-orange pl-3">Independent Reviews. All Visits Self-Funded. No Sponsored Content.</p>
-                <p class="text-lg text-slate-300 max-w-2xl leading-relaxed mb-8 font-medium">I write Toronto reviews covering restaurants, hotels, clinics, gyms, and attractions. My published venue photos earned over 9 million verified views on Google Maps. I cover everything from famous food in downtown Toronto to unusual spots for young adults. If you want places to visit for free or the best things to do for adults, my verdicts focus on service, quality, consistency, and value.</p>
+                <p class="text-lg text-slate-300 max-w-2xl leading-relaxed mb-8 font-medium">I write Toronto Google Reviews covering restaurants, hotels, medical and wellness clinics, gyms, shops, attractions, and local services. My 736 published venue photos earned over 9 million verified views on Google Maps, and my written reviews reached hundreds of thousands of readers. I cover everything from famous food and attractions in downtown Toronto to unusual things to do for young adults. My verdicts focus on service, quality, consistency, and value for adults looking for local experiences.</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                     <a href="archive.html" class="bg-brand-orange text-white font-black py-4 px-10 rounded-xl shadow-lg text-center uppercase tracking-widest hover:bg-orange-700 transition-colors">Enter The Vault</a>
                     <a href="#contact" class="bg-white text-slate-900 font-black py-4 px-10 rounded-xl shadow-lg text-center uppercase tracking-widest hover:bg-slate-100 transition-colors">Media Inquiries</a>
@@ -182,45 +165,12 @@
             </a>
             <a href="https://www.google.com/maps/contrib/113123460295195530364/reviews/" target="_blank" rel="noopener" class="stat-card">
                 <div class="stat-value mb-2">Level 7</div>
-                <div class="text-sm font-black uppercase tracking-[0.3em] opacity-80">Google Local Guide</div>
+                <div class="text-sm font-black uppercase tracking-[0.3em] opacity-80">Google Local Guide · 13,596 pts</div>
             </a>
         </div>
     </section>
 
     <main class="flex-grow">
-        <section class="max-w-7xl mx-auto px-6 py-20">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Core Coverage Verticals</h2>
-                <p class="text-slate-600 font-medium max-w-2xl mx-auto">Providing independent analysis across these primary sectors. My reviews focus on metrics that matter most to consumers and professional operators.</p>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-utensils text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Restaurants</p>
-                </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-hotel text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Hotels</p>
-                </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-heartbeat text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Medical & Wellness</p>
-                </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-dumbbell text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Gyms & Fitness</p>
-                </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-shopping-bag text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Shops & Services</p>
-                </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-map-marked-alt text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Attractions</p>
-                </div>
-            </div>
-        </section>
-
         <section id="reviews" class="max-w-7xl mx-auto px-6 py-20 scroll-mt-24">
             <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-slate-100 pb-6">
                 <div>
@@ -231,9 +181,9 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Sample Review Card -->
+                <!-- Review 1 -->
                 <article class="review-card bg-white rounded-2xl shadow-sm border border-slate-100 border-t-4 border-t-brand-orange">
-                    <img src="bodystats-toronto-dexa-scan.jpg" alt="BodyStats Toronto storefront" class="venue-photo" width="1050" height="1400" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400'">
+                    <img src="bodystats-toronto-dexa-scan.jpg" alt="BodyStats Toronto" class="venue-photo" width="600" height="400" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400'">
                     <div class="p-6 flex flex-col flex-grow">
                         <div class="mb-4">
                             <h3 class="font-black text-xl text-slate-900 leading-tight">BodyStats Toronto: Dexa Scan and Vo2 Max Testing</h3>
@@ -242,16 +192,15 @@
                         <div class="star-rating mb-4 text-sm" aria-label="Rated 5 out of 5">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                         </div>
-                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">BodyStats made getting a DEXA scan easy and quick. Paul the owner provided a professional 15-minute appointment. The place was clean and welcoming. It's reasonably priced, which makes it even better for those tracking health metrics.</p>
+                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">Visited April 6th 2026. BodyStats made getting a DEXA scan easy quick and stress-free. We went in today for a scan with Paul the owner and the whole appointment took about 15 minutes. The place was clean organized and had a friendly welcoming vibe from the moment we walked in. It's also reasonably priced which makes it even better.</p>
                         <a href="archive.html" class="mt-4 text-brand-orange font-black text-[10px] uppercase tracking-widest hover:underline">Read Full Verdict &rarr;</a>
-                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            Apr 06, 2026
-                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">Apr 06, 2026</div>
                     </div>
                 </article>
 
+                <!-- Review 2 -->
                 <article class="review-card bg-white rounded-2xl shadow-sm border border-slate-100 border-t-4 border-t-brand-orange">
-                    <img src="soluna-toronto-nightclub.jpg" alt="Soluna Toronto nightclub" class="venue-photo" width="1200" height="1166" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400'">
+                    <img src="soluna-toronto-nightclub.jpg" alt="Soluna Toronto" class="venue-photo" width="600" height="400" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400'">
                     <div class="p-6 flex flex-col flex-grow">
                         <div class="mb-4">
                             <h3 class="font-black text-xl text-slate-900 leading-tight">Soluna Toronto</h3>
@@ -260,20 +209,86 @@
                         <div class="star-rating mb-4 text-sm" aria-label="Rated 4 out of 5">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
                         </div>
-                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">Soluna is a welcomed reincarnation for this historic location. It shines as a party venue with beautiful decor worthy of a high-end nightclub. Nothing feels cheap or thrown together because the attention to detail is evident in the atmosphere.</p>
+                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">We went to Soluna on Sat April 4th, 2026. This place was formerly the well-loved Ultra, and before that Bamboo, so I've been occasionally partying at this location for quite some time. Soluna is a welcomed reincarnation. This place really shines as a party venue. The decor is beautiful and feels worthy of a higher-end nightclub. Nothing about it feels cheap, cheesy, or thrown together.</p>
                         <a href="archive.html" class="mt-4 text-brand-orange font-black text-[10px] uppercase tracking-widest hover:underline">Read Full Verdict &rarr;</a>
-                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            Apr 06, 2026
+                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">Apr 06, 2026</div>
+                    </div>
+                </article>
+
+                <!-- Review 3 -->
+                <article class="review-card bg-white rounded-2xl shadow-sm border border-slate-100 border-t-4 border-t-brand-orange">
+                    <img src="dixon-kitchen-bar-mississauga.jpg" alt="The Dixon Kitchen & Bar" class="venue-photo" width="600" height="400" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400'">
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="mb-4">
+                            <h3 class="font-black text-xl text-slate-900 leading-tight">The Dixon Kitchen & Bar</h3>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Caroga Dr, Mississauga</p>
                         </div>
+                        <div class="star-rating mb-4 text-sm" aria-label="Rated 4 out of 5">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">Went to The Dixon at the Hilton Hotel on March 26th 2026 for dinner with a family member making a stopover by Pearson International airport. In a nutshell there were only two dinner menu items on the table at The Dixon I'd happily eat again. The creamy seafood ravioli dish was one of them. Rich, tasty, and comforting without turning into a gluey mess. The other standout was the braised beef dish with mashed potatoes and vegetables.</p>
+                        <a href="archive.html" class="mt-4 text-brand-orange font-black text-[10px] uppercase tracking-widest hover:underline">Read Full Verdict &rarr;</a>
+                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">Mar 26, 2026</div>
+                    </div>
+                </article>
+
+                <!-- Review 4 -->
+                <article class="review-card bg-white rounded-2xl shadow-sm border border-slate-100 border-t-4 border-t-brand-orange">
+                    <img src="moons-flowers-red-roses-toronto.jpg" alt="Moon's Flowers" class="venue-photo" width="600" height="400" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400'">
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="mb-4">
+                            <h3 class="font-black text-xl text-slate-900 leading-tight">Moon's Flowers</h3>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Dalhousie St, Toronto</p>
+                        </div>
+                        <div class="star-rating mb-4 text-sm" aria-label="Rated 3 out of 5">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">I ordered the Valentine's Day 2026 Half Dozen Red Roses (with baby's breath) and let's just say... I was a little surprised by what arrived. For $78 plus HST, plus $25 delivery (hello $116.39 CAD) no vase needed, I was expecting lush, bulbous, high-petal-count garden style roses. What arrived? Standard hybrid teas. Basic commercial roses you can find almost anywhere.</p>
+                        <a href="archive.html" class="mt-4 text-brand-orange font-black text-[10px] uppercase tracking-widest hover:underline">Read Full Verdict &rarr;</a>
+                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">Feb 15, 2026</div>
                     </div>
                 </article>
             </div>
         </section>
 
-        <section id="contact" class="bg-slate-50 py-24 px-6 border-t border-slate-200">
+        <!-- Vertical Coverage Sections -->
+        <section class="max-w-7xl mx-auto px-6 py-20 bg-slate-50 rounded-3xl">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Core Coverage Verticals</h2>
+                <p class="text-slate-600 font-medium max-w-2xl mx-auto">Providing high-authority independent analysis across these primary sectors. My reviews focus on the metrics that matter most to discerning consumers and professional operators.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                <div class="bg-white p-6 rounded-2xl text-center border border-slate-100 shadow-sm">
+                    <i class="fas fa-utensils text-3xl text-brand-orange mb-4"></i>
+                    <p class="font-black text-[10px] uppercase tracking-widest">Restaurants</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl text-center border border-slate-100 shadow-sm">
+                    <i class="fas fa-hotel text-3xl text-brand-orange mb-4"></i>
+                    <p class="font-black text-[10px] uppercase tracking-widest">Hotels</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl text-center border border-slate-100 shadow-sm">
+                    <i class="fas fa-heartbeat text-3xl text-brand-orange mb-4"></i>
+                    <p class="font-black text-[10px] uppercase tracking-widest">Medical & Wellness</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl text-center border border-slate-100 shadow-sm">
+                    <i class="fas fa-dumbbell text-3xl text-brand-orange mb-4"></i>
+                    <p class="font-black text-[10px] uppercase tracking-widest">Gyms & Fitness</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl text-center border border-slate-100 shadow-sm">
+                    <i class="fas fa-shopping-bag text-3xl text-brand-orange mb-4"></i>
+                    <p class="font-black text-[10px] uppercase tracking-widest">Shops & Services</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl text-center border border-slate-100 shadow-sm">
+                    <i class="fas fa-map-marked-alt text-3xl text-brand-orange mb-4"></i>
+                    <p class="font-black text-[10px] uppercase tracking-widest">Attractions</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="max-w-7xl mx-auto px-6 py-24">
             <div class="max-w-4xl mx-auto text-center">
                 <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Media & Partnership Inquiries</h2>
-                <p class="text-slate-600 font-medium mb-12 max-w-2xl mx-auto text-lg">MsJAG provides independent media coverage for Toronto venues and global travel destinations. Brands interested in reviews or event presence can submit formal inquiries below.</p>
+                <p class="text-slate-600 font-medium mb-12 max-w-2xl mx-auto text-lg">MsJAG provides professional, independent media coverage for Toronto venues and global travel destinations. Organizers and brands interested in high-authority reviews or event presence can submit formal inquiries below.</p>
 
                 <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-slate-100 text-left">
                     <form action="https://api.web3forms.com/submit" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -289,7 +304,7 @@
                             <input type="text" name="venue" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
                         </div>
                         <div class="md:col-span-2 space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Type</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Type (Event, Review Request, etc.)</label>
                             <input type="text" name="subject_type" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
                         </div>
                         <div class="md:col-span-2 space-y-2">
@@ -301,16 +316,14 @@
                             <textarea name="message" rows="6" required maxlength="1000" id="inquiryMsg" class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all resize-none"></textarea>
                             <p class="text-[10px] font-bold text-slate-400 mt-1 ml-1 tracking-wide"><span id="charCount">0</span>/1000 characters</p>
                         </div>
-                        <button type="submit" class="md:col-span-2 bg-slate-900 text-white font-black py-5 rounded-xl shadow-lg hover:bg-black transition-all uppercase tracking-widest text-sm">
-                            Submit Inquiry
-                        </button>
+                        <button type="submit" class="md:col-span-2 bg-slate-900 text-white font-black py-5 rounded-xl shadow-lg hover:bg-black transition-all uppercase tracking-widest text-sm">Submit Inquiry</button>
                     </form>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="bg-slate-900 text-slate-500 py-12 px-6 text-center text-xs">
+    <footer class="bg-slate-900 text-slate-500 py-12 px-6 text-center text-xs border-t border-slate-800">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
             <p class="font-bold uppercase tracking-widest">&copy; <span id="copyrightYear"></span> MsJAG Reviews. Independent. Local. Authority.</p>
             <div class="flex gap-6 text-lg">
