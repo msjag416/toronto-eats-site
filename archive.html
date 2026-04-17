@@ -7,154 +7,1105 @@
 
     <title>The Vault | 348 Independent Toronto &amp; Global Reviews by MsJAG</title>
     <meta name="description" content="Professional archive of 348 independent reviews covering Toronto dining, nightlife, travel, and services by MsJAG. Search the full library.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="canonical" href="https://torontoeatsandreviews.com/archive.html">
+
+    <meta property="og:title" content="The Vault | 348 Independent Toronto &amp; Global Reviews by MsJAG">
+    <meta property="og:description" content="Professional archive of 348 independent reviews covering Toronto dining, nightlife, travel, and services.">
+    <meta property="og:url" content="https://torontoeatsandreviews.com/archive.html">
+    <meta property="og:image" content="https://torontoeatsandreviews.com/msjag-logo.PNG">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_CA">
+    <meta property="og:site_name" content="MsJAG Reviews">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Vault | 348 Independent Toronto &amp; Global Reviews by MsJAG">
+    <meta name="twitter:description" content="Professional archive of 348 independent reviews covering Toronto dining, nightlife, travel, and services.">
+    <meta name="twitter:image" content="https://torontoeatsandreviews.com/msjag-logo.PNG">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "The Verdict Vault",
+      "description": "Professional archive of independent reviews covering Toronto dining, nightlife, travel, and services by MsJAG.",
+      "url": "https://torontoeatsandreviews.com/archive.html",
+      "isPartOf": { "@id": "https://torontoeatsandreviews.com/#website" },
+      "author": { "@id": "https://torontoeatsandreviews.com/#person" },
+      "publisher": { "@id": "https://torontoeatsandreviews.com/#organization" }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://torontoeatsandreviews.com/" },
+        { "@type": "ListItem", "position": 2, "name": "The Vault", "item": "https://torontoeatsandreviews.com/archive.html" }
+      ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62.5..125,500..900&family=Archivo+Narrow:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
-        .bg-brand-green { background-color: #15803d; }
-        .text-brand-green { color: #15803d; }
-        .bg-brand-orange { background-color: #ea580c; }
-        .text-brand-orange { color: #ea580c; }
-        .bg-brand-yellow { background-color: #facc15; }
-        .review-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; background: white; border-radius: 1rem; overflow: hidden; }
-        .review-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-        .star-rating { color: #facc15; }
-        .filter-btn.active { background-color: #ea580c; color: white; border-color: #ea580c; }
-        .category-badge { font-size: 0.65rem; font-weight: 800; padding: 0.25rem 0.5rem; border-radius: 0.375rem; text-transform: uppercase; letter-spacing: 0.025em; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .review-text { white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
-        .review-text.expanded { -webkit-line-clamp: unset; overflow: visible; }
-        .read-more-btn { color: #ea580c; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.5rem; cursor: pointer; display: none; background: none; border: none; padding: 0; }
-        .read-more-btn.visible { display: inline-block; }
+        :root {
+            --bg: #ededea;
+            --paper: #f7f5f0;
+            --ink: #0b0b0c;
+            --ink-2: #2b2a2c;
+            --ink-3: #6d6b6a;
+            --rule: #0b0b0c;
+            --accent: #ea580c;
+            --accent-2: #15803d;
+            --yellow: #f0c419;
+        }
+
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        html { scroll-behavior: smooth; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            font-size: 15px;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        img { max-width: 100%; display: block; }
+        a { color: inherit; }
+
+        /* ═══ TICKER ═══ */
+        .tick {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 8px 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid var(--ink);
+            flex-wrap: wrap;
+        }
+        .tick .marquee { display: flex; gap: 32px; flex-wrap: wrap; }
+        .tick .marquee span::before {
+            content: '▲';
+            color: var(--accent);
+            margin-right: 6px;
+        }
+
+        /* ═══ MASTHEAD ═══ */
+        .masthead {
+            background: var(--paper);
+            padding: 24px 32px 20px;
+            border-bottom: 3px solid var(--ink);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .masthead-inner {
+            max-width: 1320px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 32px;
+        }
+        .masthead .left, .masthead .right {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink-2);
+            line-height: 1.8;
+        }
+        .masthead .right { text-align: right; }
+        .wordmark {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 72px;
+            letter-spacing: -0.05em;
+            line-height: 0.85;
+            margin: 0;
+            text-align: center;
+            font-stretch: 125%;
+            color: var(--ink);
+            text-decoration: none;
+            display: block;
+        }
+        .wordmark .dot { color: var(--accent); }
+
+        .subnav {
+            max-width: 1320px;
+            margin: 16px auto 0;
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            padding-top: 12px;
+            border-top: 1px solid var(--rule);
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+        .subnav a {
+            color: var(--ink);
+            text-decoration: none;
+            padding: 4px 0;
+            transition: color 0.15s;
+        }
+        .subnav a:hover { color: var(--accent); }
+        .subnav .active { border-bottom: 2px solid var(--accent); }
+
+        /* ═══ HERO ═══ */
+        .hero {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 48px 32px 56px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1320px; margin: 0 auto; }
+
+        .hero-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(247, 245, 240, 0.2);
+            margin-bottom: 32px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(247, 245, 240, 0.65);
+        }
+        .hero-meta .tag {
+            background: var(--accent);
+            color: var(--ink);
+            padding: 4px 10px;
+            font-weight: 600;
+        }
+
+        .hero-headline {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(48px, 8vw, 120px);
+            line-height: 0.88;
+            letter-spacing: -0.05em;
+            margin: 0;
+            color: var(--paper);
+            font-stretch: 125%;
+        }
+        .hero-headline em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero-archive-lede {
+            margin-top: 28px;
+            max-width: 64ch;
+            font-family: 'Archivo', sans-serif;
+            font-size: 18px;
+            line-height: 1.55;
+            font-weight: 500;
+            color: rgba(247, 245, 240, 0.9);
+            padding-left: 18px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .hero-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 28px;
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--paper);
+            text-decoration: none;
+            padding-bottom: 4px;
+            border-bottom: 2px solid var(--accent);
+            transition: transform 0.15s;
+        }
+        .hero-link:hover {
+            transform: translate(-1px, -1px);
+        }
+
+        /* ═══ STATS (4-col) ═══ */
+        .stats {
+            background: var(--paper);
+            border-top: 3px solid var(--ink);
+            border-bottom: 3px solid var(--ink);
+        }
+        .stats-inner {
+            max-width: 1320px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .stat {
+            padding: 36px 28px;
+            border-right: 1px solid var(--rule);
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 18px;
+            align-items: center;
+        }
+        .stat:last-child { border-right: none; }
+        .stat .big {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(44px, 5vw, 72px);
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+            font-stretch: 125%;
+        }
+        .stat:nth-child(1) .big { color: var(--accent); }
+        .stat:nth-child(2) .big { color: var(--ink); }
+        .stat:nth-child(3) .big { color: var(--accent-2); }
+        .stat:nth-child(4) .big { color: var(--ink); }
+        .stat .side {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink-2);
+            line-height: 1.7;
+            font-weight: 500;
+        }
+        .stat .side strong { color: var(--ink); font-weight: 600; }
+
+        /* ═══ MAIN / SECTION ═══ */
+        main { flex: 1 1 auto; }
+        .section {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 64px 32px;
+        }
+        .section-head {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 32px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid var(--ink);
+            margin-bottom: 32px;
+        }
+        .section-head .num {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 6px 10px;
+            font-weight: 600;
+        }
+        .section-head h2 {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(32px, 5vw, 56px);
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            margin: 0;
+            font-stretch: 125%;
+        }
+        .section-head h2 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+        .section-head .meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            text-align: right;
+            line-height: 1.7;
+        }
+
+        /* ═══ SEARCH + FILTERS ═══ */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            align-items: stretch;
+            margin-bottom: 20px;
+        }
+        .search-wrap {
+            position: relative;
+        }
+        .search-wrap::before {
+            content: '⌕';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: var(--ink-3);
+            pointer-events: none;
+        }
+        #searchInput {
+            width: 100%;
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            padding: 14px 16px 14px 44px;
+            font-family: 'Archivo', sans-serif;
+            font-size: 15px;
+            color: var(--ink);
+            outline: none;
+            font-weight: 500;
+            transition: box-shadow 0.15s, transform 0.15s;
+        }
+        #searchInput:focus {
+            box-shadow: 4px 4px 0 var(--accent);
+            transform: translate(-2px, -2px);
+        }
+        #searchInput::placeholder { color: var(--ink-3); font-weight: 500; }
+
+        .filter-wrap {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            padding: 10px 16px;
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink);
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .filter-btn:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+        .filter-btn.active {
+            background: var(--accent);
+            color: var(--ink);
+            border-color: var(--ink);
+        }
+
+        .result-count {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin: 0 0 24px;
+            font-weight: 500;
+        }
+
+        /* ═══ ARCHIVE GRID ═══ */
+        .archive-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            background: var(--ink);
+            border: 2px solid var(--ink);
+        }
+        .acard {
+            background: var(--paper);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-width: 0;
+        }
+        .acard-num {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 60px;
+            color: var(--ink);
+            opacity: 0.07;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            font-stretch: 125%;
+            pointer-events: none;
+        }
+        .acard-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--rule);
+            margin-bottom: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+        }
+        .pill {
+            padding: 3px 8px;
+            letter-spacing: 0.12em;
+            font-weight: 600;
+        }
+        .pill-Dining { background: var(--accent); color: var(--ink); }
+        .pill-Nightlife { background: var(--ink); color: var(--paper); }
+        .pill-Travel { background: var(--accent-2); color: var(--paper); }
+        .pill-Service { background: var(--yellow); color: var(--ink); }
+        .pill-default { background: var(--ink); color: var(--paper); }
+
+        .acard h3 {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 20px;
+            line-height: 1.08;
+            letter-spacing: -0.025em;
+            margin: 0 0 4px;
+            font-stretch: 125%;
+            padding-right: 40px;
+        }
+        .acard .where {
+            font-family: 'Archivo Narrow', sans-serif;
+            font-size: 12px;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 500;
+            margin-bottom: 14px;
+            word-break: break-word;
+        }
+        .acard .scorebar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 8px 0;
+            border-top: 2px solid var(--ink);
+            border-bottom: 2px solid var(--ink);
+            margin-bottom: 14px;
+        }
+        .acard .score-n {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 36px;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            font-stretch: 125%;
+        }
+        .score-good { color: var(--accent-2); }
+        .score-mixed { color: var(--ink); }
+        .score-bad { color: var(--accent); }
+        .score-unrated { color: var(--ink-3); }
+        .acard .score-out {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--ink-3);
+            letter-spacing: 0.1em;
+        }
+        .acard .score-label {
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            background: var(--yellow);
+            padding: 3px 7px;
+            margin-left: auto;
+        }
+        .acard .body-text {
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--ink-2);
+            font-weight: 500;
+            white-space: pre-line;
+            display: -webkit-box;
+            -webkit-line-clamp: 8;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin: 0 0 8px;
+        }
+        .acard .body-text.expanded {
+            -webkit-line-clamp: unset;
+            overflow: visible;
+        }
+        .acard .read-more-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0 0 12px;
+            color: var(--ink);
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-bottom: 2px solid var(--accent);
+            align-self: flex-start;
+        }
+        .acard .read-more-btn.visible { display: inline-block; }
+        .acard .foot {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid var(--rule);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+        }
+        .acard .foot .verified {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            padding: 72px 32px;
+            text-align: center;
+            background: var(--paper);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            font-weight: 500;
+        }
+
+        .load-more-wrap {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .btn {
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 16px 28px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            border: 2px solid var(--ink);
+            cursor: pointer;
+            background: var(--ink);
+            color: var(--paper);
+        }
+        .btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 var(--accent);
+        }
+
+        /* ═══ INQUIRY FORM ═══ */
+        .inquiry {
+            background: var(--paper);
+            padding: 72px 32px;
+            border-top: 3px solid var(--ink);
+        }
+        .inquiry-inner {
+            max-width: 920px;
+            margin: 0 auto;
+        }
+        .inquiry .heading {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .inquiry .heading .num {
+            display: inline-block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.24em;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 4px 10px;
+            margin-bottom: 12px;
+        }
+        .inquiry .heading h2 {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(36px, 6vw, 72px);
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            margin: 8px 0 16px;
+            font-stretch: 125%;
+        }
+        .inquiry .heading h2 .u {
+            display: inline-block;
+            position: relative;
+        }
+        .inquiry .heading h2 .u::after {
+            content: '';
+            position: absolute;
+            left: -2px;
+            right: -2px;
+            bottom: 4px;
+            height: 12px;
+            background: var(--yellow);
+            z-index: 0;
+        }
+        .inquiry .heading h2 .u > span {
+            position: relative;
+            z-index: 1;
+        }
+        .inquiry .heading p {
+            max-width: 56ch;
+            margin: 0 auto;
+            color: var(--ink-2);
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .form {
+            background: var(--bg);
+            border: 2px solid var(--ink);
+            padding: 32px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            box-shadow: 8px 8px 0 var(--ink);
+        }
+        .form .f { display: flex; flex-direction: column; }
+        .form .full { grid-column: 1 / -1; }
+        .form label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form input, .form textarea {
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            padding: 12px 14px;
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--ink);
+            outline: none;
+            font-weight: 500;
+            transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+        }
+        .form input:focus, .form textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 4px 4px 0 var(--accent);
+            transform: translate(-2px, -2px);
+        }
+        .form textarea {
+            min-height: 140px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .form .counter {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            color: var(--ink-3);
+            margin-top: 6px;
+            text-align: right;
+        }
+        .form button {
+            grid-column: 1 / -1;
+            background: var(--ink);
+            color: var(--paper);
+            border: 2px solid var(--ink);
+            padding: 16px;
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
+        .form button:hover {
+            background: var(--accent);
+            color: var(--ink);
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 var(--ink);
+        }
+        .form button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .thanks-card {
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            padding: 56px 32px;
+            text-align: center;
+            box-shadow: 8px 8px 0 var(--accent);
+        }
+        .thanks-card .thanks-num {
+            display: inline-block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.24em;
+            background: var(--accent);
+            color: var(--ink);
+            padding: 4px 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .thanks-card h3 {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(32px, 5vw, 56px);
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            margin: 0 0 20px;
+            font-stretch: 125%;
+            color: var(--ink);
+        }
+        .thanks-card p {
+            max-width: 48ch;
+            margin: 0 auto;
+            color: var(--ink-2);
+            font-weight: 500;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .form .err {
+            grid-column: 1 / -1;
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            color: var(--ink);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            padding: 12px 14px;
+            margin-bottom: 4px;
+        }
+
+        /* ═══ COLOPHON ═══ */
+        .colophon {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 40px 32px;
+        }
+        .col-inner {
+            max-width: 1320px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .col-inner .brand {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 28px;
+            letter-spacing: -0.04em;
+            font-stretch: 125%;
+        }
+        .col-inner .brand .dot { color: var(--accent); }
+        .col-meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(247, 245, 240, 0.6);
+            text-align: right;
+            line-height: 1.9;
+        }
+        .col-meta a {
+            color: var(--paper);
+            text-decoration: none;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 1100px) {
+            .archive-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-inner { grid-template-columns: repeat(2, 1fr); }
+            .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--rule); }
+            .stat:nth-child(2) { border-right: none; }
+            .stat:nth-child(4) { border-right: none; }
+        }
+        @media (max-width: 800px) {
+            .controls { grid-template-columns: 1fr; }
+            .filter-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .section-head { grid-template-columns: auto 1fr; }
+            .section-head .meta { grid-column: 1 / -1; text-align: left; }
+            .archive-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .masthead-inner { grid-template-columns: 1fr; text-align: center; }
+            .masthead .left, .masthead .right { text-align: center; }
+            .wordmark { font-size: 56px; }
+            .hero { padding: 36px 20px 44px; }
+            .section { padding: 48px 20px; }
+            .inquiry { padding: 48px 20px; }
+            .form { grid-template-columns: 1fr; padding: 24px; box-shadow: 5px 5px 0 var(--ink); }
+            .col-inner { flex-direction: column; text-align: center; }
+            .col-meta { text-align: center; }
+            .subnav { gap: 18px; font-size: 11px; }
+            .tick { font-size: 10px; }
+            .stats-inner { grid-template-columns: 1fr; }
+            .stat { border-right: none; border-bottom: 1px solid var(--rule); }
+            .stat:last-child { border-bottom: none; }
+        }
     </style>
 </head>
-<body class="antialiased min-h-screen pt-20">
+<body>
 
-    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-sm z-50 border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-            <a href="index.html" class="flex items-center gap-2 group">
-                <span class="bg-brand-green text-white w-8 h-8 flex items-center justify-center rounded-full font-black text-sm group-hover:bg-brand-orange transition-colors">M</span>
-                <span class="font-black text-xl tracking-tighter text-slate-900 group-hover:text-brand-orange transition-colors">MsJAG<span class="text-brand-green">.</span></span>
-            </a>
-            <div class="flex items-center gap-6">
-                <a href="index.html" class="text-slate-600 font-bold text-sm hover:text-brand-green transition-colors">Home</a>
-                <a href="#contact" class="hidden md:block bg-brand-orange text-white px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest shadow-md hover:bg-orange-700 transition-colors">Media Inquiries</a>
-            </div>
+    <!-- ═══ TICKER ═══ -->
+    <div class="tick" role="complementary" aria-label="Credentials">
+        <div class="marquee">
+            <span>9,135,002 photo views</span>
+            <span>Level 7 Local Guide</span>
+            <span>348 verified reviews</span>
         </div>
-    </nav>
+        <div>Toronto · Canada · Est. 2016</div>
+    </div>
 
-    <header class="bg-slate-900 text-white py-16 px-6 relative overflow-hidden">
-        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-brand-green opacity-10 rounded-full blur-3xl"></div>
-        <div class="max-w-7xl mx-auto relative z-10">
-            <span class="text-brand-orange font-black text-xs uppercase tracking-widest mb-4 block">Independent Media Archive</span>
-            <h1 class="text-4xl md:text-6xl font-black mb-4 tracking-tight">The Verdict <span class="text-brand-green">Vault.</span></h1>
-            <p class="text-lg md:text-xl text-slate-300 max-w-3xl font-medium mb-4">
-                These are just a few verified verdicts from a Level 7 Google Local Guide. Dining, nightlife, travel, and services across Toronto, Canada, and beyond.
-            </p>
-            <p class="mb-6">
-                <a href="https://www.google.com/maps/contrib/113123460295195530364/reviews/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-brand-green hover:text-brand-orange font-black text-sm uppercase tracking-widest transition-colors">
-                    <i class="fab fa-google"></i>
-                    View All Reviews By MsJAG On Google Maps
-                    <i class="fas fa-arrow-right text-xs"></i>
-                </a>
-            </p>
-            <div class="flex flex-wrap gap-4 mb-8 text-[11px] font-black uppercase tracking-widest text-slate-400">
-                <span><span class="text-white text-base font-black">135</span> Dining</span>
-                <span class="text-slate-700">|</span>
-                <span><span class="text-white text-base font-black">18</span> Nightlife</span>
-                <span class="text-slate-700">|</span>
-                <span><span class="text-white text-base font-black">53</span> Travel</span>
-                <span class="text-slate-700">|</span>
-                <span><span class="text-white text-base font-black">142</span> Services</span>
-            </div>
-
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="relative flex-grow max-w-2xl">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="searchInput" placeholder="Search by name, neighborhood, or keyword..." class="w-full pl-12 pr-6 py-4 rounded-xl bg-slate-800 border-2 border-slate-700 text-white placeholder-slate-500 outline-none focus:border-brand-green transition-all font-bold text-sm">
-                </div>
-                <div class="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-                    <button class="filter-btn active px-4 py-2 rounded-lg border-2 border-slate-700 text-[10px] font-black uppercase whitespace-nowrap transition-colors" onclick="setFilter('all', this)">All</button>
-                    <button class="filter-btn px-4 py-2 rounded-lg border-2 border-slate-700 text-[10px] font-black uppercase whitespace-nowrap transition-colors" onclick="setFilter('Dining', this)">Dining</button>
-                    <button class="filter-btn px-4 py-2 rounded-lg border-2 border-slate-700 text-[10px] font-black uppercase whitespace-nowrap transition-colors" onclick="setFilter('Nightlife', this)">Nightlife</button>
-                    <button class="filter-btn px-4 py-2 rounded-lg border-2 border-slate-700 text-[10px] font-black uppercase whitespace-nowrap transition-colors" onclick="setFilter('Travel', this)">Travel</button>
-                    <button class="filter-btn px-4 py-2 rounded-lg border-2 border-slate-700 text-[10px] font-black uppercase whitespace-nowrap transition-colors" onclick="setFilter('Service', this)">Services</button>
-                </div>
-            </div>
-            <p id="resultCount" class="mt-4 text-xs text-slate-400 font-bold uppercase tracking-widest"></p>
+    <!-- ═══ MASTHEAD ═══ -->
+    <header class="masthead">
+        <div class="masthead-inner">
+            <div class="left">Independent<br>Self-Funded<br>Unsponsored</div>
+            <a href="index.html" class="wordmark" aria-label="MsJAG Reviews home">MsJAG<span class="dot">.</span></a>
+            <div class="right">Toronto · Canada<br>International<br>Level 7 Google Reviewer</div>
         </div>
+        <nav class="subnav" aria-label="Primary">
+            <a href="index.html">Home</a>
+            <a href="#" class="active">The Vault</a>
+            <a href="https://torontorecoverystrategy.com/" target="_blank" rel="noopener">Who is MsJAG?</a>
+            <a href="#contact">Media Inquiries</a>
+        </nav>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-12 min-h-[400px]">
-        <div id="reviewsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start"></div>
-        <div id="loadMoreWrap" class="text-center mt-12">
-            <button id="loadMoreBtn" class="bg-slate-900 text-white font-black py-4 px-8 rounded-xl shadow-lg hover:bg-brand-orange transition-all uppercase tracking-widest text-xs">Load More Reviews</button>
+    <!-- ═══ HERO ═══ -->
+    <section class="hero">
+        <div class="hero-inner">
+            <div class="hero-meta">
+                <span class="tag">■ Independent Media Archive</span>
+                <span>MsJAG · Toronto</span>
+                <span>Since 2016</span>
+            </div>
+            <h1 class="hero-headline">
+                The Verdict<br>
+                <em>Vault.</em>
+            </h1>
+            <p class="hero-archive-lede">
+                These are just a few verified verdicts from a Level 7 Google Local Guide. Dining, nightlife, travel, and services across Toronto, Canada, and beyond.
+            </p>
+            <a href="https://maps.app.goo.gl/w3JyVs56oL8oc73r7" target="_blank" rel="noopener" class="hero-link">
+                View all reviews on Google Maps →
+            </a>
         </div>
-    </main>
+    </section>
 
-    <section id="contact" class="bg-slate-50 py-24 px-6 border-t border-slate-200">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Media &amp; Partnership Inquiries</h2>
-            <p class="text-slate-600 font-medium mb-12 max-w-2xl mx-auto text-lg">MsJAG provides professional, independent media coverage for Toronto venues and global travel destinations. Organizers and brands interested in high-authority reviews or event presence can submit formal inquiries below.</p>
-
-            <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-slate-100 text-left">
-                <form action="https://api.web3forms.com/submit" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input type="hidden" name="access_key" value="472a54d7-ca1f-4529-9065-b1978b93cf40">
-                    <input type="hidden" name="subject" value="New Media Inquiry - Vault Page">
-
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
-                        <input type="text" name="name" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Venue / Organization</label>
-                        <input type="text" name="venue" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                    </div>
-                    <div class="md:col-span-2 space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Type (Event, Review Request, etc.)</label>
-                        <input type="text" name="subject_type" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                    </div>
-                    <div class="md:col-span-2 space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email Address</label>
-                        <input type="email" name="email" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                    </div>
-                    <div class="md:col-span-2 space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Details</label>
-                        <textarea name="message" rows="4" required maxlength="200" id="inquiryMsg" class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all resize-none"></textarea>
-                        <p class="text-[10px] font-bold text-slate-400 mt-1 ml-1 tracking-wide"><span id="charCount">0</span>/200 characters</p>
-                    </div>
-                    <button type="submit" class="md:col-span-2 bg-slate-900 text-white font-black py-5 rounded-xl shadow-lg hover:bg-black transition-all uppercase tracking-widest text-sm">
-                        Submit Inquiry
-                    </button>
-                </form>
+    <!-- ═══ STATS (Category breakdown) ═══ -->
+    <section class="stats" aria-label="Coverage breakdown">
+        <div class="stats-inner">
+            <div class="stat">
+                <div class="big">135</div>
+                <div class="side"><strong>Dining</strong><br>Reviews</div>
+            </div>
+            <div class="stat">
+                <div class="big">18</div>
+                <div class="side"><strong>Nightlife</strong><br>Reviews</div>
+            </div>
+            <div class="stat">
+                <div class="big">53</div>
+                <div class="side"><strong>Travel</strong><br>Reviews</div>
+            </div>
+            <div class="stat">
+                <div class="big">142</div>
+                <div class="side"><strong>Services</strong><br>Reviews</div>
             </div>
         </div>
     </section>
 
-    <footer class="bg-slate-900 text-slate-500 py-12 px-6 text-center text-xs">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <p class="font-bold uppercase tracking-widest">&copy; <span id="copyrightYear"></span> MsJAG Reviews. Independent. Local. Authority.</p>
-            <div class="flex gap-6 text-lg">
-                <a href="https://instagram.com/chowhoundgta" target="_blank" rel="noopener" class="hover:text-white transition-colors" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="https://maps.app.goo.gl/5MNmkR8XkWLsJQz57?g_st=ic" target="_blank" rel="noopener" class="hover:text-white transition-colors" aria-label="Google Maps profile"><i class="fab fa-google"></i></a>
+    <main>
+        <!-- ═══ ARCHIVE ═══ -->
+        <section class="section" aria-labelledby="archive-h">
+            <div class="section-head">
+                <div class="num">§ 01</div>
+                <h2 id="archive-h">The full <em>archive.</em></h2>
+                <div class="meta">Search + filter<br>Sorted newest first</div>
+            </div>
+
+            <div class="controls">
+                <div class="search-wrap">
+                    <input type="text" id="searchInput" placeholder="Search by name, neighborhood, or keyword…" aria-label="Search reviews">
+                </div>
+                <div class="filter-wrap" role="group" aria-label="Category filter">
+                    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+                    <button class="filter-btn" onclick="setFilter('Dining', this)">Dining</button>
+                    <button class="filter-btn" onclick="setFilter('Nightlife', this)">Nightlife</button>
+                    <button class="filter-btn" onclick="setFilter('Travel', this)">Travel</button>
+                    <button class="filter-btn" onclick="setFilter('Service', this)">Service</button>
+                </div>
+            </div>
+
+            <p id="resultCount" class="result-count"></p>
+
+            <div id="reviewsGrid" class="archive-grid" aria-live="polite"></div>
+
+            <div id="loadMoreWrap" class="load-more-wrap">
+                <button id="loadMoreBtn" class="btn">Load more reviews →</button>
+            </div>
+        </section>
+
+        <!-- ═══ INQUIRY ═══ -->
+        <section class="inquiry" id="contact">
+            <div class="inquiry-inner">
+                <div class="heading">
+                    <div class="num">§ 02 · INQUIRIES</div>
+                    <h2>Media &amp; <span class="u"><span>partnership</span></span><br>requests.</h2>
+                    <p>MsJAG provides professional, independent media coverage for Toronto venues and global travel destinations. Organizers and brands interested in high-authority reviews or event presence can submit formal inquiries below.</p>
+                </div>
+
+                <form id="inquiry-form" action="https://formsubmit.co/d65d504c402f1757246b2c912fcf6426" method="POST" class="form">
+                    <input type="hidden" name="_subject" value="New Media Inquiry - Vault Page">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_template" value="table">
+                    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
+                    <div class="f">
+                        <label for="f-name">Full Name</label>
+                        <input type="text" id="f-name" name="name" required>
+                    </div>
+                    <div class="f">
+                        <label for="f-venue">Venue / Organization</label>
+                        <input type="text" id="f-venue" name="venue" required>
+                    </div>
+                    <div class="f full">
+                        <label for="f-type">Inquiry Type</label>
+                        <input type="text" id="f-type" name="subject_type" placeholder="Event · Review Request · Other" required>
+                    </div>
+                    <div class="f full">
+                        <label for="f-email">Email Address</label>
+                        <input type="email" id="f-email" name="email" required>
+                    </div>
+                    <div class="f full">
+                        <label for="f-msg">Inquiry Details</label>
+                        <textarea id="f-msg" name="message" rows="6" required maxlength="250"></textarea>
+                        <div class="counter"><span id="charCount">0</span> / 250</div>
+                    </div>
+                    <button type="submit">Submit Inquiry →</button>
+                </form>
+
+                <div id="inquiry-thanks" class="thanks-card" style="display:none;" role="status" aria-live="polite">
+                    <div class="thanks-num">§ 02 · RECEIVED</div>
+                    <h3>Thank you.<br>I'll get back to you.</h3>
+                    <p>Your inquiry is in. I read every message personally and respond within 48 hours for most requests, sooner for time-sensitive ones.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ═══ COLOPHON ═══ -->
+    <footer class="colophon">
+        <div class="col-inner">
+            <div class="brand">MsJAG<span class="dot">.</span></div>
+            <div class="col-meta">
+                &copy; <span id="copyrightYear"></span> MsJAG Reviews · Independent · Local · Authority<br>
+                <a href="https://maps.app.goo.gl/w3JyVs56oL8oc73r7" target="_blank" rel="noopener">Google Maps</a>
+                ·
+                <a href="https://instagram.com/chowhoundgta" target="_blank" rel="noopener">Instagram</a>
+                ·
+                <a href="#contact">Contact</a>
             </div>
         </div>
     </footer>
 
     <script>
+        // Dynamic copyright year
         document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
-        const msgInput = document.getElementById('inquiryMsg');
-        const charCountEl = document.getElementById('charCount');
-        if (msgInput && charCountEl) {
+        // Character counter
+        const msgInput = document.getElementById('f-msg');
+        const charCount = document.getElementById('charCount');
+        if (msgInput && charCount) {
             msgInput.addEventListener('input', () => {
-                charCountEl.textContent = msgInput.value.length;
+                charCount.textContent = msgInput.value.length;
             });
         }
 
+        // FormSubmit AJAX handler — inline thank-you, no page reload
+        const inquiryForm = document.getElementById('inquiry-form');
+        const thanksCard = document.getElementById('inquiry-thanks');
+        if (inquiryForm && thanksCard) {
+            inquiryForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const honey = inquiryForm.querySelector('input[name="_honey"]');
+                if (honey && honey.value) return;
+
+                const submitBtn = inquiryForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Sending…';
+
+                const oldErr = inquiryForm.querySelector('.err');
+                if (oldErr) oldErr.remove();
+
+                const formData = new FormData(inquiryForm);
+                const payload = {};
+                for (const [k, v] of formData.entries()) {
+                    if (!k.startsWith('_honey')) payload[k] = v;
+                }
+
+                try {
+                    const response = await fetch('https://formsubmit.co/ajax/d65d504c402f1757246b2c912fcf6426', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    const ok = response.ok && (result.success === true || result.success === 'true');
+                    if (ok) {
+                        inquiryForm.style.display = 'none';
+                        thanksCard.style.display = 'block';
+                        thanksCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        throw new Error(result.message || 'Submission failed');
+                    }
+                } catch (err) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    const errEl = document.createElement('div');
+                    errEl.className = 'err';
+                    errEl.textContent = 'Something went wrong. Please try again in a moment.';
+                    inquiryForm.insertBefore(errEl, submitBtn);
+                }
+            });
+        }
+
+        // Reviews data — injected separately to keep this file scaffold readable
         const reviews = [
 {
 "category": "Service",
@@ -2942,6 +3893,7 @@
 }
 ];
 
+        // State
         let currentFilter = 'all';
         let currentSearch = '';
         let visibleCount = 24;
@@ -2953,13 +3905,20 @@
         const loadMoreWrap = document.getElementById('loadMoreWrap');
         const resultCount = document.getElementById('resultCount');
 
-        function getCategoryStyles(cat) {
-            switch(cat) {
-                case 'Dining': return 'bg-red-100 text-red-800';
-                case 'Nightlife': return 'bg-purple-100 text-purple-800';
-                case 'Travel': return 'bg-blue-100 text-blue-800';
-                default: return 'bg-slate-100 text-slate-800';
-            }
+        function getScoreLabel(rating) {
+            if (rating === 5) return "Editor's Pick";
+            if (rating === 4) return "Recommended";
+            if (rating === 3) return "Mixed";
+            if (rating === 2) return "Not Recommended";
+            if (rating === 1) return "Avoid";
+            return "Unrated";
+        }
+
+        function getScoreClass(rating) {
+            if (rating >= 4) return 'score-good';
+            if (rating === 3) return 'score-mixed';
+            if (rating >= 1) return 'score-bad';
+            return 'score-unrated';
         }
 
         function escapeHtml(s) {
@@ -2991,7 +3950,7 @@
             grid.innerHTML = '';
 
             if (filtered.length === 0) {
-                grid.innerHTML = '<div class="col-span-full py-20 text-center"><p class="text-slate-400 font-black uppercase tracking-widest text-[10px]">No reviews found matching your query.</p></div>';
+                grid.innerHTML = '<div class="no-results">No reviews found matching your query.</div>';
                 loadMoreWrap.style.display = 'none';
                 resultCount.textContent = 'Showing 0 results';
                 return;
@@ -3000,35 +3959,36 @@
             const toShow = filtered.slice(0, visibleCount);
             toShow.forEach((r, idx) => {
                 const ratingNum = Math.max(0, Math.min(5, r.rating || 0));
-                const stars = '<i class="fas fa-star"></i>'.repeat(ratingNum);
-                const emptyStars = '<i class="far fa-star"></i>'.repeat(5 - ratingNum);
-                const catStyle = getCategoryStyles(r.category);
-                const ratingDisplay = ratingNum === 0
-                    ? '<span class="text-slate-300 text-[10px] font-bold uppercase tracking-widest">No rating</span>'
-                    : stars + emptyStars;
+                const scoreClass = getScoreClass(ratingNum);
+                const scoreLabel = getScoreLabel(ratingNum);
+                const pillClass = 'pill-' + (r.category || 'default');
+                const cardNum = String(idx + 1).padStart(2, '0');
 
                 const card = document.createElement('article');
-                card.className = 'review-card p-6 border border-slate-100 shadow-sm';
+                card.className = 'acard';
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-4 gap-3">
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-black text-lg text-slate-900 leading-tight">${escapeHtml(r.name)}</h3>
-                            <p class="text-[10px] text-slate-400 font-black mt-1 uppercase tracking-widest break-words">${escapeHtml(r.address || 'Location n/a')}</p>
-                        </div>
-                        <span class="category-badge ${catStyle} flex-shrink-0">${escapeHtml(r.category)}</span>
-                    </div>
-                    <div class="star-rating mb-4 text-xs">${ratingDisplay}</div>
-                    <p class="review-text text-slate-600 leading-relaxed font-medium text-sm">${escapeHtml(r.comment)}</p>
-                    <button class="read-more-btn" type="button">Read more</button>
-                    <div class="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    <div class="acard-num" aria-hidden="true">${cardNum}</div>
+                    <div class="acard-head">
+                        <span class="pill ${pillClass}">${escapeHtml(r.category)}</span>
                         <span>${escapeHtml(r.date)}</span>
-                        <span class="text-brand-orange">Verified</span>
+                    </div>
+                    <h3>${escapeHtml(r.name)}</h3>
+                    <div class="where">${escapeHtml(r.address || 'Location n/a')}</div>
+                    <div class="scorebar" aria-label="Rated ${ratingNum} out of 5">
+                        <span class="score-n ${scoreClass}">${ratingNum}</span>
+                        <span class="score-out">/ 5.0</span>
+                        <span class="score-label">${scoreLabel}</span>
+                    </div>
+                    <p class="body-text">${escapeHtml(r.comment)}</p>
+                    <button class="read-more-btn" type="button">Read more →</button>
+                    <div class="foot">
+                        <span>Filed · ${escapeHtml(r.date)}</span>
+                        <span class="verified">▲ Verified</span>
                     </div>
                 `;
                 grid.appendChild(card);
 
-                // Show "Read more" only when content is clamped
-                const textEl = card.querySelector('.review-text');
+                const textEl = card.querySelector('.body-text');
                 const btn = card.querySelector('.read-more-btn');
                 requestAnimationFrame(() => {
                     if (textEl.scrollHeight > textEl.clientHeight + 2) {
@@ -3037,7 +3997,7 @@
                 });
                 btn.addEventListener('click', () => {
                     const expanded = textEl.classList.toggle('expanded');
-                    btn.textContent = expanded ? 'Show less' : 'Read more';
+                    btn.textContent = expanded ? 'Show less ←' : 'Read more →';
                 });
             });
 
@@ -3056,7 +4016,7 @@
             renderReviews();
         });
 
-        // Generate schema markup for SEO
+        // Generate schema markup for SEO (preserved from original)
         function generateSchema() {
             const schemaTypeMap = {
                 'Dining': 'Restaurant',
@@ -3066,10 +4026,9 @@
             };
 
             const reviewSchemas = reviews.map(r => {
-                // Parse address
                 const addressParts = (r.address || '').split(',').map(s => s.trim());
-                const postalMatch = r.address.match(/([A-Z]\d[A-Z]\s?\d[A-Z]\d)/i);
-                
+                const postalMatch = (r.address || '').match(/([A-Z]\d[A-Z]\s?\d[A-Z]\d)/i);
+
                 return {
                     "@type": "Review",
                     "itemReviewed": {
@@ -3081,7 +4040,7 @@
                             "addressLocality": addressParts[1] || "",
                             "addressRegion": addressParts[2] || "",
                             "postalCode": postalMatch ? postalMatch[1] : "",
-                            "addressCountry": r.address.includes('Canada') || r.address.includes(', ON') || r.address.includes(', BC') || r.address.includes(', AB') ? "CA" : ""
+                            "addressCountry": (r.address || '').includes('Canada') || (r.address || '').includes(', ON') || (r.address || '').includes(', BC') || (r.address || '').includes(', AB') ? "CA" : ""
                         }
                     },
                     "reviewRating": {
@@ -3092,7 +4051,7 @@
                     "author": {
                         "@type": "Person",
                         "name": "MsJAG",
-                        "url": "https://www.google.com/maps/contrib/113123460295195530364/reviews/"
+                        "url": "https://maps.app.goo.gl/w3JyVs56oL8oc73r7"
                     },
                     "datePublished": r.date,
                     "reviewBody": r.comment.substring(0, 500)
