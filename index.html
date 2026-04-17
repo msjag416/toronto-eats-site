@@ -1005,6 +1005,61 @@
             transform: translate(-2px, -2px);
             box-shadow: 4px 4px 0 var(--ink);
         }
+        .form button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ═══ THANK-YOU CARD ═══ */
+        .thanks-card {
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            padding: 56px 32px;
+            text-align: center;
+            box-shadow: 8px 8px 0 var(--accent);
+        }
+        .thanks-card .thanks-num {
+            display: inline-block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.24em;
+            background: var(--accent);
+            color: var(--ink);
+            padding: 4px 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .thanks-card h3 {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(32px, 5vw, 56px);
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            margin: 0 0 20px;
+            font-stretch: 125%;
+            color: var(--ink);
+        }
+        .thanks-card p {
+            max-width: 48ch;
+            margin: 0 auto;
+            color: var(--ink-2);
+            font-weight: 500;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .form .err {
+            grid-column: 1 / -1;
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            color: var(--ink);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            padding: 12px 14px;
+            margin-bottom: 4px;
+        }
 
         /* ═══ COLOPHON ═══ */
         .colophon {
@@ -1387,10 +1442,11 @@
                     <p>MsJAG provides professional, independent media coverage for Toronto venues and global travel destinations. Organizers and brands interested in high-authority reviews or event presence can submit formal inquiries below.</p>
                 </div>
 
-                <form action="https://api.web3forms.com/submit" method="POST" class="form">
-                    <input type="hidden" name="access_key" value="472a54d7-ca1f-4529-9065-b1978b93cf40">
-                    <input type="hidden" name="subject" value="New Media Inquiry - MsJAG Reviews">
-                    <input type="hidden" name="redirect" value="https://torontoeatsandreviews.com/thanks.html">
+                <form id="inquiry-form" action="https://formsubmit.co/msjag416@gmail.com" method="POST" class="form">
+                    <input type="hidden" name="_subject" value="New Media Inquiry - MsJAG Reviews">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_template" value="table">
+                    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
                     <div class="f">
                         <label for="f-name">Full Name</label>
@@ -1415,6 +1471,12 @@
                     </div>
                     <button type="submit">Submit Inquiry →</button>
                 </form>
+
+                <div id="inquiry-thanks" class="thanks-card" style="display:none;" role="status" aria-live="polite">
+                    <div class="thanks-num">§ 03 · RECEIVED</div>
+                    <h3>Thank you.<br>I'll get back to you.</h3>
+                    <p>Your inquiry is in. I read every message personally and respond within 48 hours for most requests, sooner for time-sensitive ones.</p>
+                </div>
             </div>
         </section>
     </main>
@@ -1444,6 +1506,61 @@
         if (msgInput && charCount) {
             msgInput.addEventListener('input', () => {
                 charCount.textContent = msgInput.value.length;
+            });
+        }
+
+        // FormSubmit AJAX handler — inline thank-you, no page reload
+        const inquiryForm = document.getElementById('inquiry-form');
+        const thanksCard = document.getElementById('inquiry-thanks');
+        if (inquiryForm && thanksCard) {
+            inquiryForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Honeypot — silently drop bot submissions
+                const honey = inquiryForm.querySelector('input[name="_honey"]');
+                if (honey && honey.value) return;
+
+                const submitBtn = inquiryForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Sending…';
+
+                // Remove any previous error
+                const oldErr = inquiryForm.querySelector('.err');
+                if (oldErr) oldErr.remove();
+
+                const formData = new FormData(inquiryForm);
+                const payload = {};
+                for (const [k, v] of formData.entries()) {
+                    if (!k.startsWith('_honey')) payload[k] = v;
+                }
+
+                try {
+                    const response = await fetch('https://formsubmit.co/ajax/msjag416@gmail.com', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    const ok = response.ok && (result.success === true || result.success === 'true');
+                    if (ok) {
+                        inquiryForm.style.display = 'none';
+                        thanksCard.style.display = 'block';
+                        thanksCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        throw new Error(result.message || 'Submission failed');
+                    }
+                } catch (err) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    const errEl = document.createElement('div');
+                    errEl.className = 'err';
+                    errEl.textContent = 'Something went wrong. Please try again in a moment.';
+                    inquiryForm.insertBefore(errEl, submitBtn);
+                }
             });
         }
     </script>
