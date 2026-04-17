@@ -207,272 +207,1242 @@
     }
     </script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62.5..125,500..900&family=Archivo+Narrow:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        :root {
+            --bg: #ededea;
+            --paper: #f7f5f0;
+            --ink: #0b0b0c;
+            --ink-2: #2b2a2c;
+            --ink-3: #6d6b6a;
+            --rule: #0b0b0c;
+            --accent: #ea580c;
+            --accent-2: #15803d;
+            --yellow: #f0c419;
+        }
+
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #0f172a; }
-        .bg-brand-green { background-color: #15803d; }
-        .text-brand-green { color: #15803d; }
-        .bg-brand-orange { background-color: #ea580c; }
-        .text-brand-orange { color: #ea580c; }
-        .review-card { transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
-        .review-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .review-card img.venue-photo { width: 100%; height: 220px; object-fit: cover; display: block; }
-        .star-rating { color: #facc15; display: inline-block; }
-        #mobile-menu { transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
-        #mobile-menu.open { max-height: 500px; opacity: 1; }
-        .stat-value { font-size: 3rem; line-height: 1; font-weight: 900; }
-        .stat-card { display: block; text-decoration: none; color: inherit; transition: transform 0.2s ease; }
-        .stat-card:hover { transform: translateY(-2px); }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            font-size: 15px;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        img { max-width: 100%; display: block; }
+        a { color: inherit; }
+
+        /* ═══ TICKER BAR ═══ */
+        .tick {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 8px 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid var(--ink);
+            flex-wrap: wrap;
+        }
+        .tick .marquee { display: flex; gap: 32px; flex-wrap: wrap; }
+        .tick .marquee span::before {
+            content: '▲';
+            color: var(--accent);
+            margin-right: 6px;
+        }
+
+        /* ═══ MASTHEAD ═══ */
+        .masthead {
+            background: var(--paper);
+            padding: 24px 32px 20px;
+            border-bottom: 3px solid var(--ink);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .masthead-inner {
+            max-width: 1320px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 32px;
+        }
+        .masthead .left, .masthead .right {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink-2);
+            line-height: 1.8;
+        }
+        .masthead .right { text-align: right; }
+        .wordmark {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 72px;
+            letter-spacing: -0.05em;
+            line-height: 0.85;
+            margin: 0;
+            text-align: center;
+            font-stretch: 125%;
+            color: var(--ink);
+            text-decoration: none;
+            display: block;
+        }
+        .wordmark .dot { color: var(--accent); }
+
+        .subnav {
+            max-width: 1320px;
+            margin: 16px auto 0;
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            padding-top: 12px;
+            border-top: 1px solid var(--rule);
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+        .subnav a {
+            color: var(--ink);
+            text-decoration: none;
+            padding: 4px 0;
+            transition: color 0.15s;
+        }
+        .subnav a:hover { color: var(--accent); }
+        .subnav .active { border-bottom: 2px solid var(--accent); }
+
+        /* ═══ HERO ═══ */
+        .hero {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 40px 32px 56px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1320px; margin: 0 auto; }
+
+        .hero-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(247, 245, 240, 0.2);
+            margin-bottom: 32px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(247, 245, 240, 0.65);
+        }
+        .hero-meta .tag {
+            background: var(--accent);
+            color: var(--ink);
+            padding: 4px 10px;
+            font-weight: 600;
+        }
+        .hero-meta .badge-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hero-meta .badge-wrap img {
+            height: 22px;
+            width: auto;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 48px;
+            align-items: end;
+        }
+
+        .hero-headline {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(44px, 7vw, 104px);
+            line-height: 0.88;
+            letter-spacing: -0.05em;
+            margin: 0;
+            color: var(--paper);
+            font-stretch: 125%;
+        }
+        .hero-headline .accent { color: var(--accent); }
+        .hero-headline .underline {
+            position: relative;
+            display: inline-block;
+        }
+        .hero-headline .underline::after {
+            content: '';
+            position: absolute;
+            left: -4px;
+            right: -4px;
+            bottom: 4px;
+            height: 10px;
+            background: var(--accent);
+            z-index: 0;
+            transform: skew(-2deg);
+        }
+        .hero-headline .underline > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-byline {
+            margin-top: 24px;
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 0.02em;
+            color: var(--yellow);
+            text-transform: uppercase;
+        }
+
+        .hero-side { padding-bottom: 8px; }
+        .hero-side .avatar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .hero-side .avatar img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+            background: var(--paper);
+        }
+        .hero-side .avatar .caption {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(247, 245, 240, 0.72);
+            line-height: 1.6;
+        }
+        .hero-side .lede {
+            font-family: 'Archivo', sans-serif;
+            font-size: 16px;
+            line-height: 1.55;
+            font-weight: 500;
+            color: rgba(247, 245, 240, 0.9);
+            padding-left: 18px;
+            border-left: 4px solid var(--accent);
+            margin: 0;
+        }
+        .hero-side .lede strong { color: var(--paper); }
+
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 14px 22px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+        }
+        .btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 var(--accent);
+        }
+        .btn-primary { background: var(--accent); color: var(--ink); }
+        .btn-ghost {
+            background: transparent;
+            color: var(--paper);
+            border-color: var(--paper);
+        }
+
+        /* ═══ STATS ═══ */
+        .stats {
+            background: var(--paper);
+            border-top: 3px solid var(--ink);
+            border-bottom: 3px solid var(--ink);
+        }
+        .stats-inner {
+            max-width: 1320px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .stat {
+            padding: 40px 32px;
+            border-right: 1px solid var(--rule);
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 20px;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s;
+        }
+        .stat:hover { background: var(--bg); }
+        .stat:last-child { border-right: none; }
+        .stat .big {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(56px, 6vw, 80px);
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+            font-stretch: 125%;
+        }
+        .stat:nth-child(1) .big { color: var(--accent); }
+        .stat:nth-child(2) .big { color: var(--ink); }
+        .stat:nth-child(3) .big { color: var(--accent-2); }
+        .stat .side {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink-2);
+            line-height: 1.7;
+            font-weight: 500;
+        }
+        .stat .side strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        /* ═══ SECTION ═══ */
+        main { flex: 1 1 auto; }
+        .section {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 72px 32px;
+        }
+        .section-head {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 32px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid var(--ink);
+            margin-bottom: 40px;
+        }
+        .section-head .num {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 6px 10px;
+            font-weight: 600;
+        }
+        .section-head h2 {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(32px, 5vw, 56px);
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            margin: 0;
+            font-stretch: 125%;
+        }
+        .section-head h2 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+        .section-head .meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            text-align: right;
+            line-height: 1.7;
+        }
+        .section-head .meta a {
+            color: var(--ink);
+            text-decoration: none;
+            border-bottom: 2px solid var(--accent);
+            font-weight: 600;
+        }
+        .section-intro {
+            max-width: 64ch;
+            margin: -16px 0 40px;
+            font-size: 15px;
+            color: var(--ink-2);
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        /* ═══ VERTICALS ═══ */
+        .verts {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 2px;
+            background: var(--ink);
+            border: 2px solid var(--ink);
+        }
+        .vtile {
+            background: var(--paper);
+            padding: 24px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 160px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .vtile:hover { background: var(--accent); color: var(--ink); }
+        .vtile .n {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--ink-3);
+            letter-spacing: 0.1em;
+        }
+        .vtile:hover .n, .vtile:hover .ct { color: var(--ink); }
+        .vtile .icon {
+            font-size: 22px;
+            color: var(--accent);
+            margin-top: 4px;
+        }
+        .vtile:hover .icon { color: var(--ink); }
+        .vtile .name {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            margin-top: auto;
+            font-stretch: 125%;
+        }
+        .vtile .ct {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: var(--ink-3);
+            text-transform: uppercase;
+        }
+
+        /* ═══ PULL QUOTE ═══ */
+        .pull {
+            background: var(--accent);
+            color: var(--ink);
+            padding: 64px 32px;
+            border-top: 3px solid var(--ink);
+            border-bottom: 3px solid var(--ink);
+            position: relative;
+            overflow: hidden;
+        }
+        .pull-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .pull .q {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(28px, 4.5vw, 56px);
+            line-height: 1.02;
+            letter-spacing: -0.035em;
+            font-stretch: 125%;
+        }
+        .pull .attr {
+            margin-top: 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        .pull .bg-num {
+            position: absolute;
+            right: -20px;
+            bottom: -60px;
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(200px, 28vw, 420px);
+            line-height: 1;
+            letter-spacing: -0.08em;
+            color: var(--ink);
+            opacity: 0.08;
+            pointer-events: none;
+            font-stretch: 125%;
+        }
+
+        /* ═══ VERDICT CARDS ═══ */
+        .verdicts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            background: var(--ink);
+            border: 2px solid var(--ink);
+        }
+        .card {
+            background: var(--paper);
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 24px;
+            padding: 24px;
+            position: relative;
+        }
+        .card-num {
+            position: absolute;
+            top: 12px;
+            right: 20px;
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 80px;
+            color: var(--ink);
+            opacity: 0.08;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            font-stretch: 125%;
+            pointer-events: none;
+        }
+        .card .thumb {
+            aspect-ratio: 3/4;
+            position: relative;
+            border: 1px solid var(--rule);
+            background: #d6d3cb;
+            overflow: hidden;
+        }
+        .card .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .card .thumb .tl {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            background: var(--paper);
+            padding: 3px 6px;
+            text-transform: uppercase;
+            border: 1px solid var(--rule);
+            z-index: 2;
+        }
+        .card .thumb .cap {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            color: var(--ink-2);
+            background: var(--paper);
+            padding: 6px 8px;
+            text-transform: uppercase;
+            border-top: 1px solid var(--rule);
+            z-index: 2;
+        }
+        .card .body {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .card .head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--rule);
+            margin-bottom: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+        }
+        .card .head .pill {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 3px 8px;
+            letter-spacing: 0.12em;
+            font-weight: 500;
+        }
+        .card .head .pill.accent {
+            background: var(--accent);
+            color: var(--ink);
+        }
+        .card h3 {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 24px;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin: 0 0 4px;
+            font-stretch: 125%;
+        }
+        .card .where {
+            font-family: 'Archivo Narrow', sans-serif;
+            font-size: 13px;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .card .scorebar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            border-top: 2px solid var(--ink);
+            border-bottom: 2px solid var(--ink);
+            margin-bottom: 14px;
+        }
+        .card .score-n {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 44px;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            font-stretch: 125%;
+            color: var(--accent-2);
+        }
+        .card.r-mixed .score-n { color: var(--ink); }
+        .card .score-out {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--ink-3);
+            letter-spacing: 0.1em;
+        }
+        .card .score-label {
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            background: var(--yellow);
+            padding: 4px 8px;
+        }
+        .card p {
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--ink-2);
+            margin: 0 0 14px;
+            font-weight: 500;
+        }
+        .card .foot {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid var(--rule);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+        }
+        .card .foot a {
+            color: var(--ink);
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* ═══ INQUIRY FORM ═══ */
+        .inquiry {
+            background: var(--paper);
+            padding: 72px 32px;
+            border-top: 3px solid var(--ink);
+        }
+        .inquiry-inner {
+            max-width: 920px;
+            margin: 0 auto;
+        }
+        .inquiry .heading {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .inquiry .heading .num {
+            display: inline-block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.24em;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 4px 10px;
+            margin-bottom: 12px;
+        }
+        .inquiry .heading h2 {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: clamp(36px, 6vw, 72px);
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            margin: 8px 0 16px;
+            font-stretch: 125%;
+        }
+        .inquiry .heading h2 .u {
+            display: inline-block;
+            position: relative;
+        }
+        .inquiry .heading h2 .u::after {
+            content: '';
+            position: absolute;
+            left: -2px;
+            right: -2px;
+            bottom: 4px;
+            height: 12px;
+            background: var(--yellow);
+            z-index: 0;
+        }
+        .inquiry .heading h2 .u > span {
+            position: relative;
+            z-index: 1;
+        }
+        .inquiry .heading p {
+            max-width: 56ch;
+            margin: 0 auto;
+            color: var(--ink-2);
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .form {
+            background: var(--bg);
+            border: 2px solid var(--ink);
+            padding: 32px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            box-shadow: 8px 8px 0 var(--ink);
+        }
+        .form .f {
+            display: flex;
+            flex-direction: column;
+        }
+        .form .full { grid-column: 1 / -1; }
+        .form label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form input, .form textarea {
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            padding: 12px 14px;
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--ink);
+            outline: none;
+            font-weight: 500;
+            transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+        }
+        .form input:focus, .form textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 4px 4px 0 var(--accent);
+            transform: translate(-2px, -2px);
+        }
+        .form textarea {
+            min-height: 140px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .form .counter {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            color: var(--ink-3);
+            margin-top: 6px;
+            text-align: right;
+        }
+        .form button {
+            grid-column: 1 / -1;
+            background: var(--ink);
+            color: var(--paper);
+            border: 2px solid var(--ink);
+            padding: 16px;
+            font-family: 'Archivo Narrow', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
+        .form button:hover {
+            background: var(--accent);
+            color: var(--ink);
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 var(--ink);
+        }
+
+        /* ═══ COLOPHON ═══ */
+        .colophon {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 40px 32px;
+        }
+        .col-inner {
+            max-width: 1320px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .col-inner .brand {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            font-size: 28px;
+            letter-spacing: -0.04em;
+            font-stretch: 125%;
+        }
+        .col-inner .brand .dot { color: var(--accent); }
+        .col-meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(247, 245, 240, 0.6);
+            text-align: right;
+            line-height: 1.9;
+        }
+        .col-meta a {
+            color: var(--paper);
+            text-decoration: none;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        /* ═══ MOBILE MENU TOGGLE ═══ */
+        .menu-btn { display: none; }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 960px) {
+            .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+            .verts { grid-template-columns: repeat(3, 1fr); }
+            .verdicts { grid-template-columns: 1fr; }
+            .card { grid-template-columns: 140px 1fr; gap: 16px; padding: 20px; }
+            .stats-inner { grid-template-columns: 1fr; }
+            .stat { border-right: none; border-bottom: 1px solid var(--rule); }
+            .stat:last-child { border-bottom: none; }
+            .section-head { grid-template-columns: auto 1fr; }
+            .section-head .meta { grid-column: 1 / -1; text-align: left; }
+        }
+        @media (max-width: 640px) {
+            .masthead-inner { grid-template-columns: 1fr; text-align: center; }
+            .masthead .left, .masthead .right { text-align: center; }
+            .wordmark { font-size: 56px; }
+            .verts { grid-template-columns: repeat(2, 1fr); }
+            .card { grid-template-columns: 1fr; }
+            .card .thumb { aspect-ratio: 16/10; max-width: 100%; }
+            .form { grid-template-columns: 1fr; padding: 24px; box-shadow: 5px 5px 0 var(--ink); }
+            .section { padding: 48px 20px; }
+            .hero { padding: 32px 20px 44px; }
+            .pull { padding: 48px 20px; }
+            .inquiry { padding: 48px 20px; }
+            .col-inner { flex-direction: column; text-align: center; }
+            .col-meta { text-align: center; }
+            .subnav { gap: 18px; font-size: 11px; }
+            .tick { font-size: 10px; }
+        }
     </style>
 </head>
-<body class="antialiased flex flex-col min-h-screen pt-16">
+<body>
 
-    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-sm z-50 border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-            <a href="#" class="flex items-center gap-2 group" aria-label="MsJAG Reviews home">
-                <img src="msjag-logo.PNG" alt="MsJAG Reviews logo" class="w-10 h-10 rounded-full object-cover" width="40" height="40" onerror="this.src='https://via.placeholder.com/40'">
-                <span class="font-black text-xl tracking-tighter text-slate-900 group-hover:text-brand-orange transition-colors">MsJAG<span class="text-brand-green">.</span></span>
-            </a>
-            <div class="hidden md:flex items-center space-x-8">
-                <a href="#" class="text-slate-600 hover:text-brand-green font-bold text-sm">Home</a>
-                <a href="archive.html" class="text-slate-600 hover:text-brand-green font-bold text-sm">The Vault</a>
-                <a href="https://torontorecoverystrategy.com/" target="_blank" rel="noopener" class="text-slate-600 hover:text-brand-green font-bold text-sm">Who is MsJAG?</a>
-                <a href="#contact" class="bg-brand-orange hover:bg-orange-700 text-white font-bold text-xs px-4 py-2 rounded-lg shadow-md transition-all">Media Inquiries</a>
-            </div>
-            <button id="mobile-menu-btn" class="md:hidden text-slate-600 p-2" aria-label="Open menu"><i class="fas fa-bars text-2xl"></i></button>
+    <!-- ═══ TICKER ═══ -->
+    <div class="tick" role="complementary" aria-label="Credentials">
+        <div class="marquee">
+            <span>9,135,002 photo views</span>
+            <span>Level 7 Local Guide</span>
+            <span>432 verified reviews</span>
         </div>
-        <div id="mobile-menu" class="md:hidden bg-white border-t border-slate-100 px-6">
-            <a href="#" class="block py-3 text-slate-600 hover:text-brand-green font-bold text-sm">Home</a>
-            <a href="archive.html" class="block py-3 text-slate-600 hover:text-brand-green font-bold text-sm border-t border-slate-100">The Vault</a>
-            <a href="https://torontorecoverystrategy.com/" target="_blank" rel="noopener" class="block py-3 text-slate-600 hover:text-brand-green font-bold text-sm border-t border-slate-100">Who is MsJAG?</a>
-            <a href="#contact" class="block py-3 text-brand-orange font-bold text-sm border-t border-slate-100">Media Inquiries</a>
-        </div>
-    </nav>
+        <div>Toronto · Canada · Est. MMXVI</div>
+    </div>
 
-    <header class="bg-slate-900 text-white py-24 px-6 relative overflow-hidden">
-        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-brand-green opacity-10 rounded-full blur-3xl"></div>
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 relative z-10">
-            <div class="w-40 h-40 flex-shrink-0 rounded-full border-4 border-brand-orange overflow-hidden shadow-2xl bg-white">
-                <img src="msjag-logo.PNG" alt="MsJAG Reviews logo" class="w-full h-full object-cover" width="160" height="160" loading="eager" onerror="this.src='https://via.placeholder.com/160'">
-            </div>
-            <div class="text-center md:text-left">
-                <!-- Badge Image Integrated Here -->
-                <div class="mb-6 flex justify-center md:justify-start">
-                    <img src="badge.png" alt="Google Local Guide Level 7 Badge" class="h-14 w-auto object-contain">
-                </div>
-                
-                <h1 class="text-5xl md:text-7xl font-black mb-0 tracking-tight leading-none">MsJAG</h1>
-                <h2 class="text-2xl font-bold mt-4 mb-4">Independent Critic: Nightlife, Food & Travel</h2>
-                <p class="text-2xl md:text-3xl font-bold text-yellow-300 mb-4">Toronto • Canada • International</p>
-                <p class="text-xs text-slate-300 font-bold uppercase tracking-[0.25em] mb-6 border-l-4 border-brand-orange pl-3">Independent Reviews. All Visits Self-Funded. No Sponsored Content.</p>
-                <p class="text-lg text-slate-300 max-w-2xl leading-relaxed mb-8 font-medium">I write Toronto Google Reviews covering restaurants, hotels, medical and wellness clinics, gyms, shops, attractions, and local services. My 736 published venue photos have earned 9,135,002 verified views on Google Maps, and my written reviews reached hundreds of thousands of readers. I cover everything from famous food and attractions in downtown Toronto to unusual things to do for young adults. My verdicts focus on service, quality, consistency, and value for adults looking for local experiences.</p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                    <a href="archive.html" class="bg-brand-orange text-white font-black py-4 px-10 rounded-xl shadow-lg text-center uppercase tracking-widest hover:bg-orange-700 transition-colors">Enter The Vault</a>
-                    <a href="#contact" class="bg-white text-slate-900 font-black py-4 px-10 rounded-xl shadow-lg text-center uppercase tracking-widest hover:bg-slate-100 transition-colors">Media Inquiries</a>
-                </div>
-            </div>
+    <!-- ═══ MASTHEAD ═══ -->
+    <header class="masthead">
+        <div class="masthead-inner">
+            <div class="left">Independent<br>Self-Funded<br>Unsponsored</div>
+            <a href="#" class="wordmark" aria-label="MsJAG Reviews home">MsJAG<span class="dot">.</span></a>
+            <div class="right">Toronto · Canada<br>International<br>Friday, Apr. 17, 2026</div>
         </div>
+        <nav class="subnav" aria-label="Primary">
+            <a href="#" class="active">Home</a>
+            <a href="archive.html">The Vault</a>
+            <a href="https://torontorecoverystrategy.com/" target="_blank" rel="noopener">Who is MsJAG?</a>
+            <a href="#contact">Media Inquiries</a>
+        </nav>
     </header>
 
-    <section class="bg-brand-green text-white py-16 px-6">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-            <a href="https://www.google.com/maps/contrib/113123460295195530364/photos/" target="_blank" rel="noopener" class="stat-card">
-                <div class="stat-value mb-2">9.1M+</div>
-                <div class="text-sm font-black uppercase tracking-[0.3em] opacity-80">Verified Google Photo Views</div>
+    <!-- ═══ HERO ═══ -->
+    <section class="hero">
+        <div class="hero-inner">
+            <div class="hero-meta">
+                <span class="tag">■ Restaurants · Nightlife · Hotels · Wellness · Gyms · Attractions</span>
+                <span class="badge-wrap">
+                    <img src="badge.png" alt="Google Local Guide Level 7 badge" onerror="this.style.display='none'">
+                    Level 7 · 13,596 pts
+                </span>
+                <span>MsJAG · Toronto</span>
+            </div>
+
+            <div class="hero-grid">
+                <div>
+                    <h1 class="hero-headline">
+                        Independent<br>
+                        <span class="underline"><span>critic:</span></span><br>
+                        Nightlife, food<br>
+                        <span class="accent">&amp; travel.</span>
+                    </h1>
+                    <div class="hero-byline">Toronto · Canada · International</div>
+                </div>
+
+                <div class="hero-side">
+                    <div class="avatar">
+                        <img src="msjag-logo.PNG" alt="MsJAG Reviews logo" width="64" height="64" loading="eager" onerror="this.src='https://via.placeholder.com/64'">
+                        <div class="caption">
+                            By MsJAG<br>
+                            Level 7 · Google Local Guide
+                        </div>
+                    </div>
+                    <p class="lede">
+                        I write Toronto Google Reviews covering restaurants, hotels, medical and wellness clinics, gyms, shops, attractions, and local services. My <strong>736 published venue photos have earned 9,135,002 verified views on Google Maps</strong>, and my written reviews reached hundreds of thousands of readers. I cover everything from famous food and attractions in downtown Toronto to unusual things to do for young adults. My verdicts focus on service, quality, consistency, and value for adults looking for local experiences.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="archive.html" class="btn btn-primary">Enter The Vault →</a>
+                        <a href="#contact" class="btn btn-ghost">Media Inquiries</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ STATS ═══ -->
+    <section class="stats" aria-label="Credentials and statistics">
+        <div class="stats-inner">
+            <a href="https://www.google.com/maps/contrib/113123460295195530364/photos/" target="_blank" rel="noopener" class="stat">
+                <div class="big">9.1M+</div>
+                <div class="side">
+                    <strong>Verified photo views</strong><br>
+                    on Google Maps<br>
+                    Cumulative · All time
+                </div>
             </a>
-            <a href="https://www.google.com/maps/contrib/113123460295195530364/photos/" target="_blank" rel="noopener" class="stat-card">
-                <div class="stat-value mb-2">736</div>
-                <div class="text-sm font-black uppercase tracking-[0.3em] opacity-80">Venue Photos Published</div>
+            <a href="https://www.google.com/maps/contrib/113123460295195530364/photos/" target="_blank" rel="noopener" class="stat">
+                <div class="big">736</div>
+                <div class="side">
+                    <strong>Venue photos published</strong><br>
+                    Across 6 verticals<br>
+                    All geo-tagged
+                </div>
             </a>
-            <a href="https://www.google.com/maps/contrib/113123460295195530364/reviews/" target="_blank" rel="noopener" class="stat-card">
-                <div class="stat-value mb-2">Level 7</div>
-                <div class="text-sm font-black uppercase tracking-[0.3em] opacity-80">Google Local Guide · 13,596 pts</div>
+            <a href="https://www.google.com/maps/contrib/113123460295195530364/reviews/" target="_blank" rel="noopener" class="stat">
+                <div class="big">L7</div>
+                <div class="side">
+                    <strong>Google Local Guide</strong><br>
+                    13,596 contribution pts<br>
+                    432 published reviews
+                </div>
             </a>
         </div>
     </section>
 
-    <main class="flex-grow">
-        <!-- Core Coverage Verticals Restored -->
-        <section class="max-w-7xl mx-auto px-6 py-20">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Core Coverage Verticals</h2>
-                <p class="text-slate-600 font-medium max-w-2xl mx-auto">Providing high-authority independent analysis across these primary sectors. My reviews focus on the metrics that matter most to discerning consumers and professional operators.</p>
+    <main>
+        <!-- ═══ VERTICALS ═══ -->
+        <section class="section" aria-labelledby="verts-h">
+            <div class="section-head">
+                <div class="num">§ 01</div>
+                <h2 id="verts-h">Core coverage <em>verticals.</em></h2>
+                <div class="meta">Updated continuously<br>Since MMXVI</div>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-utensils text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Restaurants</p>
+            <p class="section-intro">
+                High-authority independent analysis across six primary sectors. My verdicts focus on the metrics that matter most to discerning consumers and professional operators: service, quality, consistency, and value.
+            </p>
+
+            <div class="verts">
+                <div class="vtile">
+                    <span class="n">01</span>
+                    <span class="icon" aria-hidden="true">◆</span>
+                    <span class="name">Restaurants</span>
+                    <span class="ct">Coverage</span>
                 </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-hotel text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Hotels</p>
+                <div class="vtile">
+                    <span class="n">02</span>
+                    <span class="icon" aria-hidden="true">◆</span>
+                    <span class="name">Hotels</span>
+                    <span class="ct">Coverage</span>
                 </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-heartbeat text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Medical & Wellness</p>
+                <div class="vtile">
+                    <span class="n">03</span>
+                    <span class="icon" aria-hidden="true">◆</span>
+                    <span class="name">Medical &amp; Wellness</span>
+                    <span class="ct">Coverage</span>
                 </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-dumbbell text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Gyms & Fitness</p>
+                <div class="vtile">
+                    <span class="n">04</span>
+                    <span class="icon" aria-hidden="true">◆</span>
+                    <span class="name">Gyms &amp; Fitness</span>
+                    <span class="ct">Coverage</span>
                 </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-shopping-bag text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Shops & Services</p>
+                <div class="vtile">
+                    <span class="n">05</span>
+                    <span class="icon" aria-hidden="true">◆</span>
+                    <span class="name">Shops &amp; Services</span>
+                    <span class="ct">Coverage</span>
                 </div>
-                <div class="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100">
-                    <i class="fas fa-map-marked-alt text-3xl text-brand-orange mb-4"></i>
-                    <p class="font-black text-[10px] uppercase tracking-widest">Attractions</p>
+                <div class="vtile">
+                    <span class="n">06</span>
+                    <span class="icon" aria-hidden="true">◆</span>
+                    <span class="name">Attractions</span>
+                    <span class="ct">Coverage</span>
                 </div>
             </div>
         </section>
 
-        <section id="reviews" class="max-w-7xl mx-auto px-6 py-20 scroll-mt-24">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-slate-100 pb-6">
-                <div>
-                    <h2 class="text-4xl font-black text-slate-900 mb-2 uppercase tracking-tight">Recent Verdicts</h2>
-                    <p class="text-slate-500 font-medium italic">Unfiltered analysis from recent venue coverage.</p>
+        <!-- ═══ PULL QUOTE ═══ -->
+        <section class="pull" aria-label="Editorial policy">
+            <div class="pull-inner">
+                <div class="q">
+                    "Every venue visited<br>
+                    on my own dime.<br>
+                    No comped meals,<br>
+                    no press trips,<br>
+                    no affiliate codes."
                 </div>
-                <a href="archive.html" class="text-brand-orange font-bold hover:underline mb-2">View Full Archive &rarr;</a>
+                <div class="attr">MsJAG · Editorial Policy · Since MMXVI</div>
+            </div>
+            <div class="bg-num" aria-hidden="true">01</div>
+        </section>
+
+        <!-- ═══ RECENT VERDICTS ═══ -->
+        <section id="reviews" class="section" aria-labelledby="verdicts-h">
+            <div class="section-head">
+                <div class="num">§ 02</div>
+                <h2 id="verdicts-h">Recent <em>verdicts.</em></h2>
+                <div class="meta">
+                    4 of 432<br>
+                    <a href="archive.html">View full archive →</a>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="verdicts">
+
                 <!-- BodyStats -->
-                <article class="review-card bg-white rounded-2xl shadow-sm border border-slate-100 border-t-4 border-brand-orange">
-                    <img src="bodystats-toronto-dexa-scan.jpg" alt="BodyStats Toronto storefront" class="venue-photo" width="1050" height="1400" loading="lazy">
-                    <div class="p-6 flex flex-col flex-grow">
-                        <div class="mb-4">
-                            <h3 class="font-black text-xl text-slate-900 leading-tight">BodyStats Toronto: Dexa Scan and Vo2 Max Testing</h3>
-                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Western Battery Rd, Toronto</p>
+                <article class="card">
+                    <div class="card-num" aria-hidden="true">01</div>
+                    <div class="thumb">
+                        <div class="tl">IMG_0182</div>
+                        <img src="bodystats-toronto-dexa-scan.jpg" alt="BodyStats Toronto storefront" width="1050" height="1400" loading="lazy">
+                        <div class="cap">BodyStats storefront · W Battery Rd</div>
+                    </div>
+                    <div class="body">
+                        <div class="head">
+                            <span class="pill accent">Wellness</span>
+                            <span>Apr 06, 2026</span>
+                            <span>· Toronto</span>
                         </div>
-                        <div class="star-rating mb-4 text-sm" aria-label="Rated 5 out of 5">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        <h3>BodyStats Toronto: Dexa Scan and Vo2 Max Testing</h3>
+                        <div class="where">100 Western Battery Rd Unit 2</div>
+                        <div class="scorebar" aria-label="Rated 5 out of 5">
+                            <span class="score-n">5</span>
+                            <span class="score-out">/ 5.0</span>
+                            <span class="score-label">Editor's Pick</span>
                         </div>
-                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">Visited April 6th 2026. BodyStats made getting a DEXA scan easy quick and stress-free. We went in today for a scan with Paul the owner and the whole appointment took about 15 minutes. The place was clean organized and had a friendly welcoming vibe from the moment we walked in. It's also reasonably priced which makes it even better.</p>
-                        <a href="archive.html" class="mt-4 text-brand-orange font-black text-[10px] uppercase tracking-widest hover:underline">Read Full Verdict &rarr;</a>
-                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">Apr 06, 2026</div>
+                        <p>Visited April 6th 2026. BodyStats made getting a DEXA scan easy quick and stress-free. We went in today for a scan with Paul the owner and the whole appointment took about 15 minutes. The place was clean organized and had a friendly welcoming vibe from the moment we walked in. It's also reasonably priced which makes it even better.</p>
+                        <div class="foot">
+                            <span>Filed 04·06 · MsJAG</span>
+                            <a href="archive.html">Read verdict →</a>
+                        </div>
                     </div>
                 </article>
 
                 <!-- Soluna -->
-                <article class="review-card bg-white rounded-2xl shadow-sm border border-slate-100 border-t-4 border-brand-orange">
-                    <img src="soluna-toronto-nightclub.jpg" alt="Soluna Toronto interior" class="venue-photo" width="1200" height="1166" loading="lazy">
-                    <div class="p-6 flex flex-col flex-grow">
-                        <div class="mb-4">
-                            <h3 class="font-black text-xl text-slate-900 leading-tight">Soluna Toronto</h3>
-                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Queen St W, Toronto</p>
+                <article class="card">
+                    <div class="card-num" aria-hidden="true">02</div>
+                    <div class="thumb">
+                        <div class="tl">IMG_0217</div>
+                        <img src="soluna-toronto-nightclub.jpg" alt="Soluna Toronto interior" width="1200" height="1166" loading="lazy">
+                        <div class="cap">Soluna · Queen St W</div>
+                    </div>
+                    <div class="body">
+                        <div class="head">
+                            <span class="pill">Nightlife</span>
+                            <span>Apr 06, 2026</span>
+                            <span>· Queen West</span>
                         </div>
-                        <div class="star-rating mb-4 text-sm" aria-label="Rated 4 out of 5">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                        <h3>Soluna Toronto</h3>
+                        <div class="where">314 Queen St W — ex-Ultra, ex-Bamboo</div>
+                        <div class="scorebar" aria-label="Rated 4 out of 5">
+                            <span class="score-n">4</span>
+                            <span class="score-out">/ 5.0</span>
+                            <span class="score-label">Recommended</span>
                         </div>
-                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">We went to Soluna on Sat April 4th, 2026. This place was formerly the well-loved Ultra, and before that Bamboo, so I've been occasionally partying at this location for quite some time. Soluna is a welcomed reincarnation. This place really shines as a party venue. The decor is beautiful and feels worthy of a higher-end nightclub. Nothing about it feels cheap, cheesy, or thrown together.</p>
-                        <a href="archive.html" class="mt-4 text-brand-orange font-black text-[10px] uppercase tracking-widest hover:underline">Read Full Verdict &rarr;</a>
-                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">Apr 06, 2026</div>
+                        <p>We went to Soluna on Sat April 4th, 2026. This place was formerly the well-loved Ultra, and before that Bamboo, so I've been occasionally partying at this location for quite some time. Soluna is a welcomed reincarnation. This place really shines as a party venue. The decor is beautiful and feels worthy of a higher-end nightclub. Nothing about it feels cheap, cheesy, or thrown together.</p>
+                        <div class="foot">
+                            <span>Filed 04·06 · MsJAG</span>
+                            <a href="archive.html">Read verdict →</a>
+                        </div>
                     </div>
                 </article>
 
-                <!-- Dixon Kitchen -->
-                <article class="review-card bg-white rounded-2xl shadow-sm border border-slate-100 border-t-4 border-brand-orange">
-                    <img src="dixon-kitchen-bar-mississauga.jpg" alt="The Dixon Kitchen & Bar" class="venue-photo" width="1050" height="855" loading="lazy">
-                    <div class="p-6 flex flex-col flex-grow">
-                        <div class="mb-4">
-                            <h3 class="font-black text-xl text-slate-900 leading-tight">The Dixon Kitchen & Bar</h3>
-                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Caroga Dr, Mississauga</p>
+                <!-- Dixon -->
+                <article class="card">
+                    <div class="card-num" aria-hidden="true">03</div>
+                    <div class="thumb">
+                        <div class="tl">IMG_0134</div>
+                        <img src="dixon-kitchen-bar-mississauga.jpg" alt="The Dixon Kitchen and Bar" width="1050" height="855" loading="lazy">
+                        <div class="cap">The Dixon · Hilton YYZ</div>
+                    </div>
+                    <div class="body">
+                        <div class="head">
+                            <span class="pill">Restaurants</span>
+                            <span>Mar 26, 2026</span>
+                            <span>· Mississauga</span>
                         </div>
-                        <div class="star-rating mb-4 text-sm" aria-label="Rated 4 out of 5">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                        <h3>The Dixon Kitchen &amp; Bar</h3>
+                        <div class="where">3311 Caroga Dr · Hilton Toronto Airport</div>
+                        <div class="scorebar" aria-label="Rated 4 out of 5">
+                            <span class="score-n">4</span>
+                            <span class="score-out">/ 5.0</span>
+                            <span class="score-label">Worth Considering</span>
                         </div>
-                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">Went to The Dixon at the Hilton Hotel on March 26th 2026 for dinner with a family member making a stopover by Pearson International airport. In a nutshell there were only two dinner menu items on the table at The Dixon I'd happily eat again. The creamy seafood ravioli dish was one of them. Rich, tasty, and comforting without turning into a gluey mess. The other standout was the braised beef dish with mashed potatoes and vegetables.</p>
-                        <a href="archive.html" class="mt-4 text-brand-orange font-black text-[10px] uppercase tracking-widest hover:underline">Read Full Verdict &rarr;</a>
-                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">Mar 26, 2026</div>
+                        <p>Went to The Dixon at the Hilton Hotel on March 26th 2026 for dinner with a family member making a stopover by Pearson International airport. In a nutshell there were only two dinner menu items on the table at The Dixon I'd happily eat again. The creamy seafood ravioli dish was one of them. Rich, tasty, and comforting without turning into a gluey mess. The other standout was the braised beef dish with mashed potatoes and vegetables.</p>
+                        <div class="foot">
+                            <span>Filed 03·26 · MsJAG</span>
+                            <a href="archive.html">Read verdict →</a>
+                        </div>
                     </div>
                 </article>
 
                 <!-- Moon's Flowers -->
-                <article class="review-card bg-white rounded-2xl shadow-sm border border-slate-100 border-t-4 border-brand-orange">
-                    <img src="moons-flowers-red-roses-toronto.jpg" alt="Moon's Flowers bouquet" class="venue-photo" width="1050" height="1400" loading="lazy">
-                    <div class="p-6 flex flex-col flex-grow">
-                        <div class="mb-4">
-                            <h3 class="font-black text-xl text-slate-900 leading-tight">Moon's Flowers</h3>
-                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Dalhousie St, Toronto</p>
+                <article class="card r-mixed">
+                    <div class="card-num" aria-hidden="true">04</div>
+                    <div class="thumb">
+                        <div class="tl">IMG_0098</div>
+                        <img src="moons-flowers-red-roses-toronto.jpg" alt="Moon's Flowers bouquet" width="1050" height="1400" loading="lazy">
+                        <div class="cap">Half-dozen roses · V-Day '26</div>
+                    </div>
+                    <div class="body">
+                        <div class="head">
+                            <span class="pill">Shops</span>
+                            <span>Feb 15, 2026</span>
+                            <span>· Garden District</span>
                         </div>
-                        <div class="star-rating mb-4 text-sm" aria-label="Rated 3 out of 5">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                        <h3>Moon's Flowers</h3>
+                        <div class="where">75 Dalhousie St · Garden District</div>
+                        <div class="scorebar" aria-label="Rated 3 out of 5">
+                            <span class="score-n">3</span>
+                            <span class="score-out">/ 5.0</span>
+                            <span class="score-label">Mixed Verdict</span>
                         </div>
-                        <p class="text-slate-600 leading-relaxed font-medium text-sm flex-grow">I ordered the Valentine's Day 2026 Half Dozen Red Roses (with baby's breath) and let's just say... I was a little surprised by what arrived. For $78 plus HST, plus $25 delivery (hello $116.39 CAD 👀) no vase needed, I was expecting lush, bulbous, high-petal-count garden style roses. What arrived? Standard hybrid teas 🌹. Basic commercial roses you can find almost anywhere.</p>
-                        <a href="archive.html" class="mt-4 text-brand-orange font-black text-[10px] uppercase tracking-widest hover:underline">Read Full Verdict &rarr;</a>
-                        <div class="mt-6 pt-4 border-t border-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">Feb 15, 2026</div>
+                        <p>I ordered the Valentine's Day 2026 Half Dozen Red Roses (with baby's breath) and let's just say... I was a little surprised by what arrived. For $78 plus HST, plus $25 delivery (hello $116.39 CAD 👀) no vase needed, I was expecting lush, bulbous, high-petal-count garden style roses. What arrived? Standard hybrid teas 🌹. Basic commercial roses you can find almost anywhere.</p>
+                        <div class="foot">
+                            <span>Filed 02·15 · MsJAG</span>
+                            <a href="archive.html">Read verdict →</a>
+                        </div>
                     </div>
                 </article>
+
             </div>
         </section>
 
-        <section id="contact" class="bg-slate-50 py-24 px-6 border-t border-slate-200">
-            <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tight">Media & Partnership Inquiries</h2>
-                <p class="text-slate-600 font-medium mb-12 max-w-2xl mx-auto text-lg">MsJAG provides professional, independent media coverage for Toronto venues and global travel destinations. Organizers and brands interested in high-authority reviews or event presence can submit formal inquiries below.</p>
-
-                <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-slate-100 text-left">
-                    <form action="https://api.web3forms.com/submit" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <input type="hidden" name="access_key" value="472a54d7-ca1f-4529-9065-b1978b93cf40">
-                        <input type="hidden" name="subject" value="New Media Inquiry - MsJAG Reviews">
-
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
-                            <input type="text" name="name" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Venue / Organization</label>
-                            <input type="text" name="venue" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                        </div>
-                        <div class="md:col-span-2 space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Type (Event, Review Request, etc.)</label>
-                            <input type="text" name="subject_type" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                        </div>
-                        <div class="md:col-span-2 space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email Address</label>
-                            <input type="email" name="email" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all">
-                        </div>
-                        <div class="md:col-span-2 space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Details</label>
-                            <textarea name="message" rows="6" required maxlength="1000" id="inquiryMsg" class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all resize-none"></textarea>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1 ml-1 tracking-wide"><span id="charCount">0</span>/1000 characters</p>
-                        </div>
-                        <button type="submit" class="md:col-span-2 bg-slate-900 text-white font-black py-5 rounded-xl shadow-lg hover:bg-black transition-all uppercase tracking-widest text-sm">Submit Inquiry</button>
-                    </form>
+        <!-- ═══ INQUIRY ═══ -->
+        <section class="inquiry" id="contact">
+            <div class="inquiry-inner">
+                <div class="heading">
+                    <div class="num">§ 03 · INQUIRIES</div>
+                    <h2>Media &amp; <span class="u"><span>partnership</span></span><br>requests.</h2>
+                    <p>MsJAG provides professional, independent media coverage for Toronto venues and global travel destinations. Organizers and brands interested in high-authority reviews or event presence can submit formal inquiries below.</p>
                 </div>
+
+                <form action="https://api.web3forms.com/submit" method="POST" class="form">
+                    <input type="hidden" name="access_key" value="472a54d7-ca1f-4529-9065-b1978b93cf40">
+                    <input type="hidden" name="subject" value="New Media Inquiry - MsJAG Reviews">
+
+                    <div class="f">
+                        <label for="f-name">Full Name</label>
+                        <input type="text" id="f-name" name="name" required>
+                    </div>
+                    <div class="f">
+                        <label for="f-venue">Venue / Organization</label>
+                        <input type="text" id="f-venue" name="venue" required>
+                    </div>
+                    <div class="f full">
+                        <label for="f-type">Inquiry Type</label>
+                        <input type="text" id="f-type" name="subject_type" placeholder="Event · Review Request · Other" required>
+                    </div>
+                    <div class="f full">
+                        <label for="f-email">Email Address</label>
+                        <input type="email" id="f-email" name="email" required>
+                    </div>
+                    <div class="f full">
+                        <label for="f-msg">Inquiry Details</label>
+                        <textarea id="f-msg" name="message" rows="6" required maxlength="1000"></textarea>
+                        <div class="counter"><span id="charCount">0</span> / 1000</div>
+                    </div>
+                    <button type="submit">Submit Inquiry →</button>
+                </form>
             </div>
         </section>
     </main>
 
-    <footer class="bg-slate-900 text-slate-500 py-12 px-6 text-center text-xs">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <p class="font-bold uppercase tracking-widest">&copy; <span id="copyrightYear"></span> MsJAG Reviews. Independent. Local. Authority.</p>
-            <div class="flex gap-6 text-lg">
-                <a href="https://instagram.com/chowhoundgta" target="_blank" rel="noopener" aria-label="Instagram" class="hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.google.com/maps/contrib/113123460295195530364/reviews/" target="_blank" rel="noopener" aria-label="Google Maps reviews" class="hover:text-white transition-colors"><i class="fab fa-google"></i></a>
+    <!-- ═══ COLOPHON ═══ -->
+    <footer class="colophon">
+        <div class="col-inner">
+            <div class="brand">MsJAG<span class="dot">.</span></div>
+            <div class="col-meta">
+                &copy; <span id="copyrightYear"></span> MsJAG Reviews · Independent · Local · Authority<br>
+                <a href="https://www.google.com/maps/contrib/113123460295195530364/reviews/" target="_blank" rel="noopener">Google Maps</a>
+                ·
+                <a href="https://instagram.com/chowhoundgta" target="_blank" rel="noopener">Instagram</a>
+                ·
+                <a href="#contact">Contact</a>
             </div>
         </div>
     </footer>
 
     <script>
+        // Dynamic copyright year
         document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
-        const msgInput = document.getElementById('inquiryMsg');
+        // Character counter
+        const msgInput = document.getElementById('f-msg');
         const charCount = document.getElementById('charCount');
         if (msgInput && charCount) {
             msgInput.addEventListener('input', () => {
                 charCount.textContent = msgInput.value.length;
             });
-        }
-
-        const btn = document.getElementById('mobile-menu-btn');
-        const menu = document.getElementById('mobile-menu');
-        if (btn && menu) {
-            btn.addEventListener('click', () => menu.classList.toggle('open'));
         }
     </script>
 </body>
