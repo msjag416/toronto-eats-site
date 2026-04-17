@@ -7,6 +7,124 @@
 
     <title>MsJAG Reviews | Professional Critic for Food, Events &amp; Travel</title>
     <meta name="description" content="Independent media coverage and professional verdicts for Toronto nightlife, dining, and global hospitality from Level 7 Google Guide MsJAG.">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "Review",
+          "itemReviewed": {
+            "@type": "LocalBusiness",
+            "name": "BodyStats Toronto: Dexa Scan and Vo2 Max Testing",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "100 Western Battery Rd Unit 2",
+              "addressLocality": "Toronto",
+              "addressRegion": "ON",
+              "postalCode": "M6K 3S2",
+              "addressCountry": "CA"
+            }
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "5",
+            "bestRating": "5"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "MsJAG",
+            "url": "https://www.google.com/maps/contrib/113123460295195530364/reviews/"
+          },
+          "datePublished": "2026-04-06",
+          "reviewBody": "Visited April 6th 2026. BodyStats made getting a DEXA scan easy quick and stress-free. We went in today for a scan with Paul the owner and the whole appointment took about 15 minutes. The place was clean organized and had a friendly welcoming vibe from the moment we walked in. It's also reasonably priced which makes it even better."
+        },
+        {
+          "@type": "Review",
+          "itemReviewed": {
+            "@type": "NightClub",
+            "name": "Soluna Toronto",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "314 Queen St W",
+              "addressLocality": "Toronto",
+              "addressRegion": "ON",
+              "postalCode": "M5V 2A2",
+              "addressCountry": "CA"
+            }
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "4",
+            "bestRating": "5"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "MsJAG",
+            "url": "https://www.google.com/maps/contrib/113123460295195530364/reviews/"
+          },
+          "datePublished": "2026-04-06",
+          "reviewBody": "We went to Soluna on Sat April 4th, 2026. This place was formerly the well-loved Ultra, and before that Bamboo, so I've been occasionally partying at this location for quite some time. Soluna is a welcomed reincarnation. This place really shines as a party venue. The decor is beautiful and feels worthy of a higher-end nightclub. Nothing about it feels cheap, cheesy, or thrown together."
+        },
+        {
+          "@type": "Review",
+          "itemReviewed": {
+            "@type": "Restaurant",
+            "name": "The Dixon Kitchen & Bar",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "3311 Caroga Dr",
+              "addressLocality": "Mississauga",
+              "addressRegion": "ON",
+              "postalCode": "L4V 1A3",
+              "addressCountry": "CA"
+            }
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "4",
+            "bestRating": "5"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "MsJAG",
+            "url": "https://www.google.com/maps/contrib/113123460295195530364/reviews/"
+          },
+          "datePublished": "2026-03-26",
+          "reviewBody": "Went to The Dixon at the Hilton Hotel on March 26th 2026 for dinner with a family member making a stopover by Pearson International airport. In a nutshell there were only two dinner menu items on the table at The Dixon I'd happily eat again. The creamy seafood ravioli dish was one of them. Rich tasty and actually comforting without turning into a gluey mess. The other standout was the braised beef dish with mashed potatoes and vegetables."
+        },
+        {
+          "@type": "Review",
+          "itemReviewed": {
+            "@type": "Florist",
+            "name": "Moon's Flowers",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "75 Dalhousie St",
+              "addressLocality": "Toronto",
+              "addressRegion": "ON",
+              "postalCode": "M5B 2R9",
+              "addressCountry": "CA"
+            }
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "3",
+            "bestRating": "5"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "MsJAG",
+            "url": "https://www.google.com/maps/contrib/113123460295195530364/reviews/"
+          },
+          "datePublished": "2026-02-15",
+          "reviewBody": "I ordered the Valentine's Day 2026 Half Dozen Red Roses (with baby's breath) and let's just say… I was a little surprised by what showed up. For $78 plus HST, plus $25 delivery (hello $116.39 CAD) no vase needed, I was expecting lush, bulbous, high-petal-count garden style roses. What arrived? Standard hybrid teas. Basic commercial roses you can find almost anywhere."
+        }
+      ]
+    }
+    </script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
@@ -170,7 +288,8 @@
                         </div>
                         <div class="md:col-span-2 space-y-2">
                             <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Inquiry Details</label>
-                            <textarea name="message" rows="4" required class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all resize-none"></textarea>
+                            <textarea name="message" rows="4" required maxlength="200" id="inquiryMsg" class="w-full px-5 py-4 rounded-xl border-2 border-slate-100 focus:border-brand-orange outline-none font-bold text-slate-700 transition-all resize-none"></textarea>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1 ml-1 tracking-wide"><span id="charCount">0</span>/200 characters</p>
                         </div>
                         <button type="submit" class="md:col-span-2 bg-slate-900 text-white font-black py-5 rounded-xl shadow-lg hover:bg-black transition-all uppercase tracking-widest text-sm">
                             Submit Inquiry
@@ -193,6 +312,14 @@
 
     <script>
         document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+
+        const msgInput = document.getElementById('inquiryMsg');
+        const charCount = document.getElementById('charCount');
+        if (msgInput && charCount) {
+            msgInput.addEventListener('input', () => {
+                charCount.textContent = msgInput.value.length;
+            });
+        }
 
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
