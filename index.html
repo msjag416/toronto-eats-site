@@ -599,9 +599,8 @@
         .verts {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 2px;
-            background: var(--ink);
-            border: 2px solid var(--ink);
+            border-top: 2px solid var(--ink);
+            border-left: 2px solid var(--ink);
         }
         .vtile {
             background: var(--paper);
@@ -610,6 +609,8 @@
             flex-direction: column;
             gap: 10px;
             min-height: 160px;
+            border-right: 2px solid var(--ink);
+            border-bottom: 2px solid var(--ink);
             transition: background 0.15s, color 0.15s;
         }
         .vtile:hover { background: var(--accent); color: var(--ink); }
@@ -1102,6 +1103,41 @@
         /* ═══ MOBILE MENU TOGGLE ═══ */
         .menu-btn { display: none; }
 
+        /* ═══ BACK-TO-TOP BUTTON (mobile only) ═══ */
+        .back-to-top {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--paper);
+            border: 2px solid var(--ink);
+            font-size: 22px;
+            font-weight: 700;
+            font-family: 'Archivo', sans-serif;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 var(--ink);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s, transform 0.15s;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .back-to-top:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--ink);
+        }
+
         /* ═══ RESPONSIVE ═══ */
         @media (max-width: 960px) {
             .hero-grid { grid-template-columns: 1fr; gap: 36px; }
@@ -1139,6 +1175,8 @@
             .inquiry { padding: 48px 20px; }
             .col-inner { flex-direction: column; text-align: center; }
             .col-meta { text-align: center; }
+            /* Show the back-to-top button on mobile */
+            .back-to-top { display: flex; }
         }
     </style>
 </head>
@@ -1505,9 +1543,32 @@
         </div>
     </footer>
 
+    <!-- ═══ BACK-TO-TOP BUTTON (mobile only) ═══ -->
+    <button id="back-to-top" class="back-to-top" aria-label="Back to top">↑</button>
+
     <script>
         // Dynamic copyright year
         document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+
+        // Back-to-top button — fades in near the bottom of the page on mobile
+        const backToTop = document.getElementById('back-to-top');
+        if (backToTop) {
+            const toggleBackToTop = () => {
+                const scrolled = window.scrollY + window.innerHeight;
+                const total = document.documentElement.scrollHeight;
+                if (total - scrolled < 400) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            };
+            window.addEventListener('scroll', toggleBackToTop, { passive: true });
+            window.addEventListener('resize', toggleBackToTop);
+            toggleBackToTop();
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
 
         // Character counter
         const msgInput = document.getElementById('f-msg');
