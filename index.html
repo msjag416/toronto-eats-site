@@ -1115,9 +1115,20 @@
             .section-head .meta { grid-column: 1 / -1; text-align: left; }
         }
         @media (max-width: 640px) {
-            .masthead-inner { grid-template-columns: 1fr; text-align: center; }
-            .masthead .left, .masthead .right { text-align: center; }
-            .wordmark { font-size: 56px; }
+            /* Unpin masthead on mobile so it scrolls away with the page */
+            .masthead { position: static; padding: 16px 20px 12px; }
+            /* Hide side taglines on mobile (shown on desktop only) */
+            .masthead .left, .masthead .right { display: none; }
+            .masthead-inner { grid-template-columns: 1fr; text-align: center; gap: 0; }
+            /* Smaller wordmark on mobile */
+            .wordmark { font-size: 48px; }
+            /* Tighter subnav on mobile */
+            .subnav { gap: 14px; font-size: 10px; margin-top: 10px; padding-top: 10px; }
+            /* Compact ticker on mobile, hide duplicate location line */
+            .tick { font-size: 9px; padding: 6px 16px; gap: 10px; }
+            .tick .marquee { gap: 14px; }
+            .tick > div:last-child { display: none; }
+            /* Rest of mobile layout */
             .verts { grid-template-columns: repeat(2, 1fr); }
             .card { grid-template-columns: 1fr; }
             .card .thumb { aspect-ratio: 16/10; max-width: 100%; }
@@ -1128,8 +1139,6 @@
             .inquiry { padding: 48px 20px; }
             .col-inner { flex-direction: column; text-align: center; }
             .col-meta { text-align: center; }
-            .subnav { gap: 18px; font-size: 11px; }
-            .tick { font-size: 10px; }
         }
     </style>
 </head>
