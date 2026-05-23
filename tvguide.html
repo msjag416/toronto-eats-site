@@ -124,6 +124,16 @@
   }
   .note b{color:var(--teal);}
 
+  /* category filter (USA tab) */
+  .catfilter{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;}
+  .catbtn{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);font-family:var(--body);font-size:.8rem;font-weight:600;padding:7px 14px;border-radius:9px;cursor:pointer;transition:.16s;}
+  .catbtn:hover{border-color:var(--amber-deep);color:var(--ink);}
+  .catbtn.active{background:var(--panel-2);border-color:var(--amber);color:var(--amber);}
+
+  /* "on now" highlight */
+  .item.now{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-deep),0 8px 26px rgba(245,154,46,.16);}
+  .badge.b-now{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;border:1px solid var(--amber-deep);}
+
   /* ---------- Featured NBA panel ---------- */
   .featured{margin-top:18px;}
   .nba{
@@ -244,6 +254,13 @@
 
   <div class="note" id="note" style="display:none;"></div>
 
+  <div class="catfilter" id="catfilter" style="display:none;">
+    <button class="catbtn active" data-cat="all">All</button>
+    <button class="catbtn" data-cat="broadcast">Broadcast</button>
+    <button class="catbtn" data-cat="cable">Cable</button>
+    <button class="catbtn" data-cat="news">News</button>
+  </div>
+
   <div class="featured" id="featured" style="display:none;"></div>
 
   <div class="listings" id="listings"></div>
@@ -295,7 +312,7 @@ const LEAGUE_META = {
   mlb:{ icon:"⚾", name:"Blue Jays", ca:"Sportsnet" },
 };
 
-const state = { view: "US", date: todayStr(), query: "" };
+const state = { view: "US", date: todayStr(), query: "", filter: "all" };
 
 const els = {
   tabs:     document.getElementById("tabs"),
@@ -303,6 +320,7 @@ const els = {
   search:   document.getElementById("search"),
   listings: document.getElementById("listings"),
   featured: document.getElementById("featured"),
+  catfilter: document.getElementById("catfilter"),
   updated:  document.getElementById("updated"),
   count:    document.getElementById("count"),
   note:     document.getElementById("note"),
@@ -721,6 +739,8 @@ function renderEvents(){
 function render(){
   // the date strip only applies to listings-by-day views
   els.dates.style.display = (state.view==="EVENTS"||state.view==="CA"||state.view==="WC") ? "none" : "flex";
+  // the network filter only applies to the USA grid
+  els.catfilter.style.display = (state.view==="US") ? "flex" : "none";
 
   // featured panel: NBA on Sports, Canadian sports on Canada, World Cup on WC, hidden otherwise
   if(state.view==="SPORTS"){
@@ -793,23 +813,35 @@ function render(){
 }
 
 function paint(list, totalForDay){
-  // contextual note for thin-data tabs
+  // contextual note per tab
   els.note.style.display="none";
-  if(state.view==="SPORTS"){
+  if(state.view==="US"){
+    els.note.style.display="block";
+    els.note.innerHTML="<b>Times are Eastern (ET).</b> You're in Toronto so they match your clock; use the filters to narrow by network type.";
+  } else if(state.view==="SPORTS"){
     els.note.style.display="block";
     els.note.innerHTML="<b>Heads up:</b> Sports is a best-effort view. Live games aren't always listed as scheduled programming, so this can be incomplete.";
+  }
+
+  // category filter (USA tab only)
+  if(state.view==="US" && state.filter && state.filter!=="all"){
+    list=list.filter(it=>netCategory(it)===state.filter);
   }
 
   if(!list.length){
     els.count.textContent="";
     els.listings.innerHTML=`<div class="state"><div class="big">Nothing to show here</div>`+
-      (totalForDay && state.query
-        ? `No matches for "${escapeHtml(state.query)}" on this day.`
+      (totalForDay && (state.query || (state.view==="US"&&state.filter!=="all"))
+        ? `No matches for this filter or search on this day.`
         : `No listings came back for this selection. Try another date or tab.`)+`</div>`;
     return;
   }
 
   els.count.textContent=`${list.length} listing${list.length>1?"s":""}`;
+
+  // "on now" only applies when viewing today's date; airtimes are ET
+  const showNow = (state.date===todayStr());
+  const nowMin = etNowMinutes();
 
   els.listings.innerHTML=list.map((it,i)=>{
     const s=it.show||{};
@@ -823,15 +855,25 @@ function paint(list, totalForDay){
     const badge=badgeFor(s);
     const delay=Math.min(i*0.025,0.6);
 
-    return `<div class="item" style="animation-delay:${delay}s">
-      <div class="time">${time}<small>${ampm(it.airtime)}</small></div>
+    // is this airing right now?
+    let onNow=false;
+    if(showNow && it.airtime){
+      const start=hmToMin(it.airtime);
+      const dur=it.runtime||s.averageRuntime||30;
+      if(start!=null && nowMin>=start && nowMin<start+dur) onNow=true;
+    }
+    const nowBadge=onNow?`<span class="badge b-now">● On now</span>`:"";
+    const small=it.airtime?`${ampm(it.airtime)} ET`:"";
+
+    return `<div class="item${onNow?" now":""}" style="animation-delay:${delay}s">
+      <div class="time">${time}<small>${small}</small></div>
       ${img?`<img class="thumb" src="${img}" alt="" loading="lazy">`:`<div class="thumb ph">📺</div>`}
       <div class="meta">
         <div class="show">${escapeHtml(s.name||"Untitled")}</div>
         ${ep?`<div class="ep">${ep}</div>`:""}
         <div class="net">on <span>${escapeHtml(net)}</span></div>
       </div>
-      <div class="badges">${badge}</div>
+      <div class="badges">${nowBadge}${badge}</div>
     </div>`;
   }).join("");
 
@@ -857,6 +899,25 @@ function prettyTime(t){
   return `${hr}:${String(m).padStart(2,"0")}`;
 }
 function ampm(t){ if(!t)return""; const h=Number(t.split(":")[0]); return h<12?"AM":"PM"; }
+
+/* time + category helpers for the USA grid */
+function hmToMin(t){ const p=String(t).split(":"); if(p.length<2) return null; const h=parseInt(p[0],10), m=parseInt(p[1],10); if(isNaN(h)||isNaN(m)) return null; return h*60+m; }
+function etNowMinutes(){
+  // current time in US Eastern, since TVmaze airtimes are Eastern
+  const f=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",hour12:false,hour:"2-digit",minute:"2-digit"});
+  const [h,m]=f.format(new Date()).split(":").map(n=>parseInt(n,10));
+  return ((h%24)*60)+(m||0);
+}
+const BROADCAST_NETS=["abc","cbs","nbc","fox","the cw"," cw","pbs","ion","mynetworktv","telemundo","univision","cw"];
+const NEWS_NETS=["cnn","fox news","msnbc","cnbc","bbc news","newsmax","fox business","bloomberg","hln","headline news"];
+function netCategory(item){
+  const s=item.show||{};
+  const net=((s.network&&s.network.name)||(s.webChannel&&s.webChannel.name)||"").toLowerCase();
+  const type=s.type||""; const genres=s.genres||[];
+  if(type==="News" || genres.includes("News") || NEWS_NETS.some(n=>net.includes(n))) return "news";
+  if(BROADCAST_NETS.some(b=>net===b.trim() || net===b || net.startsWith(b.trim()+" "))) return "broadcast";
+  return "cable";
+}
 function showLoading(){
   els.count.textContent="";
   els.listings.innerHTML=`<div class="state"><div class="spinner"></div>Loading listings...</div>`;
@@ -889,6 +950,13 @@ let typingTimer;
 els.search.addEventListener("input",e=>{
   clearTimeout(typingTimer);
   typingTimer=setTimeout(()=>{ state.query=e.target.value; render(); },200);
+});
+els.catfilter.addEventListener("click",e=>{
+  const btn=e.target.closest(".catbtn"); if(!btn) return;
+  els.catfilter.querySelectorAll(".catbtn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  state.filter=btn.dataset.cat;
+  render();
 });
 
 /* refetch fresh data when the user returns to the tab, and on a 6h timer */
