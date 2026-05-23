@@ -106,6 +106,78 @@
         {
           "@type": "Review",
           "itemReviewed": {
+            "@type": "Restaurant",
+            "name": "Cayman Cabana",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "53 North Church Street, Waterfront",
+              "addressLocality": "George Town",
+              "addressRegion": "Grand Cayman",
+              "addressCountry": "KY"
+            },
+            "image": "https://torontoeatsandreviews.com/cayman-cabana-george-town.jpg"
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "4",
+            "bestRating": "5"
+          },
+          "author": { "@id": "https://torontoeatsandreviews.com/#person" },
+          "publisher": { "@id": "https://torontoeatsandreviews.com/#organization" },
+          "datePublished": "2026-05-16",
+          "reviewBody": "Visited May 16th 2026. Cayman Cabana continues to hold its title as one of the best spots in George Town for fresh flavorful Caribbean food and laid-back island vibes. The oxtails were excellent, tender and flavorful in a rich spicy gravy with broad beans, and one order was more than enough for two. The conch fritters and cocktails were great as usual. The only miss was the fish tacos, now in hard shells instead of the addictive soft shells they used to do."
+        },
+        {
+          "@type": "Review",
+          "itemReviewed": {
+            "@type": "BarOrPub",
+            "name": "Door No. 4",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "West Bay Road",
+              "addressLocality": "Seven Mile Beach",
+              "addressRegion": "Grand Cayman",
+              "addressCountry": "KY"
+            },
+            "image": "https://torontoeatsandreviews.com/door-no-4-grand-cayman.jpg"
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "2",
+            "bestRating": "5"
+          },
+          "author": { "@id": "https://torontoeatsandreviews.com/#person" },
+          "publisher": { "@id": "https://torontoeatsandreviews.com/#organization" },
+          "datePublished": "2026-05-13",
+          "reviewBody": "Went to Door No. 4 on May 13th 2026. The host's reception was great and the mixologist's energy was nice, but that did not translate into the cocktails. My Gingerbread Penicillin tasted stale and off-putting, and my girlfriend's Jack and Coke took twice as long to make and arrived looking like opaque water with jackfruit floating sadly at the bottom. I really wanted to love this place, but if I can make better mixed drinks at home than what you do professionally behind the bar, something is off."
+        },
+        {
+          "@type": "Review",
+          "itemReviewed": {
+            "@type": "Restaurant",
+            "name": "Pom Pom",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Hotel Indigo Grand Cayman, Seven Mile Beach",
+              "addressLocality": "Seven Mile Beach",
+              "addressRegion": "Grand Cayman",
+              "addressCountry": "KY"
+            },
+            "image": "https://torontoeatsandreviews.com/pom-pom-hotel-indigo.jpg"
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "3",
+            "bestRating": "5"
+          },
+          "author": { "@id": "https://torontoeatsandreviews.com/#person" },
+          "publisher": { "@id": "https://torontoeatsandreviews.com/#organization" },
+          "datePublished": "2026-05-13",
+          "reviewBody": "Visited for dinner on May 13th 2026. Pom Pom on the 10th floor of the Hotel Indigo has great panoramic views of Grand Cayman and a beautiful sunset if you time it right, and the atmosphere is the main attraction. The medium rare picanha steak was shockingly chewy and full of sinew, suspiciously like pressed beef, and staff removed one steak from the bill. The potatoes were very good and the red wine forgettable. Go for the view and a cocktail before sunset, and skip the picanha."
+        },
+        {
+          "@type": "Review",
+          "itemReviewed": {
             "@type": "LocalBusiness",
             "name": "BodyStats Toronto: Dexa Scan and Vo2 Max Testing",
             "address": {
@@ -830,6 +902,7 @@
             color: var(--accent-2);
         }
         .card.r-mixed .score-n { color: var(--ink); }
+        .card.r-low .score-n { color: var(--accent); }
         .card .score-out {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 12px;
@@ -1354,16 +1427,103 @@
                 <div class="num">§ 02</div>
                 <h2 id="verdicts-h">Recent <em>verdicts.</em></h2>
                 <div class="meta">
-                    4 of 432<br>
+                    7 of 432<br>
                     <a href="archive.html">View full archive →</a>
                 </div>
             </div>
 
             <div class="verdicts">
 
-                <!-- BodyStats -->
+                <!-- Cayman Cabana -->
                 <article class="card">
                     <div class="card-num" aria-hidden="true">01</div>
+                    <div class="thumb">
+                        <div class="tl">IMG_9303</div>
+                        <img src="cayman-cabana-george-town.jpg" alt="Cayman Cabana oxtails with rice and peas, slaw, and fried plantain" width="1396" height="1400" loading="lazy">
+                        <div class="cap">Oxtails · Cayman Cabana</div>
+                    </div>
+                    <div class="body">
+                        <div class="head">
+                            <span class="pill">Travel</span>
+                            <span>May 16, 2026</span>
+                            <span>· Grand Cayman</span>
+                        </div>
+                        <h3>Cayman Cabana</h3>
+                        <div class="where">53 North Church St · George Town Waterfront</div>
+                        <div class="scorebar" aria-label="Rated 4 out of 5">
+                            <span class="score-n">4</span>
+                            <span class="score-out">/ 5.0</span>
+                            <span class="score-label">Recommended</span>
+                        </div>
+                        <p>Visited May 16th 2026. Cayman Cabana continues to hold its title as one of the best spots in George Town for fresh flavorful Caribbean food and laid-back island vibes. The oxtails were excellent: tender, flavorful, and swimming in a rich spicy gravy with broad beans, and one order was more than enough for two. The conch fritters and cocktails were great as usual. The only miss was the fish tacos, now in hard shells instead of the addictive soft shells they used to do.</p>
+                        <div class="foot">
+                            <span>Filed 05·16 · MsJAG</span>
+                            <a href="archive.html">Read verdict →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Door No. 4 -->
+                <article class="card r-low">
+                    <div class="card-num" aria-hidden="true">02</div>
+                    <div class="thumb">
+                        <div class="tl">IMG_9295</div>
+                        <img src="door-no-4-grand-cayman.jpg" alt="Two cocktails on the bar at Door No. 4" width="660" height="817" loading="lazy">
+                        <div class="cap">Cocktails · Door No. 4</div>
+                    </div>
+                    <div class="body">
+                        <div class="head">
+                            <span class="pill">Travel</span>
+                            <span>May 13, 2026</span>
+                            <span>· Grand Cayman</span>
+                        </div>
+                        <h3>Door No. 4</h3>
+                        <div class="where">West Bay Rd · Seven Mile Beach</div>
+                        <div class="scorebar" aria-label="Rated 2 out of 5">
+                            <span class="score-n">2</span>
+                            <span class="score-out">/ 5.0</span>
+                            <span class="score-label">Not Recommended</span>
+                        </div>
+                        <p>Went to Door No. 4 on May 13th 2026. The host's reception was great and the mixologist's energy was nice, but that joie de vivre didn't translate into the cocktails. My Gingerbread Penicillin tasted stale and off-putting, and my girlfriend's Jack &amp; Coke took twice as long to make and arrived looking like opaque water with jackfruit floating sadly at the bottom. I really wanted to give this place some love, but if I can make better mixed drinks at home than what you do professionally behind the bar, something's off.</p>
+                        <div class="foot">
+                            <span>Filed 05·13 · MsJAG</span>
+                            <a href="archive.html">Read verdict →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Pom Pom -->
+                <article class="card r-mixed">
+                    <div class="card-num" aria-hidden="true">03</div>
+                    <div class="thumb">
+                        <div class="tl">IMG_9287</div>
+                        <img src="pom-pom-hotel-indigo.jpg" alt="Sliced picanha steak with potatoes and chimichurri at Pom Pom" width="992" height="780" loading="lazy">
+                        <div class="cap">Picanha · Pom Pom rooftop</div>
+                    </div>
+                    <div class="body">
+                        <div class="head">
+                            <span class="pill">Travel</span>
+                            <span>May 13, 2026</span>
+                            <span>· Grand Cayman</span>
+                        </div>
+                        <h3>Pom Pom</h3>
+                        <div class="where">Hotel Indigo · 10th floor · Seven Mile Beach</div>
+                        <div class="scorebar" aria-label="Rated 3 out of 5">
+                            <span class="score-n">3</span>
+                            <span class="score-out">/ 5.0</span>
+                            <span class="score-label">Mixed Verdict</span>
+                        </div>
+                        <p>Visited for dinner on May 13th 2026. Pom Pom on the 10th floor of the Hotel Indigo has great panoramic views of Grand Cayman and a beautiful sunset if you time it right, and the atmosphere is the main attraction. Unfortunately the medium rare sliced picanha steak was shockingly chewy and full of sinew, suspiciously like pressed beef rather than a freshly sliced picanha cut. Staff removed one steak from the bill, which was appreciated. The potatoes were very good and the red wine forgettable. Go for the view and a cocktail before sunset, but skip the picanha.</p>
+                        <div class="foot">
+                            <span>Filed 05·13 · MsJAG</span>
+                            <a href="archive.html">Read verdict →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- BodyStats -->
+                <article class="card">
+                    <div class="card-num" aria-hidden="true">04</div>
                     <div class="thumb">
                         <div class="tl">IMG_0182</div>
                         <img src="bodystats-toronto-dexa-scan.jpg" alt="BodyStats Toronto storefront" width="1050" height="1400" loading="lazy">
@@ -1392,7 +1552,7 @@
 
                 <!-- Soluna -->
                 <article class="card">
-                    <div class="card-num" aria-hidden="true">02</div>
+                    <div class="card-num" aria-hidden="true">05</div>
                     <div class="thumb">
                         <div class="tl">IMG_0217</div>
                         <img src="soluna-toronto-nightclub.jpg" alt="Soluna Toronto interior" width="1200" height="1166" loading="lazy">
@@ -1421,7 +1581,7 @@
 
                 <!-- Dixon -->
                 <article class="card">
-                    <div class="card-num" aria-hidden="true">03</div>
+                    <div class="card-num" aria-hidden="true">06</div>
                     <div class="thumb">
                         <div class="tl">IMG_0134</div>
                         <img src="dixon-kitchen-bar-mississauga.jpg" alt="The Dixon Kitchen and Bar" width="1050" height="855" loading="lazy">
@@ -1450,7 +1610,7 @@
 
                 <!-- Moon's Flowers -->
                 <article class="card r-mixed">
-                    <div class="card-num" aria-hidden="true">04</div>
+                    <div class="card-num" aria-hidden="true">07</div>
                     <div class="thumb">
                         <div class="tl">IMG_0098</div>
                         <img src="moons-flowers-red-roses-toronto.jpg" alt="Moon's Flowers bouquet" width="1050" height="1400" loading="lazy">
