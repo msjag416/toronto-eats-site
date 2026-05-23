@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>On Air Tonight | Live US & Canada TV Guide | MsJAG</title>
+<meta name="description" content="A live TV guide for American and Canadian channels, updated automatically every time you open it. Browse tonight's shows, search by channel, and check what sports are on.">
+<meta name="author" content="MsJAG">
+
+<!-- Open Graph for sharing -->
+<meta property="og:title" content="On Air Tonight | Live US & Canada TV Guide">
+<meta property="og:description" content="Live listings for American and Canadian channels, plus a sports section. Always current.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Spline+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#0e1116;
+    --bg-2:#161b22;
+    --panel:#1b212b;
+    --panel-2:#222a36;
+    --line:#2c3543;
+    --ink:#eef2f7;
+    --ink-soft:#aab4c2;
+    --ink-faint:#6c7787;
+    --amber:#ffb347;
+    --amber-deep:#f59a2e;
+    --teal:#46d6c3;
+    --coral:#ff6f6f;
+    --glow:0 0 0 1px rgba(255,179,71,.0),0 8px 30px rgba(0,0,0,.45);
+    --display:'Bricolage Grotesque',serif;
+    --body:'Spline Sans',sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,179,71,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(70,214,195,.08), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    line-height:1.55;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* faint scanline texture for a broadcast feel */
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:repeating-linear-gradient(to bottom,rgba(255,255,255,.014) 0 1px,transparent 1px 3px);
+    mix-blend-mode:overlay;
+  }
+
+  .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 20px;}
+
+  /* ---------- Header ---------- */
+  header.site{padding:30px 0 14px;}
+  .brandrow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+  .kicker{
+    font-family:var(--body);font-weight:600;letter-spacing:.22em;
+    text-transform:uppercase;font-size:.7rem;color:var(--amber);
+  }
+  .kicker a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,179,71,.5);}
+  h1{
+    font-family:var(--display);font-weight:800;line-height:.98;
+    font-size:clamp(2.4rem,6vw,4.2rem);letter-spacing:-.02em;margin-top:6px;
+  }
+  h1 .on{color:var(--amber);}
+  .blurb{color:var(--ink-soft);max-width:60ch;margin-top:12px;font-size:1.02rem;}
+  .live{
+    display:inline-flex;align-items:center;gap:8px;margin-top:14px;
+    font-size:.8rem;color:var(--ink-soft);
+  }
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(70,214,195,.6);animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(70,214,195,.55);}70%{box-shadow:0 0 0 9px rgba(70,214,195,0);}100%{box-shadow:0 0 0 0 rgba(70,214,195,0);}}
+
+  /* ---------- Controls ---------- */
+  .controls{margin-top:26px;display:flex;flex-direction:column;gap:16px;}
+
+  .tabs{display:flex;gap:6px;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:6px;width:fit-content;max-width:100%;flex-wrap:wrap;}
+  .tab{
+    appearance:none;border:0;cursor:pointer;font-family:var(--body);font-weight:600;
+    font-size:.92rem;color:var(--ink-soft);background:transparent;
+    padding:9px 18px;border-radius:9px;transition:.18s;white-space:nowrap;
+  }
+  .tab:hover{color:var(--ink);}
+  .tab.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;box-shadow:0 4px 14px rgba(245,154,46,.35);}
+
+  .row2{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+
+  .dates{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;}
+  .datebtn{
+    flex:0 0 auto;border:1px solid var(--line);background:var(--panel);
+    color:var(--ink-soft);border-radius:11px;padding:8px 13px;cursor:pointer;
+    font-family:var(--body);font-size:.82rem;text-align:center;line-height:1.2;transition:.16s;
+  }
+  .datebtn b{display:block;font-size:.95rem;color:var(--ink);font-weight:600;}
+  .datebtn:hover{border-color:var(--amber-deep);}
+  .datebtn.active{background:var(--panel-2);border-color:var(--amber);}
+  .datebtn.active b{color:var(--amber);}
+
+  .search{position:relative;min-width:220px;flex:1 1 240px;max-width:340px;}
+  .search input{
+    width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    border-radius:11px;padding:11px 14px 11px 38px;font-family:var(--body);font-size:.92rem;
+  }
+  .search input::placeholder{color:var(--ink-faint);}
+  .search input:focus{outline:none;border-color:var(--amber);}
+  .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.5;}
+
+  /* ---------- Status ---------- */
+  .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap;}
+  .updated{font-size:.78rem;color:var(--ink-faint);}
+  .count{font-size:.78rem;color:var(--ink-faint);}
+  .note{
+    margin-top:14px;background:rgba(70,214,195,.07);border:1px solid rgba(70,214,195,.25);
+    border-radius:12px;padding:12px 15px;font-size:.83rem;color:var(--ink-soft);
+  }
+  .note b{color:var(--teal);}
+
+  /* ---------- Featured NBA panel ---------- */
+  .featured{margin-top:18px;}
+  .nba{
+    background:linear-gradient(180deg,rgba(255,179,71,.10),rgba(27,33,43,.6));
+    border:1px solid rgba(255,179,71,.35);border-radius:16px;padding:16px 18px;
+  }
+  .nba h2{font-family:var(--display);font-weight:800;font-size:1.15rem;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;}
+  .nba h2 .tag{font-family:var(--body);font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#241704;background:linear-gradient(180deg,var(--amber),var(--amber-deep));padding:3px 9px;border-radius:999px;}
+  .nba .sub{font-size:.8rem;color:var(--ink-soft);margin:4px 0 14px;}
+  .games{display:flex;flex-direction:column;gap:9px;}
+  .game{
+    display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+    background:rgba(14,17,22,.55);border:1px solid var(--line);border-radius:12px;padding:11px 14px;
+  }
+  .game .label{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:5px;}
+  .matchup{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;font-size:1rem;}
+  .matchup img{width:22px;height:22px;object-fit:contain;vertical-align:middle;}
+  .matchup .at{color:var(--ink-faint);font-weight:400;font-size:.85rem;}
+  .matchup .sc{color:var(--amber);font-variant-numeric:tabular-nums;}
+  .series{font-size:.74rem;color:var(--ink-soft);margin-top:5px;}
+  .gright{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;white-space:nowrap;}
+  .gtime{font-size:.86rem;color:var(--ink);}
+  .glive{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--coral);display:inline-flex;align-items:center;gap:6px;}
+  .glive .d{width:7px;height:7px;border-radius:50%;background:var(--coral);animation:pulse 1.4s infinite;}
+  .gfinal{font-size:.78rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;}
+  .chan{font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:7px;background:rgba(70,214,195,.15);color:#7fe6da;border:1px solid rgba(70,214,195,.35);}
+  .nba .empty{font-size:.84rem;color:var(--ink-soft);padding:6px 2px;}
+  .nba .src{font-size:.68rem;color:var(--ink-faint);margin-top:12px;}
+  .game.passed{opacity:.5;}
+  .game.passed .matchup{font-weight:500;}
+
+  /* ---------- Listings ---------- */
+  .listings{margin-top:18px;display:flex;flex-direction:column;gap:10px;padding-bottom:30px;}
+  .listings .sports-sub{font-family:var(--display);font-weight:600;font-size:.95rem;color:var(--ink-soft);margin:8px 2px 2px;}
+
+  .item{
+    display:grid;grid-template-columns:64px 56px 1fr auto;gap:14px;align-items:center;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:12px 16px;transition:.18s;animation:rise .4s both;
+  }
+  .item:hover{border-color:var(--amber-deep);transform:translateY(-1px);box-shadow:var(--glow);}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  .time{font-family:var(--display);font-weight:600;font-size:1.05rem;color:var(--amber);text-align:center;}
+  .time small{display:block;font-family:var(--body);font-size:.62rem;color:var(--ink-faint);font-weight:400;letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+
+  .thumb{width:56px;height:56px;border-radius:10px;object-fit:cover;background:var(--bg-2);border:1px solid var(--line);}
+  .thumb.ph{display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:1.3rem;}
+
+  .meta{min-width:0;}
+  .show{font-weight:600;font-size:1.02rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ep{font-size:.84rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .net{font-size:.76rem;color:var(--ink-faint);margin-top:2px;}
+  .net span{color:var(--ink-soft);}
+
+  .badges{display:flex;flex-direction:column;gap:5px;align-items:flex-end;}
+  .badge{font-size:.66rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .b-sports{background:rgba(255,111,111,.16);color:#ff9a9a;border:1px solid rgba(255,111,111,.4);}
+  .b-news{background:rgba(70,214,195,.14);color:#7fe6da;border:1px solid rgba(70,214,195,.35);}
+  .b-default{background:rgba(255,255,255,.06);color:var(--ink-soft);border:1px solid var(--line);}
+
+  /* ---------- States ---------- */
+  .state{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+  .state .big{font-family:var(--display);font-size:1.4rem;color:var(--ink);margin-bottom:8px;}
+  .spinner{width:38px;height:38px;border:3px solid var(--line);border-top-color:var(--amber);border-radius:50%;margin:0 auto 18px;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .retry{margin-top:16px;border:1px solid var(--amber);background:transparent;color:var(--amber);padding:9px 18px;border-radius:10px;cursor:pointer;font-family:var(--body);font-weight:600;}
+  .retry:hover{background:var(--amber);color:#241704;}
+
+  /* ---------- Footer ---------- */
+  footer.site{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--ink-faint);font-size:.8rem;text-align:center;}
+  footer.site a{color:var(--ink-soft);text-decoration:none;border-bottom:1px dotted var(--line);}
+  footer.site a:hover{color:var(--amber);}
+  footer.site .cr{margin-top:8px;}
+
+  @media (max-width:560px){
+    .item{grid-template-columns:52px 1fr auto;gap:11px;}
+    .thumb{display:none;}
+    .badges{flex-direction:row;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="site">
+    <div class="brandrow">
+      <span class="kicker"><a href="https://torontoeatsandreviews.com">Toronto Eats &amp; Reviews</a> · MsJAG</span>
+    </div>
+    <h1><span class="on">On&nbsp;Air</span> Tonight</h1>
+    <p class="blurb">A live guide to what's playing on American and Canadian channels right now, with a sports section. Listings refresh on their own every time you open the page.</p>
+    <span class="live"><span class="dot"></span> Live data, auto-updating</span>
+  </header>
+
+  <div class="controls">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-view="US">USA TV</button>
+      <button class="tab" data-view="CA">Canada</button>
+      <button class="tab" data-view="SPORTS">Sports</button>
+      <button class="tab" data-view="WC">World Cup</button>
+      <button class="tab" data-view="STREAM">Streaming</button>
+      <button class="tab" data-view="EVENTS">Events</button>
+    </div>
+
+    <div class="row2">
+      <div class="dates" id="dates"></div>
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search" type="text" placeholder="Search a show or channel..." autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <span class="updated" id="updated"></span>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="note" id="note" style="display:none;"></div>
+
+  <div class="featured" id="featured" style="display:none;"></div>
+
+  <div class="listings" id="listings"></div>
+
+  <footer class="site">
+    <div>TV listings provided by <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a>, used under CC BY-SA. Canadian and sports listings can have gaps.</div>
+    <div class="cr">&copy; <span id="year"></span> MsJAG · <a href="https://torontoeatsandreviews.com">torontoeatsandreviews.com</a></div>
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================
+   On Air Tonight — live TV guide
+
+   ARCHITECTURE (plain-English)
+   - One static HTML file. No server, no build step, no keys.
+   - Three data sources, all read straight from the browser:
+       1) TVmaze /schedule      -> the US TV grid
+       2) ESPN scoreboards      -> NBA panel (Sports tab), the
+                                   NHL/NBA/Blue Jays panel (Canada tab),
+                                   and World Cup fixtures (World Cup tab,
+                                   league slug soccer/fifa.world)
+       3) TVmaze /schedule/web  -> streaming premieres (Canada tab)
+   - Tabs: USA TV (TVmaze grid), Canada (Canadian sports only, since
+     TVmaze has no Canadian broadcast grid), Sports (NBA panel + best-
+     effort TVmaze sports list), Streaming (major-service premieres,
+     filtered to a real title + recognizable platform), Events (a hand-
+     kept list of marquee annual broadcasts, in EVENTS_DATA).
+   - Canadian sports channels are fixed labels (Sportsnet/TSN/CBC) since
+     the national broadcaster is stable; US channels come live from ESPN.
+   - Data is fetched on page load, again when you return to the tab,
+     and on a 6-hour timer, so listings stay current on their own.
+   ========================================================= */
+
+const API = "https://api.tvmaze.com/schedule";   // ?country=US&date=YYYY-MM-DD  (also /web for streaming)
+const ESPN_BASE = "https://site.api.espn.com/apis/site/v2/sports"; // + /{path}/scoreboard?dates=...
+const REFRESH_MS = 1000 * 60 * 60 * 6;            // background refresh every 6 hours
+const cache = {};                                  // TVmaze broadcast schedule cache (country+date)
+const leagueCache = {};                            // ESPN scores cache, keyed by league
+let streamCache = null;                            // TVmaze streaming cache {date, data, time}
+
+// ESPN scoreboard paths per league
+const SPORT_PATH = { nba:"basketball/nba", nhl:"hockey/nhl", mlb:"baseball/mlb", wc:"soccer/fifa.world" };
+// How each league is labelled, and the Canadian national broadcaster (stable, so set as a fixed label)
+const LEAGUE_META = {
+  nba:{ icon:"🏀", name:"NBA",  ca:"Sportsnet / TSN" },
+  nhl:{ icon:"🏒", name:"NHL",  ca:"Sportsnet / CBC" },
+  mlb:{ icon:"⚾", name:"Blue Jays", ca:"Sportsnet" },
+};
+
+const state = { view: "US", date: todayStr(), query: "" };
+
+const els = {
+  tabs:     document.getElementById("tabs"),
+  dates:    document.getElementById("dates"),
+  search:   document.getElementById("search"),
+  listings: document.getElementById("listings"),
+  featured: document.getElementById("featured"),
+  updated:  document.getElementById("updated"),
+  count:    document.getElementById("count"),
+  note:     document.getElementById("note"),
+  year:     document.getElementById("year"),
+};
+
+/* ---------- date helpers ---------- */
+function todayStr(){ return toStr(new Date()); }
+function toStr(d){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function buildDateButtons(){
+  const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  els.dates.innerHTML="";
+  for(let i=0;i<7;i++){
+    const d=new Date(); d.setDate(d.getDate()+i);
+    const ds=toStr(d);
+    const label=i===0 ? "Today" : (i===1 ? "Tomorrow" : days[d.getDay()]);
+    const btn=document.createElement("button");
+    btn.className="datebtn"+(ds===state.date?" active":"");
+    btn.dataset.date=ds;
+    btn.innerHTML=`${label}<b>${d.getDate()}</b>`;
+    btn.onclick=()=>{ state.date=ds; markActiveDates(); render(); };
+    els.dates.appendChild(btn);
+  }
+}
+function markActiveDates(){
+  els.dates.querySelectorAll(".datebtn").forEach(b=>{
+    b.classList.toggle("active", b.dataset.date===state.date);
+  });
+}
+
+/* ---------- fetching ---------- */
+async function fetchSchedule(country, date){
+  const key=`${country}-${date}`;
+  if(cache[key]) return cache[key];
+  const res=await fetch(`${API}?country=${country}&date=${date}`);
+  if(!res.ok) throw new Error("Network response was not ok ("+res.status+")");
+  const data=await res.json();
+  cache[key]=data;
+  return data;
+}
+
+/* For the Sports view we combine US + Canada, then keep only sports programming. */
+async function loadData(){
+  if(state.view==="SPORTS"){
+    const [us,ca]=await Promise.all([
+      fetchSchedule("US",state.date).catch(()=>[]),
+      fetchSchedule("CA",state.date).catch(()=>[]),
+    ]);
+    return [...us,...ca].filter(isSports);
+  }
+  return await fetchSchedule(state.view,state.date);
+}
+
+/* ---------- Sports panels (ESPN public feed) ---------- */
+function ymd(d){ return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`; }
+
+async function loadLeague(league){
+  // reuse cached data for 5 minutes so typing in search doesn't refetch
+  const c=leagueCache[league];
+  if(c && (Date.now()-c.time < 5*60*1000)) return c.data;
+  let start=new Date();
+  let end=new Date();
+  if(league==="wc"){
+    // World Cup has fixed tournament dates; show from the opener (or today, once underway) forward
+    const open=new Date("2026-06-11T00:00:00");
+    if(start<open) start=open;
+    end=new Date(start); end.setDate(end.getDate()+18);
+  } else {
+    end.setDate(end.getDate()+13);   // two-week window
+  }
+  const res=await fetch(`${ESPN_BASE}/${SPORT_PATH[league]}/scoreboard?dates=${ymd(start)}-${ymd(end)}&limit=300`);
+  if(!res.ok) throw new Error(league+" feed error "+res.status);
+  const json=await res.json();
+  const data=Array.isArray(json.events)?json.events:[];
+  leagueCache[league]={data, time:Date.now()};
+  return data;
+}
+
+/* Build one game row. channelOverride replaces the US channel (used on the Canada tab). */
+function gameRowHTML(ev, opts){
+  opts=opts||{};
+  const c=(ev.competitions&&ev.competitions[0])||{};
+  const cs=c.competitors||[];
+  const home=cs.find(t=>t.homeAway==="home")||cs[0]||{};
+  const away=cs.find(t=>t.homeAway==="away")||cs[1]||{};
+  const st=(c.status&&c.status.type)||{};
+  const dstate=st.state||"pre";
+  const usChan=(c.broadcasts&&c.broadcasts[0]&&c.broadcasts[0].names&&c.broadcasts[0].names[0])
+          || (c.geoBroadcasts&&c.geoBroadcasts[0]&&c.geoBroadcasts[0].media&&c.geoBroadcasts[0].media.shortName)
+          || "";
+  const chan=opts.channelOverride!=null ? opts.channelOverride : usChan;
+  const sep=opts.vs?"vs":"at";
+  const sepScore=opts.vs?"vs":"@";
+  const prefix=opts.labelPrefix?escapeHtml(opts.labelPrefix)+" · ":"";
+  const label=prefix+((c.notes&&c.notes[0]&&c.notes[0].headline) ? escapeHtml(c.notes[0].headline) : (opts.fallbackLabel||"Playoffs"));
+  let extra=(c.series&&c.series.summary)?`<div class="series">${escapeHtml(c.series.summary)}</div>`:"";
+  if(opts.showVenue && c.venue){
+    const v=c.venue, city=(v.address&&v.address.city)?v.address.city:"";
+    const vtext=[v.fullName,city].filter(Boolean).join(", ");
+    if(vtext) extra+=`<div class="series">📍 ${escapeHtml(vtext)}</div>`;
+  }
+  const series=extra;
+
+  const teamChip=t=>{
+    const nm=(t.team&&(t.team.abbreviation||t.team.shortDisplayName||t.team.displayName))||"TBD";
+    const logo=(t.team&&t.team.logo)?`<img src="${t.team.logo}" alt="">`:"";
+    return `${logo}${escapeHtml(nm)}`;
+  };
+
+  let matchup, right;
+  if(dstate==="pre"){
+    matchup=`<div class="matchup">${teamChip(away)} <span class="at">${sep}</span> ${teamChip(home)}</div>`;
+    const d=new Date(ev.date);
+    const t=d.toLocaleString([], {weekday:"short", hour:"numeric", minute:"2-digit"});
+    right=`<div class="gtime">${t}</div>`+(chan?`<span class="chan">${escapeHtml(chan)}</span>`:"");
+  } else {
+    const as=away.score!=null?away.score:"";
+    const hs=home.score!=null?home.score:"";
+    matchup=`<div class="matchup">${teamChip(away)} <span class="sc">${as}</span> <span class="at">${sepScore}</span> ${teamChip(home)} <span class="sc">${hs}</span></div>`;
+    if(dstate==="in"){
+      right=`<span class="glive"><span class="d"></span>${escapeHtml(st.shortDetail||"Live")}</span>`+(chan?`<span class="chan">${escapeHtml(chan)}</span>`:"");
+    } else {
+      right=`<span class="gfinal">${escapeHtml(st.shortDetail||"Final")}</span>`;
+    }
+  }
+  return `<div class="game">
+    <div><div class="label">${label}</div>${matchup}${series}</div>
+    <div class="gright">${right}</div>
+  </div>`;
+}
+
+function upcomingFirst(events){
+  events.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const now=Date.now();
+  const up=events.filter(e=>new Date(e.date).getTime() >= now-1000*60*60*4); // include games started in last 4h
+  return up.length?up:events;
+}
+
+/* Sports tab: featured NBA panel with US channels */
+function renderNBA(){
+  els.featured.innerHTML=`<div class="nba"><h2>🏀 NBA Playoffs <span class="tag">Featured</span></h2>
+    <div class="sub">Loading the latest games...</div></div>`;
+  loadLeague("nba").then(events=>{
+    const rows=upcomingFirst(events).slice(0,8).map(ev=>gameRowHTML(ev,{fallbackLabel:"NBA Playoffs"})).join("");
+    els.featured.innerHTML=`<div class="nba">
+      <h2>🏀 NBA Playoffs <span class="tag">Featured</span></h2>
+      <div class="sub">Conference finals and the NBA Finals, with the channel for each game. Times shown in your local zone.</div>
+      <div class="games">${rows || `<div class="empty">No playoff games scheduled in the next two weeks.</div>`}</div>
+      <div class="src">Live scores and channels via ESPN. Channels reflect US broadcasts; Canadian carriage (Sportsnet/TSN) may differ.</div>
+    </div>`;
+  }).catch(()=>{
+    els.featured.innerHTML=`<div class="nba"><h2>🏀 NBA Playoffs <span class="tag">Featured</span></h2>
+      <div class="empty">Couldn't reach the NBA feed right now. The rest of the guide below still works.</div></div>`;
+  });
+}
+
+/* Canada tab: merged NHL + NBA + Blue Jays games with Canadian channel labels */
+function renderCanadaSports(){
+  els.featured.innerHTML=`<div class="nba"><h2>🍁 Canadian Sports <span class="tag">Live</span></h2>
+    <div class="sub">Loading games...</div></div>`;
+  Promise.all([
+    loadLeague("nhl").catch(()=>[]),
+    loadLeague("nba").catch(()=>[]),
+    loadLeague("mlb").catch(()=>[]),
+  ]).then(([nhl,nba,mlb])=>{
+    // Blue Jays only for MLB, otherwise a full daily slate is too noisy
+    const jays=mlb.filter(ev=>{
+      const cs=(ev.competitions&&ev.competitions[0]&&ev.competitions[0].competitors)||[];
+      return cs.some(t=>t.team&&t.team.abbreviation==="TOR");
+    });
+    const tagged=[
+      ...nhl.map(ev=>({ev,league:"nhl"})),
+      ...nba.map(ev=>({ev,league:"nba"})),
+      ...jays.map(ev=>({ev,league:"mlb"})),
+    ];
+    tagged.sort((a,b)=>new Date(a.ev.date)-new Date(b.ev.date));
+    const now=Date.now();
+    let list=tagged.filter(x=>new Date(x.ev.date).getTime() >= now-1000*60*60*4);
+    if(!list.length) list=tagged;
+    list=list.slice(0,12);
+
+    const rows=list.map(x=>{
+      const m=LEAGUE_META[x.league];
+      return gameRowHTML(x.ev,{ channelOverride:m.ca, labelPrefix:`${m.icon} ${m.name}`, fallbackLabel:"Game" });
+    }).join("");
+
+    els.featured.innerHTML=`<div class="nba">
+      <h2>🍁 Canadian Sports <span class="tag">Live</span></h2>
+      <div class="sub">NHL, NBA and Blue Jays games with the Canadian channel. Times in your local zone.</div>
+      <div class="games">${rows || `<div class="empty">No games in the next two weeks for these leagues.</div>`}</div>
+      <div class="src">Scores via ESPN. Channels show the usual Canadian national broadcaster and can vary by region or blackout.</div>
+    </div>`;
+  }).catch(()=>{
+    els.featured.innerHTML=`<div class="nba"><h2>🍁 Canadian Sports</h2>
+      <div class="empty">Couldn't reach the sports feed right now. The streaming list below still works.</div></div>`;
+  });
+}
+
+/* World Cup tab: upcoming 2026 FIFA World Cup fixtures */
+function renderWorldCup(){
+  els.featured.innerHTML=`<div class="nba"><h2>⚽ FIFA World Cup 2026 <span class="tag">Fixtures</span></h2>
+    <div class="sub">Loading fixtures...</div></div>`;
+  loadLeague("wc").then(events=>{
+    let list=upcomingFirst(events);
+    const q=state.query.trim().toLowerCase();
+    if(q){
+      list=list.filter(ev=>{
+        const cs=(ev.competitions&&ev.competitions[0]&&ev.competitions[0].competitors)||[];
+        return cs.some(t=>((t.team&&t.team.displayName)||"").toLowerCase().includes(q));
+      });
+    }
+    list=list.slice(0,15);
+    const rows=list.map(ev=>gameRowHTML(ev,{ vs:true, showVenue:true, channelOverride:"", fallbackLabel:"World Cup" })).join("");
+    els.featured.innerHTML=`<div class="nba">
+      <h2>⚽ FIFA World Cup 2026 <span class="tag">Fixtures</span></h2>
+      <div class="sub">June 11 – July 19, hosted across Canada, the US and Mexico. Next matches first; times in your local zone.</div>
+      <div class="games">${rows || `<div class="empty">No fixtures in this window yet. Full schedule loads closer to kickoff on June 11.</div>`}</div>
+      <div class="src">Scores and fixtures via ESPN. In Canada every match airs on CTV, TSN or RDS (Bell Media); US viewers get FOX and FS1.</div>
+    </div>`;
+  }).catch(()=>{
+    els.featured.innerHTML=`<div class="nba"><h2>⚽ FIFA World Cup 2026</h2>
+      <div class="empty">Couldn't reach the World Cup feed right now. Try again shortly.</div></div>`;
+  });
+}
+
+/* Canada tab: streaming premieres available in Canada (TVmaze web schedule) */
+async function loadStreaming(date){
+  if(streamCache && streamCache.date===date && (Date.now()-streamCache.time < 5*60*1000)) return streamCache.data;
+  const [global, local]=await Promise.all([
+    fetch(`${API}/web?date=${date}&country=`).then(r=>r.ok?r.json():[]).catch(()=>[]),   // global channels (Netflix, Disney+, Prime...)
+    fetch(`${API}/web?date=${date}&country=CA`).then(r=>r.ok?r.json():[]).catch(()=>[]),  // local Canadian channels (Crave, CBC Gem...)
+  ]);
+  const map={};
+  [...(Array.isArray(global)?global:[]), ...(Array.isArray(local)?local:[])].forEach(it=>{ if(it&&it.id!=null) map[it.id]=it; });
+  const data=Object.values(map);
+  streamCache={date, data, time:Date.now()};
+  return data;
+}
+
+function isSports(item){
+  const s=item.show||{};
+  if(s.type==="Sports") return true;
+  return Array.isArray(s.genres) && s.genres.includes("Sports");
+}
+
+/* Streaming tab: only premieres with a real title on a recognizable platform.
+   This drops the long tail of TVmaze "web channels" (YouTube clips, foreign
+   uploads, untitled entries) that have no useful where-to-watch info. */
+const STREAM_PLATFORMS = ["netflix","disney","hulu","prime video","amazon","apple tv","hbo","max","paramount","peacock","crave","cbc gem","crunchyroll","britbox","mubi","shudder","starz","showtime","amc+","discovery+","hayu","acorn","tubi"];
+
+/* The web/streaming schedule nests the show under _embedded.show
+   (the regular schedule uses a top-level show). Read the right one. */
+function streamShow(it){ return (it && it._embedded && it._embedded.show) || (it && it.show) || {}; }
+function streamChannel(it){ const s=streamShow(it); return (s.webChannel&&s.webChannel.name)||""; }
+function streamName(it){ return (streamShow(it).name||"").trim(); }
+
+function isQualityStream(it){
+  const name=streamName(it);
+  if(!name || /^untitled$/i.test(name)) return false;     // must have a real title
+  const ch=streamChannel(it).toLowerCase();
+  if(!ch || /youtube|twitch|patreon/.test(ch)) return false;   // must name a platform, and not a video-clip channel
+  return STREAM_PLATFORMS.some(p=>ch.includes(p));         // recognizable streaming service
+}
+/* Looser pass: real title on a real (non-clip) channel, even if not on the
+   known-platform list. Used as a fallback so quiet days still show something. */
+function isNamedStream(it){
+  const name=streamName(it);
+  if(!name || /^untitled$/i.test(name)) return false;
+  const ch=streamChannel(it).toLowerCase();
+  return ch && !/youtube|twitch|patreon/.test(ch);
+}
+
+function renderStreaming(){
+  els.note.style.display="block";
+  els.note.innerHTML="<b>Streaming premieres:</b> new episodes and releases hitting major services today (Netflix, Disney+, Prime Video, Apple TV+, Max, Paramount+, Crave, CBC Gem and more).";
+  els.listings.innerHTML=`<div class="state"><div class="spinner"></div>Loading streaming premieres...</div>`;
+  els.count.textContent="";
+
+  loadStreaming(state.date).then(items=>{
+    // prefer recognizable platforms; if few, widen to any real title on a real channel
+    let list=items.filter(isQualityStream);
+    if(list.length<5){
+      const extra=items.filter(it=>isNamedStream(it) && !isQualityStream(it));
+      list=list.concat(extra);
+    }
+
+    const q=state.query.trim().toLowerCase();
+    if(q){
+      list=list.filter(it=>{
+        return streamName(it).toLowerCase().includes(q)
+            || (it.name||"").toLowerCase().includes(q)
+            || streamChannel(it).toLowerCase().includes(q);
+      });
+    }
+    // sort by platform, then show name
+    list.sort((a,b)=>{
+      const ca=streamChannel(a).toLowerCase(), cb=streamChannel(b).toLowerCase();
+      if(ca!==cb) return ca.localeCompare(cb);
+      return streamName(a).localeCompare(streamName(b));
+    });
+    list=list.slice(0,40);
+
+    if(!list.length){
+      els.count.textContent="";
+      els.listings.innerHTML=`<div class="state"><div class="big">No streaming premieres today</div>Nothing new came back for this date. Try another day.</div>`;
+      stamp(); return;
+    }
+    els.count.textContent=`${list.length} streaming premiere${list.length>1?"s":""}`;
+    const cards=list.map((it,i)=>{
+      const s=streamShow(it);
+      const ch=streamChannel(it)||"Streaming";
+      const img=s.image&&s.image.medium?s.image.medium:null;
+      const epbits=[];
+      if(it.season&&it.number) epbits.push(`S${it.season} E${it.number}`);
+      if(it.name) epbits.push(escapeHtml(it.name));
+      const ep=epbits.join(" · ");
+      const delay=Math.min(i*0.025,0.6);
+      const typ=s.type||(s.genres&&s.genres[0])||"";
+      return `<div class="item" style="animation-delay:${delay}s">
+        <div class="time">▶<small>Stream</small></div>
+        ${img?`<img class="thumb" src="${img}" alt="" loading="lazy">`:`<div class="thumb ph">🎬</div>`}
+        <div class="meta">
+          <div class="show">${escapeHtml(s.name||"Untitled")}</div>
+          ${ep?`<div class="ep">${ep}</div>`:""}
+          <div class="net">on <span>${escapeHtml(ch)}</span></div>
+        </div>
+        <div class="badges">${typ?`<span class="badge b-default">${escapeHtml(typ)}</span>`:""}</div>
+      </div>`;
+    }).join("");
+    els.listings.innerHTML=cards;
+    stamp();
+  }).catch(err=>{ showError(err); });
+}
+
+/* ---------- Events tab: curated marquee broadcasts ---------- */
+/* Hand-kept list. Confirmed 2026 dates have a sortDate + dated label.
+   Annual shows without a set 2026 date use tbd:true. Already-aired 2026
+   shows get a past sortDate so they sort to the bottom automatically. */
+const EVENTS_DATA = [
+  // --- confirmed upcoming ---
+  { name:"Indianapolis 500", kind:"Sports", channel:"FOX", sortDate:"2026-05-24T16:30:00Z", when:"Sun, May 24 · 12:30 PM ET", note:"The 110th running, live from Indianapolis." },
+  { name:"NBA Finals — Game 1", kind:"Sports", channel:"ABC", sortDate:"2026-06-03T00:30:00Z", when:"Wed, June 3 · 8:30 PM ET", note:"Best-of-seven through mid-June. Also on the Sports tab." },
+  { name:"BET Awards", kind:"Music", channel:"BET (+ MTV, VH1, Comedy Central & more)", sortDate:"2026-06-28T00:00:00Z", when:"Sun, June 28 · 8:00 PM ET", note:"Hosted by Druski at the Peacock Theater, LA." },
+  // --- annual, 2026 date not set yet ---
+  { name:"MTV Video Music Awards", kind:"Music", channel:"MTV", tbd:true, sortDate:"2026-09-01", when:"September 2026 · date TBD", note:"Music videos, fan-voted categories, big live sets." },
+  { name:"Primetime Emmy Awards", kind:"Film & TV", channel:"Network rotates", tbd:true, sortDate:"2026-09-13", when:"September 2026 · date TBD", note:"Television's top honors." },
+  { name:"World Series", kind:"Sports", channel:"FOX", tbd:true, sortDate:"2026-10-23", when:"Late October 2026 · dates TBD", note:"MLB championship, up to seven prime-time nights." },
+  { name:"Rock & Roll Hall of Fame Induction", kind:"Music", channel:"Disney+ / ABC", tbd:true, sortDate:"2026-10-15", when:"Autumn 2026 · date TBD", note:"Multi-generational jam sessions and tributes." },
+  { name:"American Music Awards", kind:"Music", channel:"CBS", tbd:true, sortDate:"2026-10-01", when:"Date varies · fan-voted", note:"Entirely fan-voted pop and hip-hop showcase." },
+  { name:"Billboard Music Awards", kind:"Music", channel:"Check listings", tbd:true, sortDate:"2026-11-01", when:"Date varies · chart-based", note:"Winners decided strictly by chart and streaming data." },
+  { name:"Kennedy Center Honors", kind:"Honors", channel:"CBS", tbd:true, sortDate:"2026-12-01", when:"December 2026 · date TBD", note:"Five lifetime-achievement honorees in the performing arts." },
+  // --- already aired in 2026 ---
+  { name:"Golden Globe Awards", kind:"Film & TV", channel:"CBS", sortDate:"2026-01-11", when:"Aired January 2026", note:"Traditional start of the Hollywood awards season." },
+  { name:"Grammy Awards", kind:"Music", channel:"CBS", sortDate:"2026-02-01", when:"Aired February 2026", note:"The music industry's top honor." },
+  { name:"Super Bowl LX", kind:"Sports", channel:"NBC", sortDate:"2026-02-08", when:"Aired February 2026", note:"Most-watched broadcast of the year, with the halftime show." },
+  { name:"SAG Awards", kind:"Film & TV", channel:"Netflix", sortDate:"2026-02-22", when:"Aired February 2026", note:"Actors voting for peers; strong Oscars predictor." },
+  { name:"BAFTA Film Awards", kind:"Film & TV", channel:"BritBox (US)", sortDate:"2026-02-15", when:"Aired February 2026", note:"The UK equivalent of the Oscars." },
+  { name:"The Masters", kind:"Sports", channel:"CBS", sortDate:"2026-04-12", when:"Aired April 2026", note:"Final round Sunday; a top non-football sports draw." },
+  { name:"Kentucky Derby", kind:"Sports", channel:"NBC", sortDate:"2026-05-02", when:"Aired May 2026", note:"\"The Most Exciting Two Minutes in Sports.\"" },
+];
+
+function renderEvents(){
+  els.note.style.display="none";
+  els.count.textContent="";
+
+  const now=Date.now();
+  let items=EVENTS_DATA.slice();
+
+  // search filter
+  const q=state.query.trim().toLowerCase();
+  if(q){
+    items=items.filter(e=>
+      e.name.toLowerCase().includes(q) ||
+      (e.channel||"").toLowerCase().includes(q) ||
+      (e.kind||"").toLowerCase().includes(q)
+    );
+  }
+
+  const passed=e=> !e.tbd && new Date(e.sortDate).getTime() < now;
+  const active=items.filter(e=>!passed(e)).sort((a,b)=>new Date(a.sortDate)-new Date(b.sortDate));
+  const done=items.filter(passed).sort((a,b)=>new Date(b.sortDate)-new Date(a.sortDate));
+  const ordered=[...active,...done];
+
+  const row=e=>{
+    const isPast=passed(e);
+    const right = isPast
+      ? `<span class="gfinal">${escapeHtml(e.when)}</span>`
+      : `<div class="gtime">${escapeHtml(e.when)}</div>`+(e.channel?`<span class="chan">${escapeHtml(e.channel)}</span>`:"");
+    return `<div class="game${isPast?" passed":""}">
+      <div>
+        <div class="label">${escapeHtml(e.kind||"Event")}</div>
+        <div class="matchup">${escapeHtml(e.name)}</div>
+        ${e.note?`<div class="series">${escapeHtml(e.note)}</div>`:""}
+      </div>
+      <div class="gright">${right}</div>
+    </div>`;
+  };
+
+  els.count.textContent = active.length ? `${active.length} coming up` : "";
+
+  els.listings.innerHTML=`<div class="nba">
+    <h2>🎬 Marquee Events <span class="tag">Annual</span></h2>
+    <div class="sub">The big nights worth circling, with dates and channels. Confirmed dates are dated; shows still being scheduled say "date TBD." US broadcasters shown; Canadian carriage can differ.</div>
+    <div class="games">${ordered.length?ordered.map(row).join(""):`<div class="empty">No events match that search.</div>`}</div>
+    <div class="src">Hand-kept list, since award shows aren't in any live feed. Dates and hosts can change closer to air.</div>
+  </div>`;
+  stamp();
+}
+
+/* ---------- Events tab: curated marquee broadcasts (end) ---------- */
+
+/* ---------- rendering ---------- */
+function render(){
+  // the date strip only applies to listings-by-day views
+  els.dates.style.display = (state.view==="EVENTS"||state.view==="CA"||state.view==="WC") ? "none" : "flex";
+
+  // featured panel: NBA on Sports, Canadian sports on Canada, World Cup on WC, hidden otherwise
+  if(state.view==="SPORTS"){
+    els.featured.style.display="block";
+    renderNBA();
+  } else if(state.view==="CA"){
+    els.featured.style.display="block";
+    renderCanadaSports();
+  } else if(state.view==="WC"){
+    els.featured.style.display="block";
+    renderWorldCup();
+  } else {
+    els.featured.style.display="none";
+    els.featured.innerHTML="";
+  }
+
+  // Events: curated annual broadcasts
+  if(state.view==="EVENTS"){
+    renderEvents();
+    return;
+  }
+
+  // World Cup: fixtures panel only
+  if(state.view==="WC"){
+    els.note.style.display="none";
+    els.listings.innerHTML="";
+    els.count.textContent="";
+    return;
+  }
+
+  // Streaming: premieres on major services (its own tab)
+  if(state.view==="STREAM"){
+    renderStreaming();
+    return;
+  }
+
+  // Canada: Canadian sports panel only (TVmaze has no Canadian broadcast grid)
+  if(state.view==="CA"){
+    els.note.style.display="block";
+    els.note.innerHTML="<b>About this tab:</b> free data has no full Canadian channel grid, so Canada focuses on Canadian sports above. For shows, see the USA TV and Streaming tabs.";
+    els.listings.innerHTML="";
+    els.count.textContent="";
+    return;
+  }
+
+  showLoading();
+  loadData().then(items=>{
+    let list=items.slice();
+
+    // search filter
+    const q=state.query.trim().toLowerCase();
+    if(q){
+      list=list.filter(it=>{
+        const s=it.show||{};
+        const net=(s.network&&s.network.name)||(s.webChannel&&s.webChannel.name)||"";
+        return (s.name||"").toLowerCase().includes(q)
+            || (it.name||"").toLowerCase().includes(q)
+            || net.toLowerCase().includes(q);
+      });
+    }
+
+    // sort by airtime
+    list.sort((a,b)=>(a.airtime||"99").localeCompare(b.airtime||"99"));
+
+    paint(list, items.length);
+    stamp();
+  }).catch(err=>{
+    showError(err);
+  });
+}
+
+function paint(list, totalForDay){
+  // contextual note for thin-data tabs
+  els.note.style.display="none";
+  if(state.view==="SPORTS"){
+    els.note.style.display="block";
+    els.note.innerHTML="<b>Heads up:</b> Sports is a best-effort view. Live games aren't always listed as scheduled programming, so this can be incomplete.";
+  }
+
+  if(!list.length){
+    els.count.textContent="";
+    els.listings.innerHTML=`<div class="state"><div class="big">Nothing to show here</div>`+
+      (totalForDay && state.query
+        ? `No matches for "${escapeHtml(state.query)}" on this day.`
+        : `No listings came back for this selection. Try another date or tab.`)+`</div>`;
+    return;
+  }
+
+  els.count.textContent=`${list.length} listing${list.length>1?"s":""}`;
+
+  els.listings.innerHTML=list.map((it,i)=>{
+    const s=it.show||{};
+    const net=(s.network&&s.network.name)||(s.webChannel&&s.webChannel.name)||"—";
+    const img=s.image&&s.image.medium ? s.image.medium : null;
+    const time=it.airtime ? prettyTime(it.airtime) : "—";
+    const epbits=[];
+    if(it.season&&it.number) epbits.push(`S${it.season} E${it.number}`);
+    if(it.name) epbits.push(escapeHtml(it.name));
+    const ep=epbits.join(" · ");
+    const badge=badgeFor(s);
+    const delay=Math.min(i*0.025,0.6);
+
+    return `<div class="item" style="animation-delay:${delay}s">
+      <div class="time">${time}<small>${ampm(it.airtime)}</small></div>
+      ${img?`<img class="thumb" src="${img}" alt="" loading="lazy">`:`<div class="thumb ph">📺</div>`}
+      <div class="meta">
+        <div class="show">${escapeHtml(s.name||"Untitled")}</div>
+        ${ep?`<div class="ep">${ep}</div>`:""}
+        <div class="net">on <span>${escapeHtml(net)}</span></div>
+      </div>
+      <div class="badges">${badge}</div>
+    </div>`;
+  }).join("");
+
+  if(state.view==="SPORTS"){
+    els.listings.innerHTML=`<div class="sports-sub">Also on TV today (best effort)</div>`+els.listings.innerHTML;
+  }
+}
+
+function badgeFor(show){
+  const t=show.type||"";
+  const genres=show.genres||[];
+  if(t==="Sports"||genres.includes("Sports")) return `<span class="badge b-sports">Sports</span>`;
+  if(t==="News"||genres.includes("News")) return `<span class="badge b-news">News</span>`;
+  const label=t||(genres[0]||"");
+  return label?`<span class="badge b-default">${escapeHtml(label)}</span>`:"";
+}
+
+/* ---------- small UI helpers ---------- */
+function prettyTime(t){
+  // t is "HH:MM" 24h -> "h:MM"
+  const [h,m]=t.split(":").map(Number);
+  const hr=((h%12)||12);
+  return `${hr}:${String(m).padStart(2,"0")}`;
+}
+function ampm(t){ if(!t)return""; const h=Number(t.split(":")[0]); return h<12?"AM":"PM"; }
+function showLoading(){
+  els.count.textContent="";
+  els.listings.innerHTML=`<div class="state"><div class="spinner"></div>Loading listings...</div>`;
+}
+function showError(err){
+  els.count.textContent="";
+  els.listings.innerHTML=`<div class="state"><div class="big">Couldn't load listings</div>
+    The TV data source didn't respond. This is usually a brief hiccup or a connection issue.
+    <br><button class="retry" id="retry">Try again</button></div>`;
+  document.getElementById("retry").onclick=()=>{ delete cache[`${state.view}-${state.date}`]; render(); };
+  console.error(err);
+}
+function stamp(){
+  const now=new Date();
+  els.updated.textContent="Updated "+now.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ---------- events ---------- */
+els.tabs.addEventListener("click",e=>{
+  const btn=e.target.closest(".tab"); if(!btn) return;
+  els.tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  btn.classList.add("active");
+  state.view=btn.dataset.view;
+  render();
+});
+let typingTimer;
+els.search.addEventListener("input",e=>{
+  clearTimeout(typingTimer);
+  typingTimer=setTimeout(()=>{ state.query=e.target.value; render(); },200);
+});
+
+/* refetch fresh data when the user returns to the tab, and on a 6h timer */
+function clearLiveCaches(){
+  Object.keys(leagueCache).forEach(k=>delete leagueCache[k]);
+  streamCache=null;
+}
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden){
+    // clear today's cache so a returning visitor sees fresh listings
+    Object.keys(cache).forEach(k=>{ if(k.includes(state.date)) delete cache[k]; });
+    clearLiveCaches();
+    render();
+  }
+});
+setInterval(()=>{
+  Object.keys(cache).forEach(k=>delete cache[k]);
+  clearLiveCaches();
+  render();
+}, REFRESH_MS);
+
+/* ---------- init ---------- */
+els.year.textContent=new Date().getFullYear();
+buildDateButtons();
+render();
+</script>
+</body>
+</html>
