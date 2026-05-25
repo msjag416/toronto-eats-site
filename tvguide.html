@@ -213,6 +213,17 @@
     .item{grid-template-columns:52px 1fr auto;gap:11px;}
     .thumb{display:none;}
     .badges{flex-direction:row;}
+    .row2{flex-direction:column;align-items:stretch;}
+    .search{max-width:none;width:100%;}
+  }
+
+  /* respect users who prefer less motion */
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+    html{scroll-behavior:auto;}
+    .item{animation:none !important;}
+    .dot,.glive .d{animation:none !important;}
+    body::before{display:none;}
   }
 </style>
 </head>
@@ -225,45 +236,45 @@
     </div>
     <h1><span class="on">On&nbsp;Air</span> Tonight</h1>
     <p class="blurb">A live guide to what's playing on American and Canadian channels right now, with a sports section. Listings refresh on their own every time you open the page.</p>
-    <span class="live"><span class="dot"></span> Live data, auto-updating</span>
+    <span class="live"><span class="dot" aria-hidden="true"></span> Live data, auto-updating</span>
   </header>
 
-  <div class="controls">
-    <div class="tabs" id="tabs">
-      <button class="tab active" data-view="US">USA TV</button>
-      <button class="tab" data-view="CA">Canada</button>
-      <button class="tab" data-view="SPORTS">Sports</button>
-      <button class="tab" data-view="WC">World Cup</button>
-      <button class="tab" data-view="STREAM">Streaming</button>
-      <button class="tab" data-view="EVENTS">Events</button>
+  <main class="controls" role="main">
+    <div class="tabs" id="tabs" role="tablist" aria-label="TV guide sections">
+      <button class="tab active" data-view="US" role="tab" aria-selected="true">USA TV</button>
+      <button class="tab" data-view="CA" role="tab" aria-selected="false">Canada</button>
+      <button class="tab" data-view="SPORTS" role="tab" aria-selected="false">Sports</button>
+      <button class="tab" data-view="WC" role="tab" aria-selected="false">World Cup</button>
+      <button class="tab" data-view="STREAM" role="tab" aria-selected="false">Streaming</button>
+      <button class="tab" data-view="EVENTS" role="tab" aria-selected="false">Events</button>
     </div>
 
     <div class="row2">
-      <div class="dates" id="dates"></div>
+      <div class="dates" id="dates" aria-label="Choose a date"></div>
       <div class="search">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="search" type="text" placeholder="Search a show or channel..." autocomplete="off">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search" type="text" placeholder="Search a show or channel..." autocomplete="off" aria-label="Search a show or channel">
       </div>
     </div>
-  </div>
+  </main>
 
-  <div class="statusbar">
+  <div class="statusbar" aria-live="polite">
     <span class="updated" id="updated"></span>
     <span class="count" id="count"></span>
   </div>
 
   <div class="note" id="note" style="display:none;"></div>
 
-  <div class="catfilter" id="catfilter" style="display:none;">
-    <button class="catbtn active" data-cat="all">All</button>
-    <button class="catbtn" data-cat="broadcast">Broadcast</button>
-    <button class="catbtn" data-cat="cable">Cable</button>
-    <button class="catbtn" data-cat="news">News</button>
+  <div class="catfilter" id="catfilter" style="display:none;" role="group" aria-label="Filter by network type">
+    <button class="catbtn active" data-cat="all" aria-pressed="true">All</button>
+    <button class="catbtn" data-cat="broadcast" aria-pressed="false">Broadcast</button>
+    <button class="catbtn" data-cat="cable" aria-pressed="false">Cable</button>
+    <button class="catbtn" data-cat="news" aria-pressed="false">News</button>
   </div>
 
-  <div class="featured" id="featured" style="display:none;"></div>
+  <div class="featured" id="featured" style="display:none;" role="region" aria-label="Featured"></div>
 
-  <div class="listings" id="listings"></div>
+  <div class="listings" id="listings" role="region" aria-label="Listings"></div>
 
   <footer class="site">
     <div>TV listings provided by <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a>, used under CC BY-SA. Canadian and sports listings can have gaps.</div>
@@ -296,12 +307,24 @@
      and on a 6-hour timer, so listings stay current on their own.
    ========================================================= */
 
+/* ===== TABLE OF CONTENTS (inside this script) =====
+   1. CONFIG & CONSTANTS        (API URLs, SPORT_PATH, LEAGUE_META)
+   2. STATE & DOM REFS
+   3. DATE HELPERS + URL/HASH state (shareable links)
+   4. API LAYER (TVmaze) with stale-while-revalidate
+   5. SPORTS / STREAMING DATA (ESPN + TVmaze web)
+   6. RENDERERS (US grid, sports panels, streaming, events)
+   7. UI HELPERS
+   8. EVENT HANDLERS, ACCESSIBILITY (tab keyboard nav) & INIT
+   ================================================= */
+
 const API = "https://api.tvmaze.com/schedule";   // ?country=US&date=YYYY-MM-DD  (also /web for streaming)
 const ESPN_BASE = "https://site.api.espn.com/apis/site/v2/sports"; // + /{path}/scoreboard?dates=...
 const REFRESH_MS = 1000 * 60 * 60 * 6;            // background refresh every 6 hours
-const cache = {};                                  // TVmaze broadcast schedule cache (country+date)
-const leagueCache = {};                            // ESPN scores cache, keyed by league
+const cache = {};                                  // TVmaze schedule cache: key -> {data, time}
+const leagueCache = {};                            // ESPN scores cache, keyed by league -> {data, time}
 let streamCache = null;                            // TVmaze streaming cache {date, data, time}
+const VALID_VIEWS = ["US","CA","SPORTS","WC","STREAM","EVENTS"];
 
 // ESPN scoreboard paths per league
 const SPORT_PATH = { nba:"basketball/nba", nhl:"hockey/nhl", mlb:"baseball/mlb", wc:"soccer/fifa.world" };
@@ -354,15 +377,43 @@ function markActiveDates(){
   });
 }
 
-/* ---------- fetching ---------- */
+/* ---------- shareable URL state (e.g. #view=WC&date=2026-06-12) ---------- */
+function readHash(){
+  const h=new URLSearchParams((location.hash||"").replace(/^#/,""));
+  const v=h.get("view"); if(v && VALID_VIEWS.includes(v)) state.view=v;
+  const d=h.get("date"); if(d && /^\d{4}-\d{2}-\d{2}$/.test(d)) state.date=d;
+}
+function writeHash(){
+  const p=new URLSearchParams();
+  p.set("view", state.view);
+  if(state.view==="US"||state.view==="SPORTS"||state.view==="STREAM") p.set("date", state.date);
+  const nh="#"+p.toString();
+  if(location.hash!==nh) history.replaceState(null,"",nh);   // update address bar without adding history
+}
+function syncTabUI(){
+  els.tabs.querySelectorAll(".tab").forEach(t=>{
+    const on=t.dataset.view===state.view;
+    t.classList.toggle("active", on);
+    t.setAttribute("aria-selected", on?"true":"false");
+  });
+}
+
+/* ---------- fetching (TVmaze) — stale-while-revalidate ---------- */
 async function fetchSchedule(country, date){
   const key=`${country}-${date}`;
-  if(cache[key]) return cache[key];
-  const res=await fetch(`${API}?country=${country}&date=${date}`);
-  if(!res.ok) throw new Error("Network response was not ok ("+res.status+")");
-  const data=await res.json();
-  cache[key]=data;
-  return data;
+  const c=cache[key];
+  // fresh enough? serve from cache
+  if(c && (Date.now()-c.time < 30*60*1000)) return c.data;
+  try{
+    const res=await fetch(`${API}?country=${country}&date=${date}`);
+    if(!res.ok) throw new Error("Network response was not ok ("+res.status+")");
+    const data=await res.json();
+    cache[key]={data, time:Date.now()};
+    return data;
+  }catch(err){
+    if(c) return c.data;   // network blip: keep showing the last good data
+    throw err;
+  }
 }
 
 /* For the Sports view we combine US + Canada, then keep only sports programming. */
@@ -394,12 +445,17 @@ async function loadLeague(league){
   } else {
     end.setDate(end.getDate()+13);   // two-week window
   }
-  const res=await fetch(`${ESPN_BASE}/${SPORT_PATH[league]}/scoreboard?dates=${ymd(start)}-${ymd(end)}&limit=300`);
-  if(!res.ok) throw new Error(league+" feed error "+res.status);
-  const json=await res.json();
-  const data=Array.isArray(json.events)?json.events:[];
-  leagueCache[league]={data, time:Date.now()};
-  return data;
+  try{
+    const res=await fetch(`${ESPN_BASE}/${SPORT_PATH[league]}/scoreboard?dates=${ymd(start)}-${ymd(end)}&limit=300`);
+    if(!res.ok) throw new Error(league+" feed error "+res.status);
+    const json=await res.json();
+    const data=Array.isArray(json.events)?json.events:[];
+    leagueCache[league]={data, time:Date.now()};
+    return data;
+  }catch(err){
+    if(c) return c.data;   // serve last good scores on a network blip
+    throw err;
+  }
 }
 
 /* Build one game row. channelOverride replaces the US channel (used on the Canada tab). */
@@ -444,7 +500,7 @@ function gameRowHTML(ev, opts){
     const hs=home.score!=null?home.score:"";
     matchup=`<div class="matchup">${teamChip(away)} <span class="sc">${as}</span> <span class="at">${sepScore}</span> ${teamChip(home)} <span class="sc">${hs}</span></div>`;
     if(dstate==="in"){
-      right=`<span class="glive"><span class="d"></span>${escapeHtml(st.shortDetail||"Live")}</span>`+(chan?`<span class="chan">${escapeHtml(chan)}</span>`:"");
+      right=`<span class="glive"><span class="d" aria-hidden="true"></span>${escapeHtml(st.shortDetail||"Live")}</span>`+(chan?`<span class="chan">${escapeHtml(chan)}</span>`:"");
     } else {
       right=`<span class="gfinal">${escapeHtml(st.shortDetail||"Final")}</span>`;
     }
@@ -552,15 +608,21 @@ function renderWorldCup(){
 /* Canada tab: streaming premieres available in Canada (TVmaze web schedule) */
 async function loadStreaming(date){
   if(streamCache && streamCache.date===date && (Date.now()-streamCache.time < 5*60*1000)) return streamCache.data;
-  const [global, local]=await Promise.all([
-    fetch(`${API}/web?date=${date}&country=`).then(r=>r.ok?r.json():[]).catch(()=>[]),   // global channels (Netflix, Disney+, Prime...)
-    fetch(`${API}/web?date=${date}&country=CA`).then(r=>r.ok?r.json():[]).catch(()=>[]),  // local Canadian channels (Crave, CBC Gem...)
-  ]);
-  const map={};
-  [...(Array.isArray(global)?global:[]), ...(Array.isArray(local)?local:[])].forEach(it=>{ if(it&&it.id!=null) map[it.id]=it; });
-  const data=Object.values(map);
-  streamCache={date, data, time:Date.now()};
-  return data;
+  try{
+    const [global, local]=await Promise.all([
+      fetch(`${API}/web?date=${date}&country=`).then(r=>r.ok?r.json():[]).catch(()=>[]),   // global channels (Netflix, Disney+, Prime...)
+      fetch(`${API}/web?date=${date}&country=CA`).then(r=>r.ok?r.json():[]).catch(()=>[]),  // local Canadian channels (Crave, CBC Gem...)
+    ]);
+    const map={};
+    [...(Array.isArray(global)?global:[]), ...(Array.isArray(local)?local:[])].forEach(it=>{ if(it&&it.id!=null) map[it.id]=it; });
+    const data=Object.values(map);
+    if(!data.length && streamCache && streamCache.date===date) return streamCache.data;  // keep last good if both came back empty
+    streamCache={date, data, time:Date.now()};
+    return data;
+  }catch(err){
+    if(streamCache && streamCache.date===date) return streamCache.data;
+    throw err;
+  }
 }
 
 function isSports(item){
@@ -737,6 +799,7 @@ function renderEvents(){
 
 /* ---------- rendering ---------- */
 function render(){
+  writeHash();   // keep the address bar shareable (#view=...&date=...)
   // the date strip only applies to listings-by-day views
   els.dates.style.display = (state.view==="EVENTS"||state.view==="CA"||state.view==="WC") ? "none" : "flex";
   // the network filter only applies to the USA grid
@@ -941,10 +1004,23 @@ function escapeHtml(str){
 /* ---------- events ---------- */
 els.tabs.addEventListener("click",e=>{
   const btn=e.target.closest(".tab"); if(!btn) return;
-  els.tabs.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  btn.classList.add("active");
   state.view=btn.dataset.view;
+  syncTabUI();
   render();
+});
+// keyboard navigation between tabs (left/right/home/end), per ARIA tab pattern
+els.tabs.addEventListener("keydown",e=>{
+  if(!["ArrowLeft","ArrowRight","Home","End"].includes(e.key)) return;
+  const tabs=[...els.tabs.querySelectorAll(".tab")];
+  let i=tabs.indexOf(document.activeElement);
+  if(i<0) i=tabs.findIndex(t=>t.dataset.view===state.view);
+  if(e.key==="ArrowRight") i=(i+1)%tabs.length;
+  else if(e.key==="ArrowLeft") i=(i-1+tabs.length)%tabs.length;
+  else if(e.key==="Home") i=0;
+  else if(e.key==="End") i=tabs.length-1;
+  e.preventDefault();
+  const t=tabs[i]; t.focus();
+  state.view=t.dataset.view; syncTabUI(); render();
 });
 let typingTimer;
 els.search.addEventListener("input",e=>{
@@ -953,35 +1029,26 @@ els.search.addEventListener("input",e=>{
 });
 els.catfilter.addEventListener("click",e=>{
   const btn=e.target.closest(".catbtn"); if(!btn) return;
-  els.catfilter.querySelectorAll(".catbtn").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
+  els.catfilter.querySelectorAll(".catbtn").forEach(b=>{ b.classList.remove("active"); b.setAttribute("aria-pressed","false"); });
+  btn.classList.add("active"); btn.setAttribute("aria-pressed","true");
   state.filter=btn.dataset.cat;
   render();
 });
 
-/* refetch fresh data when the user returns to the tab, and on a 6h timer */
-function clearLiveCaches(){
-  Object.keys(leagueCache).forEach(k=>delete leagueCache[k]);
-  streamCache=null;
-}
-document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden){
-    // clear today's cache so a returning visitor sees fresh listings
-    Object.keys(cache).forEach(k=>{ if(k.includes(state.date)) delete cache[k]; });
-    clearLiveCaches();
-    render();
-  }
-});
-setInterval(()=>{
-  Object.keys(cache).forEach(k=>delete cache[k]);
-  clearLiveCaches();
-  render();
-}, REFRESH_MS);
+/* Re-render when the user returns to the tab and on a 6h timer.
+   We no longer wipe caches here: each loader refreshes itself once its
+   data is stale (TVmaze 30 min, ESPN/streaming 5 min) and falls back to
+   the last good data if a refresh fails, so the screen never goes blank. */
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) render(); });
+setInterval(render, REFRESH_MS);
 
 /* ---------- init ---------- */
 els.year.textContent=new Date().getFullYear();
+readHash();              // open to a shared view/date if the URL has one
 buildDateButtons();
+syncTabUI();
 render();
+window.addEventListener("hashchange",()=>{ readHash(); buildDateButtons(); syncTabUI(); render(); });
 </script>
 </body>
 </html>
