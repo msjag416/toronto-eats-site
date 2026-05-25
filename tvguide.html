@@ -341,6 +341,7 @@ const els = {
   tabs:     document.getElementById("tabs"),
   dates:    document.getElementById("dates"),
   search:   document.getElementById("search"),
+  searchBox: document.querySelector(".search"),
   listings: document.getElementById("listings"),
   featured: document.getElementById("featured"),
   catfilter: document.getElementById("catfilter"),
@@ -804,6 +805,8 @@ function render(){
   els.dates.style.display = (state.view==="EVENTS"||state.view==="CA"||state.view==="WC") ? "none" : "flex";
   // the network filter only applies to the USA grid
   els.catfilter.style.display = (state.view==="US") ? "flex" : "none";
+  // the search box has nothing to act on the Canada tab (sports panel only)
+  els.searchBox.style.display = (state.view==="CA") ? "none" : "";
 
   // featured panel: NBA on Sports, Canadian sports on Canada, World Cup on WC, hidden otherwise
   if(state.view==="SPORTS"){
@@ -893,10 +896,15 @@ function paint(list, totalForDay){
 
   if(!list.length){
     els.count.textContent="";
-    els.listings.innerHTML=`<div class="state"><div class="big">Nothing to show here</div>`+
-      (totalForDay && (state.query || (state.view==="US"&&state.filter!=="all"))
-        ? `No matches for this filter or search on this day.`
-        : `No listings came back for this selection. Try another date or tab.`)+`</div>`;
+    let msg;
+    if(state.query){
+      msg=`No shows match "${escapeHtml(state.query)}" in today's listings. Channels that only carry live sports, like ESPN or TSN, aren't in this data, so try the Sports or World Cup tabs for those.`;
+    } else if(state.view==="US" && state.filter!=="all"){
+      msg=`Nothing in this category for this day. Try "All" or another date.`;
+    } else {
+      msg=`No listings came back for this selection. Try another date or tab.`;
+    }
+    els.listings.innerHTML=`<div class="state"><div class="big">Nothing to show here</div>${msg}</div>`;
     return;
   }
 
@@ -918,17 +926,13 @@ function paint(list, totalForDay){
     const badge=badgeFor(s);
     const delay=Math.min(i*0.025,0.6);
 
-    // is this airing right now?
-    let onNow=false;
-    if(showNow && it.airtime){
-      const start=hmToMin(it.airtime);
-      const dur=it.runtime||s.averageRuntime||30;
-      if(start!=null && nowMin>=start && nowMin<start+dur) onNow=true;
-    }
-    const nowBadge=onNow?`<span class="badge b-now">● On now</span>`:"";
+    // airtimes are ET; store start + duration so a timer can refresh "on now" live
+    const start = it.airtime ? hmToMin(it.airtime) : null;
+    const dur = it.runtime || s.averageRuntime || 30;
+    const onNow = (showNow && start!=null && nowMin>=start && nowMin<start+dur);
     const small=it.airtime?`${ampm(it.airtime)} ET`:"";
 
-    return `<div class="item${onNow?" now":""}" style="animation-delay:${delay}s">
+    return `<div class="item${onNow?" now":""}" data-start="${start==null?"":start}" data-dur="${dur}" style="animation-delay:${delay}s">
       <div class="time">${time}<small>${small}</small></div>
       ${img?`<img class="thumb" src="${img}" alt="" loading="lazy">`:`<div class="thumb ph">📺</div>`}
       <div class="meta">
@@ -936,7 +940,7 @@ function paint(list, totalForDay){
         ${ep?`<div class="ep">${ep}</div>`:""}
         <div class="net">on <span>${escapeHtml(net)}</span></div>
       </div>
-      <div class="badges">${nowBadge}${badge}</div>
+      <div class="badges"><span class="badge b-now"${onNow?"":" hidden"}>● On now</span>${badge}</div>
     </div>`;
   }).join("");
 
@@ -971,6 +975,22 @@ function etNowMinutes(){
   const [h,m]=f.format(new Date()).split(":").map(n=>parseInt(n,10));
   return ((h%24)*60)+(m||0);
 }
+/* Re-evaluate "on now" against the real clock and update rows in place,
+   so the highlight tracks the current time without a reload or a tap. */
+function tickNow(){
+  if(!(state.view==="US"||state.view==="SPORTS")) return;
+  const isToday = (state.date===todayStr());
+  const nowMin = etNowMinutes();
+  els.listings.querySelectorAll(".item").forEach(el=>{
+    const sRaw=el.dataset.start;
+    const start = sRaw==="" || sRaw==null ? null : parseInt(sRaw,10);
+    const dur = parseInt(el.dataset.dur,10) || 30;
+    const on = isToday && start!=null && !isNaN(start) && nowMin>=start && nowMin<start+dur;
+    el.classList.toggle("now", on);
+    const b=el.querySelector(".badge.b-now");
+    if(b) b.hidden = !on;
+  });
+}
 const BROADCAST_NETS=["abc","cbs","nbc","fox","the cw"," cw","pbs","ion","mynetworktv","telemundo","univision","cw"];
 const NEWS_NETS=["cnn","fox news","msnbc","cnbc","bbc news","newsmax","fox business","bloomberg","hln","headline news"];
 function netCategory(item){
@@ -1002,11 +1022,15 @@ function escapeHtml(str){
 }
 
 /* ---------- events ---------- */
-els.tabs.addEventListener("click",e=>{
-  const btn=e.target.closest(".tab"); if(!btn) return;
-  state.view=btn.dataset.view;
+function switchView(v){
+  state.view=v;
+  state.query=""; els.search.value="";   // search is per-tab; don't carry it over
   syncTabUI();
   render();
+}
+els.tabs.addEventListener("click",e=>{
+  const btn=e.target.closest(".tab"); if(!btn) return;
+  switchView(btn.dataset.view);
 });
 // keyboard navigation between tabs (left/right/home/end), per ARIA tab pattern
 els.tabs.addEventListener("keydown",e=>{
@@ -1019,8 +1043,8 @@ els.tabs.addEventListener("keydown",e=>{
   else if(e.key==="Home") i=0;
   else if(e.key==="End") i=tabs.length-1;
   e.preventDefault();
-  const t=tabs[i]; t.focus();
-  state.view=t.dataset.view; syncTabUI(); render();
+  tabs[i].focus();
+  switchView(tabs[i].dataset.view);
 });
 let typingTimer;
 els.search.addEventListener("input",e=>{
@@ -1041,6 +1065,7 @@ els.catfilter.addEventListener("click",e=>{
    the last good data if a refresh fails, so the screen never goes blank. */
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) render(); });
 setInterval(render, REFRESH_MS);
+setInterval(tickNow, 60*1000);   // keep the "on now" highlight current to the minute
 
 /* ---------- init ---------- */
 els.year.textContent=new Date().getFullYear();
@@ -1048,7 +1073,7 @@ readHash();              // open to a shared view/date if the URL has one
 buildDateButtons();
 syncTabUI();
 render();
-window.addEventListener("hashchange",()=>{ readHash(); buildDateButtons(); syncTabUI(); render(); });
+window.addEventListener("hashchange",()=>{ readHash(); state.query=""; els.search.value=""; buildDateButtons(); syncTabUI(); render(); });
 </script>
 </body>
 </html>
