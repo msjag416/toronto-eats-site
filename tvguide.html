@@ -721,6 +721,90 @@ function renderStreaming(){
   }).catch(err=>{ showError(err); });
 }
 
+/* ---------- Netflix this week (Streaming tab featured panel) ---------- */
+/* Pulls global premieres for today + the next 6 days, keeps only Netflix
+   titles, dedupes per day so a series with multiple episodes that day
+   shows once, and groups the result by date. */
+const netflixWeekCache = {};   // date -> {data, time}
+
+async function loadNetflixWeek(){
+  const days=[];
+  const base=new Date();
+  for(let i=0;i<7;i++){ const d=new Date(base); d.setDate(d.getDate()+i); days.push(toStr(d)); }
+  const results = await Promise.all(days.map(async date=>{
+    const c=netflixWeekCache[date];
+    if(c && Date.now()-c.time < 30*60*1000) return {date, items:c.data};
+    try{
+      const res=await fetch(`${API}/web?date=${date}&country=`);
+      if(!res.ok) throw new Error("status "+res.status);
+      const json=await res.json();
+      const arr=Array.isArray(json)?json:[];
+      const seen=new Set();
+      const items=arr.filter(it=>{
+        const s=streamShow(it);
+        const ch=((s.webChannel&&s.webChannel.name)||"").toLowerCase();
+        const name=(s.name||"").trim();
+        if(ch!=="netflix" || !name || /^untitled$/i.test(name)) return false;
+        const key=s.id||name;
+        if(seen.has(key)) return false;
+        seen.add(key); return true;
+      });
+      netflixWeekCache[date]={data:items, time:Date.now()};
+      return {date, items};
+    }catch(err){
+      return {date, items: c ? c.data : []};   // serve stale if available
+    }
+  }));
+  return results;
+}
+
+function dayLabel(dateStr){
+  if(dateStr===todayStr()) return "Today";
+  const tom=new Date(); tom.setDate(tom.getDate()+1);
+  if(dateStr===toStr(tom)) return "Tomorrow";
+  const t=new Date(dateStr+"T12:00:00");   // midday avoids any TZ edge
+  return t.toLocaleString([], {weekday:"long", month:"short", day:"numeric"});
+}
+
+function renderNetflixWeek(){
+  els.featured.innerHTML=`<div class="nba"><h2>🎬 Netflix this week <span class="tag">7 days</span></h2>
+    <div class="sub">Loading upcoming Netflix releases...</div></div>`;
+  loadNetflixWeek().then(weeks=>{
+    const total=weeks.reduce((n,w)=>n+w.items.length,0);
+    if(!total){
+      els.featured.innerHTML=`<div class="nba"><h2>🎬 Netflix this week <span class="tag">7 days</span></h2>
+        <div class="empty">No Netflix premieres came back for the next 7 days. The daily list below still works.</div></div>`;
+      return;
+    }
+    const sections = weeks.filter(w=>w.items.length).map(w=>{
+      const rows = w.items.map(it=>{
+        const s=streamShow(it);
+        const epbits=[];
+        if(it.season&&it.number) epbits.push(`S${it.season} E${it.number}`);
+        if(it.name && it.name.trim() && it.name!==s.name) epbits.push(escapeHtml(it.name));
+        const sub=epbits.length?`<div class="series">${epbits.join(" · ")}</div>`:"";
+        return `<div class="game">
+          <div>
+            <div class="label">Netflix</div>
+            <div class="matchup">${escapeHtml(s.name)}</div>
+            ${sub}
+          </div>
+        </div>`;
+      }).join("");
+      return `<div class="sports-sub">${escapeHtml(dayLabel(w.date))}</div><div class="games">${rows}</div>`;
+    }).join("");
+    els.featured.innerHTML=`<div class="nba">
+      <h2>🎬 Netflix this week <span class="tag">7 days</span></h2>
+      <div class="sub">New releases and episode drops on Netflix, today through next week.</div>
+      ${sections}
+      <div class="src">Premieres via TVmaze. Coverage is solid for known series; one-off films and global releases can land on different dates by country.</div>
+    </div>`;
+  }).catch(()=>{
+    els.featured.innerHTML=`<div class="nba"><h2>🎬 Netflix this week</h2>
+      <div class="empty">Couldn't reach the Netflix feed right now. The daily list below still works.</div></div>`;
+  });
+}
+
 /* ---------- Events tab: curated marquee broadcasts ---------- */
 /* Hand-kept list. Confirmed 2026 dates have a sortDate + dated label.
    Annual shows without a set 2026 date use tbd:true. Already-aired 2026
@@ -808,7 +892,7 @@ function render(){
   // the search box has nothing to act on the Canada tab (sports panel only)
   els.searchBox.style.display = (state.view==="CA") ? "none" : "";
 
-  // featured panel: NBA on Sports, Canadian sports on Canada, World Cup on WC, hidden otherwise
+  // featured panel: NBA on Sports, Canadian sports on Canada, World Cup on WC, Netflix on Streaming
   if(state.view==="SPORTS"){
     els.featured.style.display="block";
     renderNBA();
@@ -818,6 +902,9 @@ function render(){
   } else if(state.view==="WC"){
     els.featured.style.display="block";
     renderWorldCup();
+  } else if(state.view==="STREAM"){
+    els.featured.style.display="block";
+    renderNetflixWeek();
   } else {
     els.featured.style.display="none";
     els.featured.innerHTML="";
