@@ -182,6 +182,12 @@
     .nfx-poster{width:64px;height:88px;}
   }
 
+  /* service selector chips inside the Streaming featured panel */
+  .svc-chips{display:flex;gap:6px;margin:-2px 0 12px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin;}
+  .svc-chip{flex:0 0 auto;appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);font-family:var(--body);font-size:.78rem;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.16s;white-space:nowrap;}
+  .svc-chip:hover{border-color:var(--amber-deep);color:var(--ink);}
+  .svc-chip.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;border-color:var(--amber-deep);}
+
   /* ---------- Listings ---------- */
   .listings{margin-top:18px;display:flex;flex-direction:column;gap:10px;padding-bottom:30px;}
   .listings .sports-sub{font-family:var(--display);font-weight:600;font-size:.95rem;color:var(--ink-soft);margin:8px 2px 2px;}
@@ -294,7 +300,7 @@
   <div class="listings" id="listings" role="region" aria-label="Listings"></div>
 
   <footer class="site">
-    <div>TV listings provided by <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a>, used under CC BY-SA. Canadian and sports listings can have gaps.</div>
+    <div>TV listings via <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA). Netflix discovery via <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database (TMDB)</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</div>
     <div class="cr">&copy; <span id="year"></span> MsJAG · <a href="https://torontoeatsandreviews.com">torontoeatsandreviews.com</a></div>
   </footer>
 
@@ -352,7 +358,7 @@ const LEAGUE_META = {
   mlb:{ icon:"⚾", name:"Blue Jays", ca:"Sportsnet" },
 };
 
-const state = { view: "US", date: todayStr(), query: "", filter: "all" };
+const state = { view: "US", date: todayStr(), query: "", filter: "all", service: "netflix" };
 
 const els = {
   tabs:     document.getElementById("tabs"),
@@ -738,95 +744,127 @@ function renderStreaming(){
   }).catch(err=>{ showError(err); });
 }
 
-/* ---------- Netflix this week (Streaming tab featured panel) ---------- */
-/* Pulls global premieres for today + the next 6 days, keeps only Netflix
-   titles, dedupes per day so a series with multiple episodes that day
-   shows once, and groups the result by date. */
-const netflixWeekCache = {};   // date -> {data, time}
+/* ---------- Streaming · "What to watch" (Streaming tab featured panel) ----------
+   Source: The Movie Database (TMDB). One panel with a chip selector for the
+   service, each chip showing Trending now + Coming soon for that service's
+   originals (TMDB's `with_networks` returns shows whose original broadcaster
+   is that service). The TMDB Read Access Token sits in this file because
+   TMDB is a client-side API by design — no payments, no private data, no
+   domain restrictions. If it ever gets abused, regenerate it on TMDB.       */
+const TMDB_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0MWMwZjg1N2ZhMmJjMDY1N2E3NmJkYjg0YjBjODUyMSIsIm5iZiI6MTc4MDM0ODU4Ny45MjYsInN1YiI6IjZhMWRmNmFiY2ZkMWU0Zjg3MmNhYjkzYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.eZmesArUNi6kZlxrkmIYvBZxEpTBb7PFU6QPU4pnbsE";
+const TMDB_BASE = "https://api.themoviedb.org/3";
+const TMDB_IMG  = "https://image.tmdb.org/t/p/w185";
+const TV_GENRES = {
+  10759:"Action & Adventure", 16:"Animation", 35:"Comedy", 80:"Crime",
+  99:"Documentary", 18:"Drama", 10751:"Family", 10762:"Kids",
+  9648:"Mystery", 10763:"News", 10764:"Reality", 10765:"Sci-Fi & Fantasy",
+  10766:"Soap", 10767:"Talk", 10768:"War & Politics", 37:"Western"
+};
+// Service chips → TMDB network IDs (broadcast network of each service's originals)
+const SERVICES = {
+  netflix: { label:"Netflix",       id:213,  note:"" },
+  disney:  { label:"Disney+",       id:2739, note:"" },
+  apple:   { label:"Apple TV+",     id:2552, note:"" },
+  prime:   { label:"Prime Video",   id:1024, note:"" },
+  hbo:     { label:"HBO originals", id:49,   note:"In Canada, HBO shows stream on Crave." },
+};
+const tmdbCache = {};   // url -> {data, time}
 
-async function loadNetflixWeek(){
-  const days=[];
-  const base=new Date();
-  for(let i=0;i<7;i++){ const d=new Date(base); d.setDate(d.getDate()+i); days.push(toStr(d)); }
-  const results = await Promise.all(days.map(async date=>{
-    const c=netflixWeekCache[date];
-    if(c && Date.now()-c.time < 30*60*1000) return {date, items:c.data};
-    try{
-      const res=await fetch(`${API}/web?date=${date}&country=`);
-      if(!res.ok) throw new Error("status "+res.status);
-      const json=await res.json();
-      const arr=Array.isArray(json)?json:[];
-      const seen=new Set();
-      const items=arr.filter(it=>{
-        const s=streamShow(it);
-        const ch=((s.webChannel&&s.webChannel.name)||"").toLowerCase();
-        const name=(s.name||"").trim();
-        if(ch!=="netflix" || !name || /^untitled$/i.test(name)) return false;
-        const key=s.id||name;
-        if(seen.has(key)) return false;
-        seen.add(key); return true;
-      });
-      netflixWeekCache[date]={data:items, time:Date.now()};
-      return {date, items};
-    }catch(err){
-      return {date, items: c ? c.data : []};   // serve stale if available
-    }
-  }));
-  return results;
+async function tmdbDiscoverNetwork(networkId, extra){
+  const params=new URLSearchParams(Object.assign({
+    with_networks: String(networkId),
+    language: "en-US",
+    page: "1"
+  }, extra||{}));
+  const url=`${TMDB_BASE}/discover/tv?${params.toString()}`;
+  const c=tmdbCache[url];
+  if(c && Date.now()-c.time < 30*60*1000) return c.data;
+  try{
+    const res=await fetch(url, { headers:{ Authorization:"Bearer "+TMDB_TOKEN, accept:"application/json" }});
+    if(!res.ok) throw new Error("TMDB "+res.status);
+    const json=await res.json();
+    const data=Array.isArray(json.results)?json.results:[];
+    tmdbCache[url]={data, time:Date.now()};
+    return data;
+  }catch(err){
+    if(c) return c.data;     // serve stale on a blip
+    throw err;
+  }
 }
 
-function dayLabel(dateStr){
-  if(dateStr===todayStr()) return "Today";
-  const tom=new Date(); tom.setDate(tom.getDate()+1);
-  if(dateStr===toStr(tom)) return "Tomorrow";
-  const t=new Date(dateStr+"T12:00:00");   // midday avoids any TZ edge
-  return t.toLocaleString([], {weekday:"long", month:"short", day:"numeric"});
+async function loadServiceTrending(networkId){
+  const today=todayStr();
+  const [trending, upcoming]=await Promise.all([
+    tmdbDiscoverNetwork(networkId, { sort_by:"popularity.desc" }).catch(()=>[]),
+    tmdbDiscoverNetwork(networkId, { sort_by:"first_air_date.asc", "first_air_date.gte":today }).catch(()=>[]),
+  ]);
+  return { trending, upcoming };
 }
 
+function tmdbCard(show){
+  const poster=show.poster_path ? TMDB_IMG+show.poster_path : null;
+  const year=(show.first_air_date||"").slice(0,4);
+  const rating=(show.vote_average && show.vote_count>=10) ? show.vote_average.toFixed(1) : null;
+  const sub=[year, rating?`★ ${rating}`:null].filter(Boolean).join(" · ");
+  const genres=(show.genre_ids||[]).map(id=>TV_GENRES[id]).filter(Boolean).slice(0,3);
+  const desc=(show.overview||"").trim();
+  const href=`https://www.themoviedb.org/tv/${show.id}`;
+  const name=show.name||show.original_name||"Untitled";
+  const inner=`
+    ${poster?`<img class="nfx-poster" src="${escapeHtml(poster)}" alt="" loading="lazy">`:`<div class="nfx-poster ph">🎬</div>`}
+    <div class="nfx-body">
+      <div class="nfx-title">${escapeHtml(name)}</div>
+      ${sub?`<div class="nfx-sub">${escapeHtml(sub)}</div>`:""}
+      ${genres.length?`<div class="nfx-genres">${genres.map(g=>`<span class="nfx-genre">${escapeHtml(g)}</span>`).join("")}</div>`:""}
+      ${desc?`<div class="nfx-desc">${escapeHtml(desc)}</div>`:`<div class="nfx-desc" style="opacity:.55">No description yet.</div>`}
+    </div>`;
+  return `<a class="nfx-card" href="${href}" target="_blank" rel="noopener" aria-label="Open ${escapeHtml(name)} on TMDB">${inner}</a>`;
+}
+
+function chipsHTML(){
+  return Object.entries(SERVICES).map(([k,v])=>
+    `<button class="svc-chip${k===state.service?" active":""}" data-svc="${k}" aria-pressed="${k===state.service}">${escapeHtml(v.label)}</button>`
+  ).join("");
+}
+
+/* Renders the Streaming tab's featured panel for the currently selected service.
+   Named renderNetflixWeek for backwards-compat with the routing in render(). */
 function renderNetflixWeek(){
-  els.featured.innerHTML=`<div class="nba"><h2>🎬 Netflix this week <span class="tag">7 days</span></h2>
-    <div class="sub">Loading upcoming Netflix releases...</div></div>`;
-  loadNetflixWeek().then(weeks=>{
-    const total=weeks.reduce((n,w)=>n+w.items.length,0);
-    if(!total){
-      els.featured.innerHTML=`<div class="nba"><h2>🎬 Netflix this week <span class="tag">7 days</span></h2>
-        <div class="empty">No Netflix premieres came back for the next 7 days. The daily list below still works.</div></div>`;
+  const svc = SERVICES[state.service] || SERVICES.netflix;
+  const chips = chipsHTML();
+  els.featured.innerHTML=`<div class="nba">
+    <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
+    <div class="svc-chips">${chips}</div>
+    <div class="sub">Loading ${escapeHtml(svc.label)}...</div>
+  </div>`;
+  loadServiceTrending(svc.id).then(({trending, upcoming})=>{
+    const svcLabel = escapeHtml(svc.label);
+    const note = svc.note ? `<div class="sub" style="margin-top:4px;color:var(--ink-faint)">${escapeHtml(svc.note)}</div>` : "";
+    if(!trending.length && !upcoming.length){
+      els.featured.innerHTML=`<div class="nba">
+        <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
+        <div class="svc-chips">${chips}</div>
+        <div class="empty">No TMDB data for ${svcLabel} came back. The daily list below still works.</div>
+      </div>`;
       return;
     }
-    const sections = weeks.filter(w=>w.items.length).map(w=>{
-      const rows = w.items.slice(0,8).map(it=>{
-        const s=streamShow(it);
-        const poster=(s.image && (s.image.medium||s.image.original)) || null;
-        const epbits=[];
-        if(it.season && it.number) epbits.push(`S${it.season} E${it.number}`);
-        if(it.name && it.name.trim() && it.name!==s.name) epbits.push(it.name);
-        const ep=epbits.join(" · ");
-        const desc=stripHtml(s.summary||"");
-        const genres=Array.isArray(s.genres)?s.genres.slice(0,3):[];
-        const href=s.url || null;
-        const inner=`
-          ${poster?`<img class="nfx-poster" src="${escapeHtml(poster)}" alt="" loading="lazy">`:`<div class="nfx-poster ph">🎬</div>`}
-          <div class="nfx-body">
-            <div class="nfx-title">${escapeHtml(s.name)}</div>
-            ${ep?`<div class="nfx-sub">${escapeHtml(ep)}</div>`:""}
-            ${genres.length?`<div class="nfx-genres">${genres.map(g=>`<span class="nfx-genre">${escapeHtml(g)}</span>`).join("")}</div>`:""}
-            ${desc?`<div class="nfx-desc">${escapeHtml(desc)}</div>`:`<div class="nfx-desc" style="opacity:.55">No description available yet.</div>`}
-          </div>`;
-        return href
-          ? `<a class="nfx-card" href="${escapeHtml(href)}" target="_blank" rel="noopener" aria-label="Open ${escapeHtml(s.name)} on TVmaze">${inner}</a>`
-          : `<div class="nfx-card">${inner}</div>`;
-      }).join("");
-      return `<div class="sports-sub">${escapeHtml(dayLabel(w.date))}</div><div class="nfx-list">${rows}</div>`;
-    }).join("");
+    const trendingHTML = trending.slice(0,8).map(tmdbCard).join("");
+    const upcomingHTML = upcoming.slice(0,8).map(tmdbCard).join("");
     els.featured.innerHTML=`<div class="nba">
-      <h2>🎬 Netflix this week <span class="tag">7 days</span></h2>
-      <div class="sub">New releases and episode drops on Netflix, today through next week.</div>
-      ${sections}
-      <div class="src">Premieres via TVmaze. Coverage is solid for known series; one-off films and global releases can land on different dates by country.</div>
+      <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
+      <div class="svc-chips">${chips}</div>
+      <div class="sub">Popular ${svcLabel} titles right now, plus what's premiering soon. Tap any card for full details.</div>
+      ${note}
+      ${trending.length?`<div class="sports-sub">Trending now</div><div class="nfx-list">${trendingHTML}</div>`:""}
+      ${upcoming.length?`<div class="sports-sub">Coming soon</div><div class="nfx-list">${upcomingHTML}</div>`:""}
+      <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. Popularity reflects TMDB user signals.</div>
     </div>`;
   }).catch(()=>{
-    els.featured.innerHTML=`<div class="nba"><h2>🎬 Netflix this week</h2>
-      <div class="empty">Couldn't reach the Netflix feed right now. The daily list below still works.</div></div>`;
+    els.featured.innerHTML=`<div class="nba">
+      <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
+      <div class="svc-chips">${chips}</div>
+      <div class="empty">Couldn't reach TMDB right now. The daily list below still works.</div>
+    </div>`;
   });
 }
 
@@ -1175,6 +1213,13 @@ els.catfilter.addEventListener("click",e=>{
   btn.classList.add("active"); btn.setAttribute("aria-pressed","true");
   state.filter=btn.dataset.cat;
   render();
+});
+// chips inside the Streaming featured panel (re-rendered on each load, so use delegation)
+els.featured.addEventListener("click",e=>{
+  const chip=e.target.closest(".svc-chip"); if(!chip) return;
+  if(!SERVICES[chip.dataset.svc]) return;
+  state.service=chip.dataset.svc;
+  renderNetflixWeek();
 });
 
 /* Re-render when the user returns to the tab and on a 6h timer.
