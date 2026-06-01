@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>On Air Tonight | Live US &amp; Canada TV Guide | MsJAG</title>
+<title>On Air Tonight | Live US & Canada TV Guide | MsJAG</title>
 <meta name="description" content="A live TV guide for American and Canadian channels, updated automatically every time you open it. Browse tonight's shows, search by channel, and check what sports are on.">
 <meta name="author" content="MsJAG">
 <meta name="theme-color" content="#0e1116">
@@ -154,24 +154,6 @@
   .item.now{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-deep),0 8px 26px rgba(245,154,46,.16);}
   .badge.b-now{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;border:1px solid var(--amber-deep);}
 
-  /* World Cup "star player" matches (Messi, Ronaldo, Vinícius Jr., Mbappé, Yamal):
-     highlight the row and blink it so it stands out in the fixture list. The
-     prefers-reduced-motion rule below freezes the blink to a steady glow. */
-  .game.star{
-    border-color:var(--amber);
-    background:linear-gradient(180deg,rgba(255,179,71,.14),rgba(14,17,22,.55));
-    animation:starblink 1.6s ease-in-out infinite;
-  }
-  @keyframes starblink{
-    0%,100%{box-shadow:0 0 0 1px var(--amber-deep),0 0 14px rgba(245,154,46,.25);}
-    50%{box-shadow:0 0 0 2px var(--teal),0 0 22px rgba(70,214,195,.55);}
-  }
-  .startag{
-    display:inline-block;margin-top:6px;font-size:.7rem;font-weight:700;letter-spacing:.04em;
-    color:#241704;background:linear-gradient(180deg,var(--amber),var(--amber-deep));
-    padding:3px 10px;border-radius:999px;
-  }
-
   /* ---------- Featured NBA panel ---------- */
   .featured{margin-top:18px;}
   .nba{
@@ -203,6 +185,26 @@
   .nba .src{font-size:.68rem;color:var(--ink-faint);margin-top:12px;}
   .game.passed{opacity:.5;}
   .game.passed .matchup{font-weight:500;}
+
+  /* World Cup star-player highlight: a slow amber pulse (≈0.4 Hz, well under
+     accessibility flash thresholds) plus a small badge naming the player(s).
+     The reduced-motion block further down disables the animation entirely. */
+  .game.starmatch{
+    border-color:var(--amber);
+    background:linear-gradient(180deg,rgba(255,179,71,.12),rgba(14,17,22,.55));
+    animation:starpulse 2.6s ease-in-out infinite;
+  }
+  @keyframes starpulse{
+    0%,100%{ box-shadow:0 0 0 1px var(--amber-deep),0 0 22px rgba(245,154,46,.18); }
+    50%   { box-shadow:0 0 0 2px var(--amber),0 0 34px rgba(245,154,46,.40); }
+  }
+  .starbadge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:#241704;background:linear-gradient(180deg,var(--amber),var(--amber-deep));
+    padding:4px 10px;border-radius:999px;border:1px solid var(--amber-deep);
+    margin-bottom:6px;
+  }
 
   /* Netflix "this week" discovery cards: poster + name + genres + description */
   .nfx-list{display:flex;flex-direction:column;gap:10px;}
@@ -572,16 +574,6 @@ function gameRowHTML(ev, opts){
   }
   const series=extra;
 
-  // World Cup only: if either side is a "star" national team, flag the row so it
-  // highlights and blinks, and tag it with the player's name. Gated on opts.starTeams
-  // so no other panel is affected.
-  let starClass="", starTag="";
-  if(opts.starTeams){
-    const nameOf=t=>((t.team&&(t.team.displayName||t.team.shortDisplayName||t.team.name))||"").toLowerCase().trim();
-    const hits=[nameOf(home),nameOf(away)].map(n=>opts.starTeams[n]).filter(Boolean);
-    if(hits.length){ starClass=" star"; starTag=`<span class="startag">${escapeHtml(hits.join(" · "))}</span>`; }
-  }
-
   const teamChip=t=>{
     // team-based leagues (NBA/NHL/MLB/WNBA/soccer)
     if(t.team){
@@ -615,8 +607,10 @@ function gameRowHTML(ev, opts){
       right=`<span class="gfinal">${escapeHtml(st.shortDetail||"Final")}</span>`;
     }
   }
-  return `<div class="game${starClass}">
-    <div><div class="label">${label}</div>${matchup}${series}${starTag}</div>
+  const extraClass=opts.extraClass?" "+opts.extraClass:"";
+  const starBadgeHTML=opts.starBadge?`<div class="starbadge">⭐ Star · ${escapeHtml(opts.starBadge)}</div>`:"";
+  return `<div class="game${extraClass}">
+    <div>${starBadgeHTML}<div class="label">${label}</div>${matchup}${series}</div>
     <div class="gright">${right}</div>
   </div>`;
 }
@@ -840,15 +834,21 @@ function renderCanadaSports(){
 }
 
 /* World Cup tab: upcoming 2026 FIFA World Cup fixtures */
-/* National teams whose matches get the blinking highlight, keyed by lowercase
-   country name (ESPN's team.displayName), valued by the star player to show. */
-const WC_STARS = {
-  "argentina":"⭐ Messi",
-  "portugal":"⭐ Ronaldo",
-  "brazil":"⭐ Vinícius Jr.",
-  "france":"⭐ Mbappé",
-  "spain":"⭐ Yamal",
+/* Five marquee national-team stars to highlight in the World Cup panel.
+   Matched by both displayName and abbreviation so it works whether ESPN
+   sends "Argentina" or "ARG." Add or remove names here to retune the list. */
+const WC_STAR_PLAYERS = {
+  "Argentina":"Messi",    "ARG":"Messi",
+  "Portugal":"Ronaldo",   "POR":"Ronaldo",
+  "Brazil":"Vinícius Jr.","BRA":"Vinícius Jr.",
+  "France":"Mbappé",      "FRA":"Mbappé",
+  "Spain":"Yamal",        "ESP":"Yamal",
 };
+function starPlayerFor(competitor){
+  const t=competitor&&competitor.team; if(!t) return null;
+  return WC_STAR_PLAYERS[t.displayName] || WC_STAR_PLAYERS[t.abbreviation] || null;
+}
+
 function renderWorldCup(){
   els.featured.innerHTML=`<div class="nba"><h2>⚽ FIFA World Cup 2026 <span class="tag">Fixtures</span></h2>
     <div class="sub">Loading fixtures...</div></div>`;
@@ -862,10 +862,25 @@ function renderWorldCup(){
       });
     }
     list=list.slice(0,15);
-    const rows=list.map(ev=>gameRowHTML(ev,{ vs:true, showVenue:true, channelOverride:"", fallbackLabel:"World Cup", starTeams:WC_STARS })).join("");
+    const rows=list.map(ev=>{
+      // Check both competitors against the star-player list. If either side
+      // matches, decorate the row: pulsing amber border + a badge that names
+      // the player(s) and their country.
+      const cs=(ev.competitions&&ev.competitions[0]&&ev.competitions[0].competitors)||[];
+      const stars=cs.map(c=>{
+        const name=starPlayerFor(c);
+        return name ? { name, country:(c.team&&(c.team.abbreviation||c.team.displayName))||"" } : null;
+      }).filter(Boolean);
+      const opts={ vs:true, showVenue:true, channelOverride:"", fallbackLabel:"World Cup" };
+      if(stars.length){
+        opts.extraClass="starmatch";
+        opts.starBadge=stars.map(s=>`${s.name} (${s.country})`).join(" vs ");
+      }
+      return gameRowHTML(ev,opts);
+    }).join("");
     els.featured.innerHTML=`<div class="nba">
       <h2>⚽ FIFA World Cup 2026 <span class="tag">Fixtures</span></h2>
-      <div class="sub">June 11 – July 19, hosted across Canada, the US and Mexico. Next matches first; times in your local zone. Matches with Messi, Ronaldo, Vinícius Jr., Mbappé or Yamal are highlighted.</div>
+      <div class="sub">June 11 – July 19, hosted across Canada, the US and Mexico. Next matches first; times in your local zone.</div>
       <div class="games">${rows || `<div class="empty">No fixtures in this window yet. Full schedule loads closer to kickoff on June 11.</div>`}</div>
       <div class="src">Scores and fixtures via ESPN. In Canada every match airs on CTV, TSN or RDS (Bell Media); US viewers get FOX and FS1.</div>
     </div>`;
