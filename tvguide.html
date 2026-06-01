@@ -604,6 +604,85 @@ function upcomingFirst(events){
    Tennis (ATP + WTA merged). Each panel fetches independently, so one feed
    failing doesn't blank the others. Tennis uses the same gameRowHTML; the
    athlete-vs-team fallback in teamChip handles individual sports. */
+/* Tennis from ESPN is structured differently from team sports: each event is
+   a tournament (Roland Garros, etc.), and the actual matches live inside
+   event.groupings[].competitions[]. Players are nested under .athlete (not
+   .team), set-by-set scores are in .linescores. These helpers flatten that
+   nested shape into one row per match, with the tournament + round as label. */
+function flattenTennisMatches(events){
+  const out=[];
+  (events||[]).forEach(ev=>{
+    const tournament=ev.name||ev.shortName||"Tennis";
+    (ev.groupings||[]).forEach(g=>{
+      (g.competitions||[]).forEach(c=>{
+        const st=(c.status&&c.status.type)||{};
+        out.push({
+          tournament,
+          round:(c.round&&c.round.displayName)||"",
+          dateMs:new Date(c.date||c.startDate||ev.date||0).getTime(),
+          date:c.date||c.startDate,
+          status:st,
+          state:st.state||"pre",
+          competitors:c.competitors||[],
+          uid:c.uid||c.id,
+        });
+      });
+    });
+  });
+  // dedupe — atp and wta endpoints can return the same tournament twice
+  const seen=new Set();
+  return out.filter(m=>{ if(seen.has(m.uid)) return false; seen.add(m.uid); return true; });
+}
+
+function sortTennisMatches(matches){
+  // live first, then upcoming earliest, then most-recent finals last
+  const rank=m=>m.state==="in"?0:m.state==="pre"?1:2;
+  matches.sort((a,b)=>{
+    const r=rank(a)-rank(b);
+    if(r!==0) return r;
+    if(a.state==="post") return b.dateMs-a.dateMs;
+    return a.dateMs-b.dateMs;
+  });
+  return matches;
+}
+
+function tennisRowHTML(m){
+  const cA=m.competitors[0]||{}, cB=m.competitors[1]||{};
+  const aName=(cA.athlete&&(cA.athlete.shortName||cA.athlete.displayName))||"TBD";
+  const bName=(cB.athlete&&(cB.athlete.shortName||cB.athlete.displayName))||"TBD";
+  const aFlag=cA.athlete&&cA.athlete.flag&&cA.athlete.flag.href||"";
+  const bFlag=cB.athlete&&cB.athlete.flag&&cB.athlete.flag.href||"";
+  const flagImg=url=>url?`<img class="tflag" src="${url}" alt="" onerror="this.style.display='none'">`:"";
+  const aChip=`${flagImg(aFlag)}${escapeHtml(aName)}`;
+  const bChip=`${flagImg(bFlag)}${escapeHtml(bName)}`;
+
+  const label=[m.tournament, m.round].filter(Boolean).join(" · ");
+
+  // set-by-set score line from linescores ("7-5, 6-3, 6-4")
+  const aL=cA.linescores||[], bL=cB.linescores||[];
+  const sets=[];
+  for(let i=0;i<Math.max(aL.length,bL.length);i++){
+    const av=aL[i]&&aL[i].value, bv=bL[i]&&bL[i].value;
+    if(av!=null||bv!=null) sets.push(`${av!=null?av:"-"}-${bv!=null?bv:"-"}`);
+  }
+  const scoreLine=sets.length?`<div class="series">${sets.join(", ")}</div>`:"";
+
+  let right;
+  if(m.state==="pre"){
+    const t=m.date?new Date(m.date).toLocaleString([], {weekday:"short", hour:"numeric", minute:"2-digit"}):"TBD";
+    right=`<div class="gtime">${t}</div>`;
+  } else if(m.state==="in"){
+    right=`<span class="glive"><span class="d" aria-hidden="true"></span>${escapeHtml(m.status.shortDetail||"Live")}</span>`;
+  } else {
+    right=`<span class="gfinal">${escapeHtml(m.status.shortDetail||"Final")}</span>`;
+  }
+
+  return `<div class="game">
+    <div><div class="label">${escapeHtml(label)}</div><div class="matchup">${aChip} <span class="at">vs</span> ${bChip}</div>${scoreLine}</div>
+    <div class="gright">${right}</div>
+  </div>`;
+}
+
 function renderSports(){
   els.featured.innerHTML = `
     <div class="nba" id="pnl-nba"><h2>🏀 NBA Playoffs <span class="tag">Featured</span></h2><div class="sub">Loading the latest games...</div></div>
@@ -637,21 +716,22 @@ function renderSports(){
     const el=document.getElementById("pnl-wnba"); if(el) el.innerHTML=`<h2>🏀 WNBA</h2><div class="empty">Couldn't reach the WNBA feed right now.</div>`;
   });
 
-  // Tennis — ATP + WTA merged into one panel; "vs" reads better than "at" for individual sport
+  // Tennis — ATP + WTA. Each event is a tournament, so we flatten down to
+  // individual matches before rendering.
   Promise.all([
     loadLeague("atp").catch(()=>[]),
     loadLeague("wta").catch(()=>[]),
   ]).then(([atp,wta])=>{
-    const all=[...atp,...wta];
     const el=document.getElementById("pnl-tennis"); if(!el) return;
-    if(!all.length){
+    const matches=sortTennisMatches(flattenTennisMatches([...atp,...wta]));
+    if(!matches.length){
       el.innerHTML=`<h2>🎾 Tennis <span class="tag">ATP + WTA</span></h2><div class="empty">No tennis matches in the feed right now (likely between tournaments).</div>`;
       return;
     }
-    const rows=upcomingFirst(all).slice(0,10).map(ev=>gameRowHTML(ev,{vs:true, fallbackLabel:"Tennis"})).join("");
+    const rows=matches.slice(0,10).map(tennisRowHTML).join("");
     el.innerHTML=`
       <h2>🎾 Tennis <span class="tag">ATP + WTA</span></h2>
-      <div class="sub">Live and upcoming matches across both tours, merged. Tournament name shows as the label on each row.</div>
+      <div class="sub">Live first, then upcoming, then recent results. Tournament and round as the row label; set scores below each match.</div>
       <div class="games">${rows}</div>
       <div class="src">Live updates via ESPN. Canadian carriage on TSN.</div>`;
   });
