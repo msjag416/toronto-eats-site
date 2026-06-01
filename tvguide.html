@@ -6,11 +6,27 @@
 <title>On Air Tonight | Live US & Canada TV Guide | MsJAG</title>
 <meta name="description" content="A live TV guide for American and Canadian channels, updated automatically every time you open it. Browse tonight's shows, search by channel, and check what sports are on.">
 <meta name="author" content="MsJAG">
+<meta name="theme-color" content="#0e1116">
 
-<!-- Open Graph for sharing -->
+<!-- Favicon (reuses the site-wide favicon at the domain root) -->
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<!-- Open Graph for sharing previews (iMessage, WhatsApp, Slack, Facebook, LinkedIn) -->
 <meta property="og:title" content="On Air Tonight | Live US & Canada TV Guide">
 <meta property="og:description" content="Live listings for American and Canadian channels, plus a sports section. Always current.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://torontoeatsandreviews.com/tvguide.html">
+<meta property="og:image" content="https://torontoeatsandreviews.com/tvguide-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="On Air Tonight — a live TV guide for USA, Canada, Sports, World Cup and Streaming.">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="On Air Tonight | Live US & Canada TV Guide">
+<meta name="twitter:description" content="Live listings for American and Canadian channels, plus a sports section. Always current.">
+<meta name="twitter:image" content="https://torontoeatsandreviews.com/tvguide-og.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -336,8 +352,8 @@
    - One static HTML file. No server, no build step, no keys.
    - Three data sources, all read straight from the browser:
        1) TVmaze /schedule      -> the US TV grid
-       2) ESPN scoreboards      -> NBA panel (Sports tab), the
-                                   NHL/NBA/Blue Jays panel (Canada tab),
+       2) ESPN scoreboards      -> Sports tab (NBA + WNBA + Tennis stacked),
+                                   the NHL/NBA/Blue Jays panel on Canada,
                                    and World Cup fixtures (World Cup tab,
                                    league slug soccer/fifa.world)
        3) TVmaze /schedule/web  -> streaming premieres (Canada tab)
@@ -372,12 +388,20 @@ let streamCache = null;                            // TVmaze streaming cache {da
 const VALID_VIEWS = ["US","CA","SPORTS","WC","STREAM","EVENTS"];
 
 // ESPN scoreboard paths per league
-const SPORT_PATH = { nba:"basketball/nba", nhl:"hockey/nhl", mlb:"baseball/mlb", wc:"soccer/fifa.world" };
+const SPORT_PATH = {
+  nba:"basketball/nba", wnba:"basketball/wnba",
+  nhl:"hockey/nhl", mlb:"baseball/mlb",
+  wc:"soccer/fifa.world",
+  atp:"tennis/atp", wta:"tennis/wta",
+};
 // How each league is labelled, and the Canadian national broadcaster (stable, so set as a fixed label)
 const LEAGUE_META = {
-  nba:{ icon:"🏀", name:"NBA",  ca:"Sportsnet / TSN" },
-  nhl:{ icon:"🏒", name:"NHL",  ca:"Sportsnet / CBC" },
-  mlb:{ icon:"⚾", name:"Blue Jays", ca:"Sportsnet" },
+  nba:{  icon:"🏀", name:"NBA",        ca:"Sportsnet / TSN" },
+  wnba:{ icon:"🏀", name:"WNBA",       ca:"TSN / Sportsnet" },
+  nhl:{  icon:"🏒", name:"NHL",        ca:"Sportsnet / CBC" },
+  mlb:{  icon:"⚾", name:"Blue Jays",  ca:"Sportsnet" },
+  atp:{  icon:"🎾", name:"ATP (men)",  ca:"TSN" },
+  wta:{  icon:"🎾", name:"WTA (women)",ca:"TSN" },
 };
 
 const state = { view: "US", date: todayStr(), query: "", filter: "all", service: "netflix" };
@@ -530,9 +554,20 @@ function gameRowHTML(ev, opts){
   const series=extra;
 
   const teamChip=t=>{
-    const nm=(t.team&&(t.team.abbreviation||t.team.shortDisplayName||t.team.displayName))||"TBD";
-    const logo=(t.team&&t.team.logo)?`<img src="${t.team.logo}" alt="">`:"";
-    return `${logo}${escapeHtml(nm)}`;
+    // team-based leagues (NBA/NHL/MLB/WNBA/soccer)
+    if(t.team){
+      const nm=t.team.abbreviation||t.team.shortDisplayName||t.team.displayName||"TBD";
+      const logo=t.team.logo?`<img src="${t.team.logo}" alt="">`:"";
+      return `${logo}${escapeHtml(nm)}`;
+    }
+    // individual sports (tennis ATP/WTA) — ESPN nests an `athlete` instead of a `team`
+    if(t.athlete){
+      const a=t.athlete;
+      const nm=a.shortName||a.displayName||a.fullName||"TBD";
+      const flag=a.flag&&a.flag.href?`<img src="${a.flag.href}" alt="">`:"";
+      return `${flag}${escapeHtml(nm)}`;
+    }
+    return "TBD";
   };
 
   let matchup, right;
@@ -564,21 +599,60 @@ function upcomingFirst(events){
   return up.length?up:events;
 }
 
-/* Sports tab: featured NBA panel with US channels */
-function renderNBA(){
-  els.featured.innerHTML=`<div class="nba"><h2>🏀 NBA Playoffs <span class="tag">Featured</span></h2>
-    <div class="sub">Loading the latest games...</div></div>`;
+/* Sports tab: stacks the major leagues currently in season — NBA, WNBA, and
+   Tennis (ATP + WTA merged). Each panel fetches independently, so one feed
+   failing doesn't blank the others. Tennis uses the same gameRowHTML; the
+   athlete-vs-team fallback in teamChip handles individual sports. */
+function renderSports(){
+  els.featured.innerHTML = `
+    <div class="nba" id="pnl-nba"><h2>🏀 NBA Playoffs <span class="tag">Featured</span></h2><div class="sub">Loading the latest games...</div></div>
+    <div class="nba" id="pnl-wnba" style="margin-top:14px;"><h2>🏀 WNBA <span class="tag">In season</span></h2><div class="sub">Loading...</div></div>
+    <div class="nba" id="pnl-tennis" style="margin-top:14px;"><h2>🎾 Tennis <span class="tag">ATP + WTA</span></h2><div class="sub">Loading...</div></div>
+  `;
+
+  // NBA — Playoffs / Finals
   loadLeague("nba").then(events=>{
     const rows=upcomingFirst(events).slice(0,8).map(ev=>gameRowHTML(ev,{fallbackLabel:"NBA Playoffs"})).join("");
-    els.featured.innerHTML=`<div class="nba">
+    const el=document.getElementById("pnl-nba"); if(!el) return;
+    el.innerHTML=`
       <h2>🏀 NBA Playoffs <span class="tag">Featured</span></h2>
       <div class="sub">Conference finals and the NBA Finals, with the channel for each game. Times shown in your local zone.</div>
       <div class="games">${rows || `<div class="empty">No playoff games scheduled in the next two weeks.</div>`}</div>
-      <div class="src">Live scores and channels via ESPN. Channels reflect US broadcasts; Canadian carriage (Sportsnet/TSN) may differ.</div>
-    </div>`;
+      <div class="src">Live scores and channels via ESPN. Channels reflect US broadcasts; Canadian carriage (Sportsnet/TSN) may differ.</div>`;
   }).catch(()=>{
-    els.featured.innerHTML=`<div class="nba"><h2>🏀 NBA Playoffs <span class="tag">Featured</span></h2>
-      <div class="empty">Couldn't reach the NBA feed right now. The rest of the guide below still works.</div></div>`;
+    const el=document.getElementById("pnl-nba"); if(el) el.innerHTML=`<h2>🏀 NBA</h2><div class="empty">Couldn't reach the NBA feed right now.</div>`;
+  });
+
+  // WNBA — regular season runs May through September
+  loadLeague("wnba").then(events=>{
+    const rows=upcomingFirst(events).slice(0,8).map(ev=>gameRowHTML(ev,{fallbackLabel:"WNBA"})).join("");
+    const el=document.getElementById("pnl-wnba"); if(!el) return;
+    el.innerHTML=`
+      <h2>🏀 WNBA <span class="tag">In season</span></h2>
+      <div class="sub">Upcoming games and live scores across the current WNBA season.</div>
+      <div class="games">${rows || `<div class="empty">No WNBA games in the next two-week window.</div>`}</div>
+      <div class="src">Live scores via ESPN. Canadian carriage on TSN/Sportsnet.</div>`;
+  }).catch(()=>{
+    const el=document.getElementById("pnl-wnba"); if(el) el.innerHTML=`<h2>🏀 WNBA</h2><div class="empty">Couldn't reach the WNBA feed right now.</div>`;
+  });
+
+  // Tennis — ATP + WTA merged into one panel; "vs" reads better than "at" for individual sport
+  Promise.all([
+    loadLeague("atp").catch(()=>[]),
+    loadLeague("wta").catch(()=>[]),
+  ]).then(([atp,wta])=>{
+    const all=[...atp,...wta];
+    const el=document.getElementById("pnl-tennis"); if(!el) return;
+    if(!all.length){
+      el.innerHTML=`<h2>🎾 Tennis <span class="tag">ATP + WTA</span></h2><div class="empty">No tennis matches in the feed right now (likely between tournaments).</div>`;
+      return;
+    }
+    const rows=upcomingFirst(all).slice(0,10).map(ev=>gameRowHTML(ev,{vs:true, fallbackLabel:"Tennis"})).join("");
+    el.innerHTML=`
+      <h2>🎾 Tennis <span class="tag">ATP + WTA</span></h2>
+      <div class="sub">Live and upcoming matches across both tours, merged. Tournament name shows as the label on each row.</div>
+      <div class="games">${rows}</div>
+      <div class="src">Live updates via ESPN. Canadian carriage on TSN.</div>`;
   });
 }
 
@@ -968,7 +1042,27 @@ function renderNetflixWeek(){
    Annual shows without a set 2026 date use tbd:true. Already-aired 2026
    shows get a past sortDate so they sort to the bottom automatically. */
 const EVENTS_DATA = [
-  // --- confirmed upcoming ---
+  // --- Toronto live concerts (R&B / Hip-Hop / Soul) — venue goes in "channel" so the search box matches it ---
+  { name:"Don Toliver — Octane Tour",                       kind:"Concert · Hip-Hop",           channel:"Scotiabank Arena",   sortDate:"2026-06-05T19:30:00-04:00", when:"Fri, June 5 · 7:30 PM",     note:"With SahBabii, SoFaygo and Chase B." },
+  { name:"Alex Isley — When The City Sleeps",               kind:"Concert · R&B",               channel:"Danforth Music Hall",sortDate:"2026-06-05T19:00:00-04:00", when:"Fri, June 5 · 7:00 PM",     note:"Intimate neo-soul night in the East End." },
+  { name:"Smokedope2016 — The Comedown Tour",               kind:"Concert · Hip-Hop",           channel:"History",            sortDate:"2026-06-08T19:00:00-04:00", when:"Mon, June 8 · 7:00 PM",     note:"With Ghostfacekush and Bartesianwater, in the Beaches." },
+  { name:"Machine Gun Kelly & Wiz Khalifa",                 kind:"Concert · Hip-Hop",           channel:"RBC Amphitheatre",   sortDate:"2026-06-14T19:00:00-04:00", when:"Sun, June 14 · 7:00 PM",    note:"The 'Lost Americana' summer tour, by the lake." },
+  { name:"Post Malone — The BIG ASS Stadium Tour Part 2",   kind:"Concert · Hip-Hop/Pop",       channel:"Rogers Stadium",     sortDate:"2026-06-16T19:00:00-04:00", when:"Tue, June 16 · 7:00 PM",    note:"With Jelly Roll and Carter Faith at Downsview." },
+  { name:"Dystinct",                                        kind:"Concert · Afro-R&B",          channel:"Rebel",              sortDate:"2026-06-18T22:00:00-04:00", when:"Thu, June 18 · 10:00 PM",   note:"Late-night global Afro-R&B at Polson Pier." },
+  { name:"Joji — Solaris Tour",                             kind:"Concert · Alt R&B",           channel:"Scotiabank Arena",   sortDate:"2026-06-19T18:30:00-04:00", when:"Fri, June 19 · 6:30 PM",    note:"With openers Nate Sib and Corbin." },
+  { name:"PawPaw Rod — Picture Day Tour",                   kind:"Concert · Funk/R&B",          channel:"The Mod Club",       sortDate:"2026-06-23T19:00:00-04:00", when:"Tue, June 23 · 7:00 PM",    note:"Alt hip-hop and groove-heavy R&B." },
+  { name:"Ella Mai — Do You Still Love Me? Tour",           kind:"Concert · R&B",               channel:"Coca-Cola Coliseum", sortDate:"2026-07-07T19:00:00-04:00", when:"Tue, July 7 · 7:00 PM",     note:"Live at Exhibition Place." },
+  { name:"Digable Planets",                                 kind:"Concert · Classic Hip-Hop",   channel:"Phoenix Concert Theatre", sortDate:"2026-07-10T20:00:00-04:00", when:"Fri, July 10 · 8:00 PM", note:"Golden-era jazz-rap showcase on Sherbourne." },
+  { name:"Arcángel & Lunay",                                kind:"Concert · Reggaeton",         channel:"RBC Amphitheatre",   sortDate:"2026-07-12T19:00:00-04:00", when:"Sun, July 12 · 7:00 PM",    note:"Double-billed summer night at Ontario Place." },
+  { name:"Yeat — The LOVE/LYFE Tour",                       kind:"Concert · Hip-Hop",           channel:"Coca-Cola Coliseum", sortDate:"2026-07-21T20:00:00-04:00", when:"Tue, July 21 · 8:00 PM",    note:"High-energy experimental rage-rap." },
+  { name:"J. Cole — The Fall-Off Tour",                     kind:"Concert · Hip-Hop",           channel:"Scotiabank Arena",   sortDate:"2026-07-27T20:00:00-04:00", when:"Mon, July 27 · 8:00 PM",    note:"Night one of Cole's two-night Toronto arena run." },
+  { name:"NE-YO & Akon — Nights Like This Tour",            kind:"Concert · R&B/Pop",           channel:"RBC Amphitheatre",   sortDate:"2026-07-31T20:00:00-04:00", when:"Fri, July 31 · 8:00 PM",    note:"2000s nostalgia: R&B and club anthems, lakeside." },
+  { name:"Daniel Caesar",                                   kind:"Concert · R&B/Soul",          channel:"Scotiabank Arena",   sortDate:"2026-08-02T19:30:00-04:00", when:"Sun, August 2 · 7:30 PM",   note:"Homecoming for the Oshawa-raised alt-R&B icon." },
+  { name:"Kehlani — Crash World Tour",                      kind:"Concert · R&B",               channel:"RBC Amphitheatre",   sortDate:"2026-08-16T18:30:00-04:00", when:"Sun, August 16 · 6:30 PM",  note:"Outdoor lakeside show." },
+  { name:"Wu-Tang Clan & Bone Thugs-N-Harmony",             kind:"Concert · Hip-Hop",           channel:"RBC Amphitheatre",   sortDate:"2026-09-08T19:30:00-04:00", when:"Tue, September 8 · 7:30 PM",note:"'Wu-Tang Forever: The Final Chamber' tour." },
+  { name:"Logic & G-Eazy — Endless Summer Tour Part II",    kind:"Concert · Hip-Hop",           channel:"RBC Amphitheatre",   sortDate:"2026-09-27T19:00:00-04:00", when:"Sun, September 27 · 7:00 PM", note:"Co-headlining late-summer night." },
+
+  // --- TV broadcasts: confirmed upcoming ---
   { name:"Indianapolis 500", kind:"Sports", channel:"FOX", sortDate:"2026-05-24T16:30:00Z", when:"Sun, May 24 · 12:30 PM ET", note:"The 110th running, live from Indianapolis." },
   { name:"NBA Finals — Game 1", kind:"Sports", channel:"ABC", sortDate:"2026-06-03T00:30:00Z", when:"Wed, June 3 · 8:30 PM ET", note:"Best-of-seven through mid-June. Also on the Sports tab." },
   { name:"BET Awards", kind:"Music", channel:"BET (+ MTV, VH1, Comedy Central & more)", sortDate:"2026-06-28T00:00:00Z", when:"Sun, June 28 · 8:00 PM ET", note:"Hosted by Druski at the Peacock Theater, LA." },
@@ -1030,10 +1124,10 @@ function renderEvents(){
   els.count.textContent = active.length ? `${active.length} coming up` : "";
 
   els.listings.innerHTML=`<div class="nba">
-    <h2>🎬 Marquee Events <span class="tag">Annual</span></h2>
-    <div class="sub">The big nights worth circling, with dates and channels. Confirmed dates are dated; shows still being scheduled say "date TBD." US broadcasters shown; Canadian carriage can differ.</div>
-    <div class="games">${ordered.length?ordered.map(row).join(""):`<div class="empty">No events match that search.</div>`}</div>
-    <div class="src">Hand-kept list, since award shows aren't in any live feed. Dates and hosts can change closer to air.</div>
+    <h2>🎬 Marquee Events &amp; Toronto Concerts <span class="tag">Live &amp; Annual</span></h2>
+    <div class="sub">The big nights worth circling — major broadcasts, awards shows, and a rolling Toronto calendar of R&amp;B, hip-hop and soul concerts at venues from Scotiabank Arena down to History and the Danforth. Search by artist, venue or genre.</div>
+    <div class="games">${ordered.length?ordered.map(row).join(""):`<div class="empty">No events or concerts match that search.</div>`}</div>
+    <div class="src">Hand-kept calendar. Concert dates, lineups and set times can shift; double-check at the venue before heading out.</div>
   </div>`;
   stamp();
 }
@@ -1053,7 +1147,7 @@ function render(){
   // featured panel: NBA on Sports, Canadian sports on Canada, World Cup on WC, Netflix on Streaming
   if(state.view==="SPORTS"){
     els.featured.style.display="block";
-    renderNBA();
+    renderSports();
   } else if(state.view==="CA"){
     els.featured.style.display="block";
     renderCanadaSports();
