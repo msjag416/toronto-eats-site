@@ -624,14 +624,24 @@ function flattenTennisMatches(events){
           status:st,
           state:st.state||"pre",
           competitors:c.competitors||[],
-          uid:c.uid||c.id,
+          id:c.id,
         });
       });
     });
   });
-  // dedupe — atp and wta endpoints can return the same tournament twice
+  // Drop bracket placeholders where both players are still TBD (no athlete object).
+  // Then dedupe by competition id — the ATP and WTA endpoints both return Grand
+  // Slams in full, with the SAME competition id but DIFFERENT uids (different
+  // league codes), so deduping on uid misses these. Id is the stable key.
   const seen=new Set();
-  return out.filter(m=>{ if(seen.has(m.uid)) return false; seen.add(m.uid); return true; });
+  return out.filter(m=>{
+    const hasA=m.competitors[0]&&m.competitors[0].athlete;
+    const hasB=m.competitors[1]&&m.competitors[1].athlete;
+    if(!hasA && !hasB) return false;
+    if(m.id==null) return true;
+    if(seen.has(m.id)) return false;
+    seen.add(m.id); return true;
+  });
 }
 
 function sortTennisMatches(matches){
