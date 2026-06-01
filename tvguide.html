@@ -165,6 +165,23 @@
   .game.passed{opacity:.5;}
   .game.passed .matchup{font-weight:500;}
 
+  /* Netflix "this week" discovery cards: poster + name + genres + description */
+  .nfx-list{display:flex;flex-direction:column;gap:10px;}
+  .nfx-card{display:grid;grid-template-columns:80px 1fr;gap:14px;background:rgba(14,17,22,.55);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none;color:inherit;transition:.16s;}
+  a.nfx-card:hover{border-color:var(--amber-deep);transform:translateY(-1px);box-shadow:var(--glow);}
+  .nfx-poster{width:80px;height:110px;border-radius:8px;background:var(--bg-2);object-fit:cover;border:1px solid var(--line);}
+  .nfx-poster.ph{display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:var(--ink-faint);}
+  .nfx-body{min-width:0;display:flex;flex-direction:column;gap:5px;}
+  .nfx-title{font-family:var(--display);font-weight:700;font-size:1.05rem;line-height:1.2;color:var(--ink);}
+  .nfx-sub{font-size:.78rem;color:var(--ink-soft);}
+  .nfx-genres{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px;}
+  .nfx-genre{font-size:.66rem;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.05);color:var(--ink-soft);border:1px solid var(--line);}
+  .nfx-desc{font-size:.85rem;color:var(--ink-soft);line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  @media (max-width:560px){
+    .nfx-card{grid-template-columns:64px 1fr;gap:10px;padding:10px;}
+    .nfx-poster{width:64px;height:88px;}
+  }
+
   /* ---------- Listings ---------- */
   .listings{margin-top:18px;display:flex;flex-direction:column;gap:10px;padding-bottom:30px;}
   .listings .sports-sub{font-family:var(--display);font-weight:600;font-size:.95rem;color:var(--ink-soft);margin:8px 2px 2px;}
@@ -777,21 +794,29 @@ function renderNetflixWeek(){
       return;
     }
     const sections = weeks.filter(w=>w.items.length).map(w=>{
-      const rows = w.items.map(it=>{
+      const rows = w.items.slice(0,8).map(it=>{
         const s=streamShow(it);
+        const poster=(s.image && (s.image.medium||s.image.original)) || null;
         const epbits=[];
-        if(it.season&&it.number) epbits.push(`S${it.season} E${it.number}`);
-        if(it.name && it.name.trim() && it.name!==s.name) epbits.push(escapeHtml(it.name));
-        const sub=epbits.length?`<div class="series">${epbits.join(" · ")}</div>`:"";
-        return `<div class="game">
-          <div>
-            <div class="label">Netflix</div>
-            <div class="matchup">${escapeHtml(s.name)}</div>
-            ${sub}
-          </div>
-        </div>`;
+        if(it.season && it.number) epbits.push(`S${it.season} E${it.number}`);
+        if(it.name && it.name.trim() && it.name!==s.name) epbits.push(it.name);
+        const ep=epbits.join(" · ");
+        const desc=stripHtml(s.summary||"");
+        const genres=Array.isArray(s.genres)?s.genres.slice(0,3):[];
+        const href=s.url || null;
+        const inner=`
+          ${poster?`<img class="nfx-poster" src="${escapeHtml(poster)}" alt="" loading="lazy">`:`<div class="nfx-poster ph">🎬</div>`}
+          <div class="nfx-body">
+            <div class="nfx-title">${escapeHtml(s.name)}</div>
+            ${ep?`<div class="nfx-sub">${escapeHtml(ep)}</div>`:""}
+            ${genres.length?`<div class="nfx-genres">${genres.map(g=>`<span class="nfx-genre">${escapeHtml(g)}</span>`).join("")}</div>`:""}
+            ${desc?`<div class="nfx-desc">${escapeHtml(desc)}</div>`:`<div class="nfx-desc" style="opacity:.55">No description available yet.</div>`}
+          </div>`;
+        return href
+          ? `<a class="nfx-card" href="${escapeHtml(href)}" target="_blank" rel="noopener" aria-label="Open ${escapeHtml(s.name)} on TVmaze">${inner}</a>`
+          : `<div class="nfx-card">${inner}</div>`;
       }).join("");
-      return `<div class="sports-sub">${escapeHtml(dayLabel(w.date))}</div><div class="games">${rows}</div>`;
+      return `<div class="sports-sub">${escapeHtml(dayLabel(w.date))}</div><div class="nfx-list">${rows}</div>`;
     }).join("");
     els.featured.innerHTML=`<div class="nba">
       <h2>🎬 Netflix this week <span class="tag">7 days</span></h2>
@@ -1106,6 +1131,12 @@ function stamp(){
 }
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+/* TVmaze summaries arrive as HTML (e.g. "<p>Story...</p>"); strip tags safely. */
+function stripHtml(s){
+  const d=document.createElement("div");
+  d.innerHTML=s||"";
+  return (d.textContent||"").trim();
 }
 
 /* ---------- events ---------- */
