@@ -171,6 +171,7 @@
   .game .label{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:5px;}
   .matchup{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;font-size:1rem;}
   .matchup img{width:22px;height:22px;object-fit:contain;vertical-align:middle;}
+  .matchup img.tflag{width:18px;height:12px;object-fit:cover;border-radius:2px;margin-right:4px;}
   .matchup .at{color:var(--ink-faint);font-weight:400;font-size:.85rem;}
   .matchup .sc{color:var(--amber);font-variant-numeric:tabular-nums;}
   .series{font-size:.74rem;color:var(--ink-soft);margin-top:5px;}
@@ -564,7 +565,7 @@ function gameRowHTML(ev, opts){
     if(t.athlete){
       const a=t.athlete;
       const nm=a.shortName||a.displayName||a.fullName||"TBD";
-      const flag=a.flag&&a.flag.href?`<img src="${a.flag.href}" alt="">`:"";
+      const flag=a.flag&&a.flag.href?`<img class="tflag" src="${a.flag.href}" alt="" onerror="this.style.display='none'">`:"";
       return `${flag}${escapeHtml(nm)}`;
     }
     return "TBD";
