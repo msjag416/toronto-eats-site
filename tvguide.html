@@ -1062,6 +1062,28 @@ async function loadServiceTrending(networkId){
   return { trending, upcoming };
 }
 
+/* Free-text TV search across all of TMDB. Used by the Streaming tab when the
+   user types in the search box, so they can find any show by name and see
+   where it streams in Canada (or where else, if Canada doesn't have it). */
+async function tmdbSearchTV(query){
+  if(!query) return [];
+  const url=`${TMDB_BASE}/search/tv?query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`;
+  const c=tmdbCache[url];
+  if(c && Date.now()-c.time < 5*60*1000) return c.data;   // short cache so a typo correction isn't penalised
+  try{
+    const res=await fetch(url, { headers:{ Authorization:"Bearer "+TMDB_TOKEN, accept:"application/json" }});
+    if(!res.ok) throw new Error("TMDB search "+res.status);
+    const json=await res.json();
+    // Sort by popularity since TMDB's default search ordering can surface obscure same-name shows first
+    const data=(Array.isArray(json.results)?json.results:[]).sort((a,b)=>(b.popularity||0)-(a.popularity||0));
+    tmdbCache[url]={data, time:Date.now()};
+    return data;
+  }catch(err){
+    if(c) return c.data;
+    return [];
+  }
+}
+
 function tmdbCard(show){
   const poster=show.poster_path ? TMDB_IMG+show.poster_path : null;
   const year=(show.first_air_date||"").slice(0,4);
@@ -1161,10 +1183,48 @@ function chipsHTML(){
 }
 
 /* Renders the Streaming tab's featured panel for the currently selected service.
-   Named renderNetflixWeek for backwards-compat with the routing in render(). */
+   Named renderNetflixWeek for backwards-compat with the routing in render().
+   If a search query is set, the panel switches to TMDB show search: any TV
+   show in TMDB's catalog with its Canadian provider info per card. Clearing
+   the search brings the Trending/Coming Soon discovery view back. */
 function renderNetflixWeek(){
   const svc = SERVICES[state.service] || SERVICES.netflix;
   const chips = chipsHTML();
+  const q = state.query.trim();
+
+  // ---- Search mode: TMDB free-text TV search across the full catalog ----
+  if(q){
+    els.featured.innerHTML=`<div class="nba">
+      <h2>🔎 Search results <span class="tag">TMDB</span></h2>
+      <div class="sub">Searching TMDB for "${escapeHtml(q)}"...</div>
+    </div>`;
+    tmdbSearchTV(q).then(results=>{
+      if(!results.length){
+        els.featured.innerHTML=`<div class="nba">
+          <h2>🔎 Search results <span class="tag">TMDB</span></h2>
+          <div class="empty">No TV shows on TMDB match "${escapeHtml(q)}". Try a different spelling, or clear the search to see what's trending.</div>
+        </div>`;
+        return;
+      }
+      const cards = results.slice(0,20).map(tmdbCard).join("");
+      const verb = results.length===1 ? "matches" : "match";
+      els.featured.innerHTML=`<div class="nba">
+        <h2>🔎 Search results <span class="tag">TMDB</span></h2>
+        <div class="sub">${results.length} TV show${results.length>1?"s":""} ${verb} "${escapeHtml(q)}". The "In Canada" line below each title shows where it streams.</div>
+        <div class="nfx-list">${cards}</div>
+        <div class="src">Search across all of <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">TMDB</a>'s TV catalog. Watch-provider data via JustWatch. Clear the search to see Trending / Coming Soon.</div>
+      </div>`;
+      fillCanadaProviders();
+    }).catch(()=>{
+      els.featured.innerHTML=`<div class="nba">
+        <h2>🔎 Search results <span class="tag">TMDB</span></h2>
+        <div class="empty">Couldn't reach TMDB right now. Try again in a moment.</div>
+      </div>`;
+    });
+    return;
+  }
+
+  // ---- Discovery mode: Trending now + Coming soon for the picked service ----
   els.featured.innerHTML=`<div class="nba">
     <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
     <div class="svc-chips">${chips}</div>
@@ -1229,8 +1289,8 @@ const EVENTS_DATA = [
 
   // --- TV broadcasts: confirmed upcoming ---
   { name:"Indianapolis 500", kind:"Sports", channel:"FOX", sortDate:"2026-05-24T16:30:00Z", when:"Sun, May 24 · 12:30 PM ET", note:"The 110th running, live from Indianapolis." },
-  { name:"NBA Finals — Game 1", kind:"Sports", channel:"ABC", sortDate:"2026-06-04T00:30:00Z", when:"Wed, June 3 · 8:30 PM ET", note:"Best-of-seven through mid-June. Also on the Sports tab." },
-  { name:"BET Awards", kind:"Music", channel:"BET (+ MTV, VH1, Comedy Central & more)", sortDate:"2026-06-29T00:00:00Z", when:"Sun, June 28 · 8:00 PM ET", note:"Hosted by Druski at the Peacock Theater, LA." },
+  { name:"NBA Finals — Game 1", kind:"Sports", channel:"ABC", sortDate:"2026-06-03T00:30:00Z", when:"Wed, June 3 · 8:30 PM ET", note:"Best-of-seven through mid-June. Also on the Sports tab." },
+  { name:"BET Awards", kind:"Music", channel:"BET (+ MTV, VH1, Comedy Central & more)", sortDate:"2026-06-28T00:00:00Z", when:"Sun, June 28 · 8:00 PM ET", note:"Hosted by Druski at the Peacock Theater, LA." },
   // --- annual, 2026 date not set yet ---
   { name:"MTV Video Music Awards", kind:"Music", channel:"MTV", tbd:true, sortDate:"2026-09-01", when:"September 2026 · date TBD", note:"Music videos, fan-voted categories, big live sets." },
   { name:"Primetime Emmy Awards", kind:"Film & TV", channel:"Network rotates", tbd:true, sortDate:"2026-09-13", when:"September 2026 · date TBD", note:"Television's top honors." },
