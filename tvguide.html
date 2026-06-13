@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>On Air Tonight | Live US & Canada TV Guide | MsJAG</title>
-<meta name="description" content="A live TV guide for American and Canadian channels, updated automatically every time you open it. Browse tonight's shows, search by channel, and check what sports are on.">
+<meta name="description" content="A live TV guide for American and Canadian channels, updated automatically every time you open it. Browse tonight's shows, new movie releases in theatres and on streaming, and check what sports are on.">
 <meta name="author" content="MsJAG">
 <meta name="theme-color" content="#0e1116">
 
@@ -14,7 +14,7 @@
 
 <!-- Open Graph for sharing previews (iMessage, WhatsApp, Slack, Facebook, LinkedIn) -->
 <meta property="og:title" content="On Air Tonight | Live US & Canada TV Guide">
-<meta property="og:description" content="Live listings for American and Canadian channels, plus a sports section. Always current.">
+<meta property="og:description" content="Live listings for American and Canadian channels, plus sports, movies and streaming. Always current.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://torontoeatsandreviews.com/tvguide.html">
 <meta property="og:image" content="https://torontoeatsandreviews.com/tvguide-og.png">
@@ -25,7 +25,7 @@
 <!-- Twitter / X card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="On Air Tonight | Live US & Canada TV Guide">
-<meta name="twitter:description" content="Live listings for American and Canadian channels, plus a sports section. Always current.">
+<meta name="twitter:description" content="Live listings for American and Canadian channels, plus sports, movies and streaming. Always current.">
 <meta name="twitter:image" content="https://torontoeatsandreviews.com/tvguide-og.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -432,6 +432,7 @@
     <button class="tab" data-view="SPORTS" role="tab" aria-selected="false">Sports</button>
     <button class="tab" data-view="WC" role="tab" aria-selected="false">World Cup</button>
     <button class="tab" data-view="STREAM" role="tab" aria-selected="false">Streaming</button>
+    <button class="tab" data-view="MOVIES" role="tab" aria-selected="false">Movies</button>
     <button class="tab" data-view="EVENTS" role="tab" aria-selected="false">Events</button>
   </nav>
 
@@ -523,7 +524,7 @@ const REFRESH_MS = 1000 * 60 * 60 * 6;            // background refresh every 6 
 const cache = {};                                  // TVmaze schedule cache: key -> {data, time}
 const leagueCache = {};                            // ESPN scores cache, keyed by league -> {data, time}
 let streamCache = null;                            // TVmaze streaming cache {date, data, time}
-const VALID_VIEWS = ["US","CA","SPORTS","WC","STREAM","EVENTS"];
+const VALID_VIEWS = ["US","CA","SPORTS","WC","STREAM","MOVIES","EVENTS"];
 
 // ESPN scoreboard paths per league
 const SPORT_PATH = {
@@ -1254,11 +1255,13 @@ function pickProvidersFor(results, country){
   return [...new Set(names)].slice(0,3);
 }
 
-async function tmdbWatchCA(showId){
-  const c=tmdbCaCache[showId];
-  if(c && Date.now()-c.time < 60*60*1000) return c.providers;   // 1h cache per show
+async function tmdbWatchCA(showId, kind){
+  kind = kind || "tv";                       // "tv" (default) or "movie"
+  const key = kind + "-" + showId;
+  const c=tmdbCaCache[key];
+  if(c && Date.now()-c.time < 60*60*1000) return c.providers;   // 1h cache per title
   try{
-    const url=`${TMDB_BASE}/tv/${showId}/watch/providers`;
+    const url=`${TMDB_BASE}/${kind}/${showId}/watch/providers`;
     const res=await fetch(url, { headers:{ Authorization:"Bearer "+TMDB_TOKEN, accept:"application/json" }});
     if(!res.ok) throw new Error("watch "+res.status);
     const json=await res.json();
@@ -1272,7 +1275,7 @@ async function tmdbWatchCA(showId){
       if(others.length>=2) break;
     }
     const providers={ ca, us, others };
-    tmdbCaCache[showId]={providers, time:Date.now()};
+    tmdbCaCache[key]={providers, time:Date.now()};
     return providers;
   }catch(err){
     if(c) return c.providers;
@@ -1282,27 +1285,30 @@ async function tmdbWatchCA(showId){
 
 /* Fill the "In Canada" slot on every card inside the featured panel. Runs after
    the main panel renders, so cards appear instantly and the line fades in. */
+function paintProviderSlot(slot, prov){
+  const { ca, us, others } = prov;
+  slot.classList.remove("loading");
+  if(ca.length){
+    slot.innerHTML=`<span class="ca-lbl">In Canada</span>${escapeHtml(ca.join(" · "))}`;
+  } else if(us.length){
+    slot.classList.add("unavailable");
+    slot.innerHTML=`<span class="ca-lbl">Not in Canada</span>In the US on ${escapeHtml(us.join(" · "))}`;
+  } else if(others.length){
+    slot.classList.add("unavailable");
+    const parts=others.map(o=>`${COUNTRY_NAMES[o.code]||o.code} (${o.names.join(", ")})`);
+    slot.innerHTML=`<span class="ca-lbl">Not in Canada</span>Streams in ${escapeHtml(parts.join(", "))}`;
+  } else {
+    slot.classList.add("unavailable");
+    slot.innerHTML=`<span class="ca-lbl">Not in Canada</span>Not yet streaming anywhere TMDB tracks.`;
+  }
+}
 function fillCanadaProviders(){
   const cards=els.featured.querySelectorAll(".nfx-card[data-tv-id]");
   cards.forEach(async card=>{
     const id=card.dataset.tvId;
     const slot=card.querySelector(".nfx-ca");
     if(!slot) return;
-    const { ca, us, others } = await tmdbWatchCA(id);
-    slot.classList.remove("loading");
-    if(ca.length){
-      slot.innerHTML=`<span class="ca-lbl">In Canada</span>${escapeHtml(ca.join(" · "))}`;
-    } else if(us.length){
-      slot.classList.add("unavailable");
-      slot.innerHTML=`<span class="ca-lbl">Not in Canada</span>In the US on ${escapeHtml(us.join(" · "))}`;
-    } else if(others.length){
-      slot.classList.add("unavailable");
-      const parts=others.map(o=>`${COUNTRY_NAMES[o.code]||o.code} (${o.names.join(", ")})`);
-      slot.innerHTML=`<span class="ca-lbl">Not in Canada</span>Streams in ${escapeHtml(parts.join(", "))}`;
-    } else {
-      slot.classList.add("unavailable");
-      slot.innerHTML=`<span class="ca-lbl">Not in Canada</span>Not yet streaming anywhere TMDB tracks.`;
-    }
+    paintProviderSlot(slot, await tmdbWatchCA(id));
   });
 }
 
@@ -1391,6 +1397,197 @@ function renderNetflixWeek(){
     </div>`;
   });
 }
+
+/* ---------- Movies tab (TMDB) ----------
+   Three sections: Now in theatres and Coming soon (both region-aware, so they
+   follow Canadian release dates), plus New to streaming (recent movies that
+   just landed on a service available in Canada, with the "In Canada" line).
+   The search box switches the panel to a full TMDB movie search. Tapping any
+   card opens the same detail sheet the TV grid uses. */
+const TMDB_BACKDROP="https://image.tmdb.org/t/p/w780";
+const TMDB_POSTER_LG="https://image.tmdb.org/t/p/w500";
+const MOVIE_GENRES={
+  28:"Action", 12:"Adventure", 16:"Animation", 35:"Comedy", 80:"Crime",
+  99:"Documentary", 18:"Drama", 10751:"Family", 14:"Fantasy", 36:"History",
+  27:"Horror", 10402:"Music", 9648:"Mystery", 10749:"Romance",
+  878:"Sci-Fi", 10770:"TV Movie", 53:"Thriller", 10752:"War", 37:"Western"
+};
+let movieStore=[];   // movies currently painted, so a tap can open the sheet
+
+/* Generic cached TMDB list fetch (now_playing, upcoming, discover, search). */
+async function tmdbFetchResults(url){
+  const c=tmdbCache[url];
+  if(c && Date.now()-c.time < 30*60*1000) return c.data;
+  try{
+    const res=await fetch(url, { headers:{ Authorization:"Bearer "+TMDB_TOKEN, accept:"application/json" }});
+    if(!res.ok) throw new Error("TMDB "+res.status);
+    const json=await res.json();
+    const data=Array.isArray(json.results)?json.results:[];
+    tmdbCache[url]={data, time:Date.now()};
+    return data;
+  }catch(err){
+    if(c) return c.data;
+    throw err;
+  }
+}
+
+function fmtReleaseDate(ds){
+  if(!ds) return "";
+  const d=new Date(ds+"T12:00:00");   // noon avoids timezone date-shift
+  return d.toLocaleDateString([], {month:"short", day:"numeric", year:"numeric"});
+}
+
+function movieCard(m, opts){
+  opts=opts||{};
+  const i=movieStore.length; movieStore.push(m);
+  const poster=m.poster_path ? TMDB_IMG+m.poster_path : null;
+  const rating=(m.vote_average && m.vote_count>=10) ? m.vote_average.toFixed(1) : null;
+  const datePart=opts.fullDate ? fmtReleaseDate(m.release_date) : (m.release_date||"").slice(0,4);
+  const sub=[datePart, rating?`★ ${rating}`:null].filter(Boolean).join(" · ");
+  const genres=(m.genre_ids||[]).map(id=>MOVIE_GENRES[id]).filter(Boolean).slice(0,3);
+  const desc=(m.overview||"").trim();
+  const name=m.title||m.original_title||"Untitled";
+  return `<div class="nfx-card" data-mvi="${i}" role="button" tabindex="0" aria-label="Details for ${escapeHtml(name)}">
+    ${poster?`<img class="nfx-poster" src="${escapeHtml(poster)}" alt="" loading="lazy">`:`<div class="nfx-poster ph">🎬</div>`}
+    <div class="nfx-body">
+      <div class="nfx-title">${escapeHtml(name)}</div>
+      ${sub?`<div class="nfx-sub">${escapeHtml(sub)}</div>`:""}
+      ${genres.length?`<div class="nfx-genres">${genres.map(g=>`<span class="nfx-genre">${escapeHtml(g)}</span>`).join("")}</div>`:""}
+      ${desc?`<div class="nfx-desc">${escapeHtml(desc)}</div>`:`<div class="nfx-desc" style="opacity:.55">No description yet.</div>`}
+      ${opts.ca?`<div class="nfx-ca loading" data-mv-id="${m.id}">Checking Canadian availability...</div>`:""}
+    </div>
+  </div>`;
+}
+
+/* Fill the "In Canada" slot on movie cards (streaming section + search). */
+function fillMovieProviders(){
+  els.featured.querySelectorAll(".nfx-ca[data-mv-id]").forEach(async slot=>{
+    paintProviderSlot(slot, await tmdbWatchCA(slot.dataset.mvId, "movie"));
+  });
+}
+
+function detailFromMovie(m){
+  const hero = m.backdrop_path ? TMDB_BACKDROP+m.backdrop_path
+             : (m.poster_path ? TMDB_POSTER_LG+m.poster_path : null);
+  const today=todayStr();
+  let when="";
+  if(m.release_date){
+    when = m.release_date>today ? "In theatres "+fmtReleaseDate(m.release_date)
+                                : "Released "+fmtReleaseDate(m.release_date);
+  }
+  return {
+    title: m.title||m.original_title||"Untitled",
+    kicker: "Movie",
+    epLine: "",
+    hero,
+    network: "",
+    when,
+    rating: (m.vote_average && m.vote_count>=10) ? m.vote_average.toFixed(1) : null,
+    runtime: null,
+    status: "",
+    genres: (m.genre_ids||[]).map(id=>MOVIE_GENRES[id]).filter(Boolean),
+    epSummary: "",
+    showSummary: (m.overview||"").trim(),
+    official: null,
+    tvmaze: null,
+    tmdb: `https://www.themoviedb.org/movie/${m.id}`,
+  };
+}
+
+function renderMovies(){
+  movieStore=[];
+  const q=state.query.trim();
+
+  // ---- Search mode: full TMDB movie catalog ----
+  if(q){
+    els.featured.innerHTML=`<div class="nba">
+      <h2>🔎 Movie search <span class="tag">TMDB</span></h2>
+      <div class="sub">Searching TMDB for "${escapeHtml(q)}"...</div>
+    </div>`;
+    tmdbFetchResults(`${TMDB_BASE}/search/movie?query=${encodeURIComponent(q)}&language=en-US&include_adult=false&page=1&region=CA`).then(results=>{
+      results=results.sort((a,b)=>(b.popularity||0)-(a.popularity||0)).slice(0,20);
+      if(!results.length){
+        els.featured.innerHTML=`<div class="nba">
+          <h2>🔎 Movie search <span class="tag">TMDB</span></h2>
+          <div class="empty">No movies on TMDB match "${escapeHtml(q)}". Try a different spelling, or clear the search to see what is in theatres.</div>
+        </div>`;
+        return;
+      }
+      const cards=results.map(m=>movieCard(m,{ca:true, fullDate:true})).join("");
+      els.featured.innerHTML=`<div class="nba">
+        <h2>🔎 Movie search <span class="tag">TMDB</span></h2>
+        <div class="sub">${results.length} movie${results.length>1?"s":""} match "${escapeHtml(q)}". Tap any card for details; the "In Canada" line shows where it streams.</div>
+        <div class="nfx-list">${cards}</div>
+        <div class="src">Search across all of TMDB. Watch-provider data via JustWatch. Clear the search to get back to theatres and new releases.</div>
+      </div>`;
+      fillMovieProviders();
+    }).catch(()=>{
+      els.featured.innerHTML=`<div class="nba">
+        <h2>🔎 Movie search <span class="tag">TMDB</span></h2>
+        <div class="empty">Couldn't reach TMDB right now. Try again in a moment.</div>
+      </div>`;
+    });
+    return;
+  }
+
+  // ---- Discovery mode: theatres, coming soon, new to streaming ----
+  els.featured.innerHTML=`<div class="nba">
+    <h2>🎬 Movies <span class="tag">New releases</span></h2>
+    <div class="sub">Loading what's in theatres and new to streaming...</div>
+  </div>`;
+  const today=todayStr();
+  const past=new Date(); past.setMonth(past.getMonth()-3);
+  const pastStr=toStr(past);
+  Promise.all([
+    tmdbFetchResults(`${TMDB_BASE}/movie/now_playing?language=en-US&region=CA&page=1`).catch(()=>[]),
+    tmdbFetchResults(`${TMDB_BASE}/movie/upcoming?language=en-US&region=CA&page=1`).catch(()=>[]),
+    tmdbFetchResults(`${TMDB_BASE}/discover/movie?language=en-US&watch_region=CA&with_watch_monetization_types=flatrate%7Cfree%7Cads&sort_by=primary_release_date.desc&primary_release_date.lte=${today}&primary_release_date.gte=${pastStr}&vote_count.gte=20&page=1`).catch(()=>[]),
+  ]).then(([now, up, stream])=>{
+    movieStore=[];   // rebuild the store fresh for this paint
+    now=now.filter(m=>m.release_date && m.release_date<=today)
+           .sort((a,b)=>(b.popularity||0)-(a.popularity||0));
+    up=up.filter(m=>m.release_date && m.release_date>today)
+         .sort((a,b)=>(a.release_date||"").localeCompare(b.release_date||""));
+    if(!now.length && !up.length && !stream.length){
+      els.featured.innerHTML=`<div class="nba">
+        <h2>🎬 Movies <span class="tag">New releases</span></h2>
+        <div class="empty">No movie data came back from TMDB. Try again in a moment.</div>
+      </div>`;
+      return;
+    }
+    const nowHTML=now.slice(0,8).map(m=>movieCard(m)).join("");
+    const upHTML=up.slice(0,8).map(m=>movieCard(m,{fullDate:true})).join("");
+    const streamHTML=stream.slice(0,8).map(m=>movieCard(m,{ca:true, fullDate:true})).join("");
+    els.featured.innerHTML=`<div class="nba">
+      <h2>🎬 Movies <span class="tag">New releases</span></h2>
+      <div class="sub">What's playing in Canadian theatres, what's about to open, and recent movies that just hit streaming. Tap any card for the full details, or use the search box to look up any movie.</div>
+      ${now.length?`<div class="sports-sub">Now in theatres</div><div class="nfx-list">${nowHTML}</div>`:""}
+      ${up.length?`<div class="sports-sub">Coming soon</div><div class="nfx-list">${upHTML}</div>`:""}
+      ${stream.length?`<div class="sports-sub">New to streaming</div><div class="nfx-list">${streamHTML}</div>`:""}
+      <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. Theatre and release dates reflect Canada. Watch-provider data via JustWatch.</div>
+    </div>`;
+    fillMovieProviders();
+  }).catch(()=>{
+    els.featured.innerHTML=`<div class="nba">
+      <h2>🎬 Movies <span class="tag">New releases</span></h2>
+      <div class="empty">Couldn't reach TMDB right now. Try again in a moment.</div>
+    </div>`;
+  });
+}
+
+/* Tap a movie card anywhere in the featured panel -> detail sheet */
+function handleMovieOpen(target){
+  const card=target.closest(".nfx-card[data-mvi]");
+  if(!card) return false;
+  const m=movieStore[Number(card.dataset.mvi)];
+  if(m) openSheet(detailFromMovie(m));
+  return true;
+}
+els.featured.addEventListener("click", e=>{ handleMovieOpen(e.target); });
+els.featured.addEventListener("keydown", e=>{
+  if(e.key!=="Enter" && e.key!==" ") return;
+  if(handleMovieOpen(e.target)) e.preventDefault();
+});
 
 /* ---------- Events tab: curated marquee broadcasts ---------- */
 /* Hand-kept list. Confirmed 2026 dates have a sortDate + dated label.
@@ -1493,7 +1690,7 @@ function renderEvents(){
 function render(){
   writeHash();   // keep the address bar shareable (#view=...&date=...)
   // the date strip only applies to listings-by-day views
-  els.dates.style.display = (state.view==="EVENTS"||state.view==="CA"||state.view==="WC") ? "none" : "flex";
+  els.dates.style.display = (state.view==="EVENTS"||state.view==="CA"||state.view==="WC"||state.view==="MOVIES") ? "none" : "flex";
   // the network filter only applies to the USA grid
   els.catfilter.style.display = (state.view==="US") ? "flex" : "none";
   // the search box has nothing to act on the Canada tab (sports panel only)
@@ -1512,6 +1709,9 @@ function render(){
   } else if(state.view==="STREAM"){
     els.featured.style.display="block";
     renderNetflixWeek();
+  } else if(state.view==="MOVIES"){
+    els.featured.style.display="block";
+    renderMovies();
   } else {
     els.featured.style.display="none";
     els.featured.innerHTML="";
@@ -1525,6 +1725,14 @@ function render(){
 
   // World Cup: fixtures panel only
   if(state.view==="WC"){
+    els.note.style.display="none";
+    els.listings.innerHTML="";
+    els.count.textContent="";
+    return;
+  }
+
+  // Movies: TMDB panel only
+  if(state.view==="MOVIES"){
     els.note.style.display="none";
     els.listings.innerHTML="";
     els.count.textContent="";
@@ -1830,6 +2038,7 @@ function openSheet(d){
   const actions=[];
   if(d.official) actions.push(`<a class="sheet-btn primary" href="${escapeHtml(d.official)}" target="_blank" rel="noopener">Official site</a>`);
   if(d.tvmaze) actions.push(`<a class="sheet-btn" href="${escapeHtml(d.tvmaze)}" target="_blank" rel="noopener">More on TVmaze</a>`);
+  if(d.tmdb) actions.push(`<a class="sheet-btn" href="${escapeHtml(d.tmdb)}" target="_blank" rel="noopener">More on TMDB</a>`);
 
   sheetEls.content.innerHTML=`
     <div class="sheet-hero${heroImg?"":" noimg"}">${heroImg?`<img src="${escapeHtml(heroImg)}" alt="">`:""}</div>
