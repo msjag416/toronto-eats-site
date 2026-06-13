@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>On Air Tonight | Live US & Canada TV Guide | MsJAG</title>
 <meta name="description" content="A live TV guide for American and Canadian channels, updated automatically every time you open it. Browse tonight's shows, search by channel, and check what sports are on.">
 <meta name="author" content="MsJAG">
@@ -33,30 +33,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Spline+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
+
   :root{
-    --bg:#0e1116;
-    --bg-2:#161b22;
-    --panel:#1b212b;
-    --panel-2:#222a36;
-    --line:#2c3543;
-    --ink:#eef2f7;
-    --ink-soft:#aab4c2;
-    --ink-faint:#6c7787;
+    --bg:#07090e;
+    --bg-2:#0d1118;
+    --panel:rgba(255,255,255,.035);
+    --panel-2:rgba(255,255,255,.06);
+    --panel-solid:#11151d;
+    --line:rgba(255,255,255,.09);
+    --line-soft:rgba(255,255,255,.055);
+    --ink:#f2f5fa;
+    --ink-soft:#a9b4c4;
+    --ink-faint:#69758c;
     --amber:#ffb347;
     --amber-deep:#f59a2e;
     --teal:#46d6c3;
     --coral:#ff6f6f;
-    --glow:0 0 0 1px rgba(255,179,71,.0),0 8px 30px rgba(0,0,0,.45);
+    --glow:0 14px 40px rgba(0,0,0,.5);
+    --radius:16px;
     --display:'Bricolage Grotesque',serif;
     --body:'Spline Sans',sans-serif;
   }
 
-  *{box-sizing:border-box;margin:0;padding:0;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html{scroll-behavior:smooth;}
   body{
     background:
-      radial-gradient(1200px 600px at 80% -10%, rgba(255,179,71,.10), transparent 60%),
-      radial-gradient(900px 500px at -10% 10%, rgba(70,214,195,.08), transparent 55%),
+      radial-gradient(1100px 540px at 85% -12%, rgba(255,179,71,.09), transparent 60%),
+      radial-gradient(850px 480px at -12% 6%, rgba(70,214,195,.07), transparent 55%),
       var(--bg);
     color:var(--ink);
     font-family:var(--body);
@@ -69,56 +73,70 @@
   body::before{
     content:"";
     position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:repeating-linear-gradient(to bottom,rgba(255,255,255,.014) 0 1px,transparent 1px 3px);
+    background:repeating-linear-gradient(to bottom,rgba(255,255,255,.01) 0 1px,transparent 1px 3px);
     mix-blend-mode:overlay;
   }
 
-  .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 20px;}
+  .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 18px;}
 
   /* ---------- Header ---------- */
-  header.site{padding:30px 0 14px;}
+  header.site{padding:24px 0 8px;}
   .brandrow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
   .kicker{
-    font-family:var(--body);font-weight:600;letter-spacing:.22em;
-    text-transform:uppercase;font-size:.7rem;color:var(--amber);
+    font-family:var(--body);font-weight:600;letter-spacing:.24em;
+    text-transform:uppercase;font-size:.66rem;color:var(--amber);
   }
-  .kicker a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,179,71,.5);}
+  .kicker a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,179,71,.45);}
   h1{
     font-family:var(--display);font-weight:800;line-height:.98;
-    font-size:clamp(2.4rem,6vw,4.2rem);letter-spacing:-.02em;margin-top:6px;
+    font-size:clamp(2.1rem,6vw,3.6rem);letter-spacing:-.02em;margin-top:6px;
   }
-  h1 .on{color:var(--amber);}
-  .blurb{color:var(--ink-soft);max-width:60ch;margin-top:12px;font-size:1.02rem;}
+  h1 .on{
+    background:linear-gradient(180deg,#ffd28a,var(--amber) 55%,var(--amber-deep));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .blurb{color:var(--ink-soft);max-width:62ch;margin-top:10px;font-size:.96rem;}
   .live{
-    display:inline-flex;align-items:center;gap:8px;margin-top:14px;
-    font-size:.8rem;color:var(--ink-soft);
+    display:inline-flex;align-items:center;gap:8px;margin-top:12px;
+    font-size:.78rem;color:var(--ink-soft);
   }
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(70,214,195,.6);animation:pulse 2s infinite;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(70,214,195,.6);animation:pulse 2s infinite;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(70,214,195,.55);}70%{box-shadow:0 0 0 9px rgba(70,214,195,0);}100%{box-shadow:0 0 0 0 rgba(70,214,195,0);}}
 
   /* ---------- Controls ---------- */
-  .controls{margin-top:26px;display:flex;flex-direction:column;gap:16px;}
+  .controls{margin-top:18px;display:flex;flex-direction:column;gap:14px;}
 
-  .tabs{display:flex;gap:6px;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:6px;width:fit-content;max-width:100%;flex-wrap:wrap;
-    position:sticky;top:8px;z-index:50;margin-top:18px;}
-  /* a subtle shadow once the tabs lift off so the boundary reads as floating */
-  .tabs::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 8px 22px rgba(0,0,0,.25);opacity:0;transition:opacity .2s;pointer-events:none;}
+  .tabs{
+    display:flex;gap:4px;align-items:center;
+    background:rgba(13,17,24,.72);
+    -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
+    border:1px solid var(--line);border-radius:999px;padding:5px;
+    width:fit-content;max-width:100%;
+    flex-wrap:nowrap;overflow-x:auto;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    position:sticky;top:calc(8px + env(safe-area-inset-top));z-index:50;margin-top:16px;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tabs::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 12px 30px rgba(0,0,0,.4);opacity:0;transition:opacity .2s;pointer-events:none;}
   .tabs.lifted::after{opacity:1;}
   .tab{
     appearance:none;border:0;cursor:pointer;font-family:var(--body);font-weight:600;
-    font-size:.92rem;color:var(--ink-soft);background:transparent;
-    padding:9px 18px;border-radius:9px;transition:.18s;white-space:nowrap;
+    font-size:.9rem;color:var(--ink-soft);background:transparent;
+    padding:9px 17px;border-radius:999px;transition:color .18s,background .18s;white-space:nowrap;
+    flex:0 0 auto;min-height:40px;
   }
   .tab:hover{color:var(--ink);}
-  .tab.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;box-shadow:0 4px 14px rgba(245,154,46,.35);}
+  .tab.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;box-shadow:0 4px 16px rgba(245,154,46,.35);}
 
-  .row2{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+  .row2{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
 
-  .dates{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;}
+  .dates{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .dates::-webkit-scrollbar{display:none;}
   .datebtn{
-    flex:0 0 auto;border:1px solid var(--line);background:var(--panel);
-    color:var(--ink-soft);border-radius:11px;padding:8px 13px;cursor:pointer;
-    font-family:var(--body);font-size:.82rem;text-align:center;line-height:1.2;transition:.16s;
+    flex:0 0 auto;border:1px solid var(--line-soft);background:var(--panel);
+    color:var(--ink-soft);border-radius:13px;padding:8px 14px;cursor:pointer;
+    font-family:var(--body);font-size:.8rem;text-align:center;line-height:1.2;transition:border-color .16s,background .16s;
+    min-height:44px;
   }
   .datebtn b{display:block;font-size:.95rem;color:var(--ink);font-weight:600;}
   .datebtn:hover{border-color:var(--amber-deep);}
@@ -127,60 +145,61 @@
 
   .search{position:relative;min-width:220px;flex:1 1 240px;max-width:340px;}
   .search input{
-    width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);
-    border-radius:11px;padding:11px 14px 11px 38px;font-family:var(--body);font-size:.92rem;
+    width:100%;background:var(--panel);border:1px solid var(--line-soft);color:var(--ink);
+    border-radius:13px;padding:12px 14px 12px 38px;font-family:var(--body);font-size:16px;
+    min-height:44px;
   }
   .search input::placeholder{color:var(--ink-faint);}
-  .search input:focus{outline:none;border-color:var(--amber);}
+  .search input:focus{outline:none;border-color:var(--amber);background:var(--panel-2);}
   .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.5;}
 
   /* ---------- Status ---------- */
-  .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap;}
-  .updated{font-size:.78rem;color:var(--ink-faint);}
-  .count{font-size:.78rem;color:var(--ink-faint);}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;}
+  .updated{font-size:.76rem;color:var(--ink-faint);}
+  .count{font-size:.76rem;color:var(--ink-faint);}
   .note{
-    margin-top:14px;background:rgba(70,214,195,.07);border:1px solid rgba(70,214,195,.25);
-    border-radius:12px;padding:12px 15px;font-size:.83rem;color:var(--ink-soft);
+    margin-top:12px;background:rgba(70,214,195,.06);border:1px solid rgba(70,214,195,.22);
+    border-radius:14px;padding:12px 15px;font-size:.82rem;color:var(--ink-soft);
   }
   .note b{color:var(--teal);}
 
   /* category filter (USA tab) */
-  .catfilter{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;}
-  .catbtn{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);font-family:var(--body);font-size:.8rem;font-weight:600;padding:7px 14px;border-radius:9px;cursor:pointer;transition:.16s;}
+  .catfilter{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
+  .catbtn{appearance:none;border:1px solid var(--line-soft);background:var(--panel);color:var(--ink-soft);font-family:var(--body);font-size:.78rem;font-weight:600;padding:8px 15px;border-radius:999px;cursor:pointer;transition:border-color .16s,color .16s;min-height:38px;}
   .catbtn:hover{border-color:var(--amber-deep);color:var(--ink);}
   .catbtn.active{background:var(--panel-2);border-color:var(--amber);color:var(--amber);}
 
   /* "on now" highlight */
-  .item.now{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-deep),0 8px 26px rgba(245,154,46,.16);}
+  .item.now{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-deep),0 10px 30px rgba(245,154,46,.14);}
   .badge.b-now{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;border:1px solid var(--amber-deep);}
 
-  /* ---------- Featured NBA panel ---------- */
-  .featured{margin-top:18px;}
+  /* ---------- Featured panels ---------- */
+  .featured{margin-top:16px;}
   .nba{
-    background:linear-gradient(180deg,rgba(255,179,71,.10),rgba(27,33,43,.6));
-    border:1px solid rgba(255,179,71,.35);border-radius:16px;padding:16px 18px;
+    background:linear-gradient(180deg,rgba(255,179,71,.07),rgba(255,255,255,.025));
+    border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;
   }
-  .nba h2{font-family:var(--display);font-weight:800;font-size:1.15rem;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;}
-  .nba h2 .tag{font-family:var(--body);font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#241704;background:linear-gradient(180deg,var(--amber),var(--amber-deep));padding:3px 9px;border-radius:999px;}
+  .nba h2{font-family:var(--display);font-weight:800;font-size:1.12rem;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .nba h2 .tag{font-family:var(--body);font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#241704;background:linear-gradient(180deg,var(--amber),var(--amber-deep));padding:3px 10px;border-radius:999px;}
   .nba .sub{font-size:.8rem;color:var(--ink-soft);margin:4px 0 14px;}
-  .games{display:flex;flex-direction:column;gap:9px;}
+  .games{display:flex;flex-direction:column;gap:8px;}
   .game{
     display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
-    background:rgba(14,17,22,.55);border:1px solid var(--line);border-radius:12px;padding:11px 14px;
+    background:rgba(7,9,14,.5);border:1px solid var(--line-soft);border-radius:13px;padding:11px 14px;
   }
-  .game .label{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:5px;}
-  .matchup{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;font-size:1rem;}
+  .game .label{font-size:.64rem;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-faint);margin-bottom:5px;}
+  .matchup{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;font-size:.98rem;}
   .matchup img{width:22px;height:22px;object-fit:contain;vertical-align:middle;}
   .matchup img.tflag{width:18px;height:12px;object-fit:cover;border-radius:2px;margin-right:4px;}
   .matchup .at{color:var(--ink-faint);font-weight:400;font-size:.85rem;}
   .matchup .sc{color:var(--amber);font-variant-numeric:tabular-nums;}
   .series{font-size:.74rem;color:var(--ink-soft);margin-top:5px;}
   .gright{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;white-space:nowrap;}
-  .gtime{font-size:.86rem;color:var(--ink);}
+  .gtime{font-size:.84rem;color:var(--ink);}
   .glive{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--coral);display:inline-flex;align-items:center;gap:6px;}
   .glive .d{width:7px;height:7px;border-radius:50%;background:var(--coral);animation:pulse 1.4s infinite;}
-  .gfinal{font-size:.78rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;}
-  .chan{font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:7px;background:rgba(70,214,195,.15);color:#7fe6da;border:1px solid rgba(70,214,195,.35);}
+  .gfinal{font-size:.76rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;}
+  .chan{font-size:.66rem;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:7px;background:rgba(70,214,195,.13);color:#7fe6da;border:1px solid rgba(70,214,195,.3);}
   .nba .empty{font-size:.84rem;color:var(--ink-soft);padding:6px 2px;}
   .nba .src{font-size:.68rem;color:var(--ink-faint);margin-top:12px;}
   .game.passed{opacity:.5;}
@@ -191,7 +210,7 @@
      The reduced-motion block further down disables the animation entirely. */
   .game.starmatch{
     border-color:var(--amber);
-    background:linear-gradient(180deg,rgba(255,179,71,.12),rgba(14,17,22,.55));
+    background:linear-gradient(180deg,rgba(255,179,71,.12),rgba(7,9,14,.5));
     animation:starpulse 2.6s ease-in-out infinite;
   }
   @keyframes starpulse{
@@ -206,83 +225,157 @@
     margin-bottom:6px;
   }
 
-  /* Netflix "this week" discovery cards: poster + name + genres + description */
+  /* Streaming discovery cards: poster + name + genres + description */
   .nfx-list{display:flex;flex-direction:column;gap:10px;}
-  .nfx-card{display:grid;grid-template-columns:80px 1fr;gap:14px;background:rgba(14,17,22,.55);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none;color:inherit;transition:.16s;}
-  a.nfx-card:hover{border-color:var(--amber-deep);transform:translateY(-1px);box-shadow:var(--glow);}
-  .nfx-poster{width:80px;height:110px;border-radius:8px;background:var(--bg-2);object-fit:cover;border:1px solid var(--line);}
+  .nfx-card{display:grid;grid-template-columns:92px 1fr;gap:14px;background:rgba(7,9,14,.5);border:1px solid var(--line-soft);border-radius:14px;padding:12px 14px;text-decoration:none;color:inherit;transition:border-color .16s,transform .16s,box-shadow .16s;}
+  a.nfx-card:hover{border-color:var(--amber-deep);transform:translateY(-2px);box-shadow:var(--glow);}
+  .nfx-poster{width:92px;height:130px;border-radius:10px;background:var(--bg-2);object-fit:cover;border:1px solid var(--line-soft);}
   .nfx-poster.ph{display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:var(--ink-faint);}
   .nfx-body{min-width:0;display:flex;flex-direction:column;gap:5px;}
   .nfx-title{font-family:var(--display);font-weight:700;font-size:1.05rem;line-height:1.2;color:var(--ink);}
   .nfx-sub{font-size:.78rem;color:var(--ink-soft);}
   .nfx-genres{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px;}
-  .nfx-genre{font-size:.66rem;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.05);color:var(--ink-soft);border:1px solid var(--line);}
+  .nfx-genre{font-size:.64rem;font-weight:600;letter-spacing:.04em;padding:2px 9px;border-radius:999px;background:rgba(255,255,255,.05);color:var(--ink-soft);border:1px solid var(--line-soft);}
   .nfx-desc{font-size:.85rem;color:var(--ink-soft);line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
   .nfx-ca{font-size:.78rem;color:var(--ink-soft);margin-top:6px;line-height:1.4;}
   .nfx-ca .ca-lbl{font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-right:6px;}
   .nfx-ca.loading{opacity:.5;font-style:italic;}
   .nfx-ca.unavailable{color:var(--ink-faint);}
   @media (max-width:560px){
-    .nfx-card{grid-template-columns:64px 1fr;gap:10px;padding:10px;}
-    .nfx-poster{width:64px;height:88px;}
+    .nfx-card{grid-template-columns:72px 1fr;gap:11px;padding:11px;}
+    .nfx-poster{width:72px;height:102px;}
   }
 
   /* service selector chips inside the Streaming featured panel */
-  .svc-chips{display:flex;gap:6px;margin:-2px 0 12px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin;}
-  .svc-chip{flex:0 0 auto;appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);font-family:var(--body);font-size:.78rem;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.16s;white-space:nowrap;}
+  .svc-chips{display:flex;gap:6px;margin:-2px 0 12px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .svc-chips::-webkit-scrollbar{display:none;}
+  .svc-chip{flex:0 0 auto;appearance:none;border:1px solid var(--line-soft);background:var(--panel);color:var(--ink-soft);font-family:var(--body);font-size:.78rem;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;transition:border-color .16s,color .16s;white-space:nowrap;min-height:36px;}
   .svc-chip:hover{border-color:var(--amber-deep);color:var(--ink);}
   .svc-chip.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;border-color:var(--amber-deep);}
 
   /* ---------- Listings ---------- */
-  .listings{margin-top:18px;display:flex;flex-direction:column;gap:10px;padding-bottom:30px;}
+  .listings{margin-top:16px;display:flex;flex-direction:column;gap:10px;padding-bottom:30px;}
   .listings .sports-sub{font-family:var(--display);font-weight:600;font-size:.95rem;color:var(--ink-soft);margin:8px 2px 2px;}
 
   .item{
-    display:grid;grid-template-columns:64px 56px 1fr auto;gap:14px;align-items:center;
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:12px 16px;transition:.18s;animation:rise .4s both;
+    display:grid;grid-template-columns:58px 64px 1fr auto;
+    grid-template-areas:"time thumb meta badges";
+    gap:14px;align-items:center;
+    background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);
+    padding:12px 16px;transition:border-color .18s,transform .18s,box-shadow .18s,background .18s;animation:rise .4s both;
+    cursor:pointer;
   }
-  .item:hover{border-color:var(--amber-deep);transform:translateY(-1px);box-shadow:var(--glow);}
+  .item:hover{border-color:var(--amber-deep);transform:translateY(-2px);box-shadow:var(--glow);background:var(--panel-2);}
+  .item:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
   @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-  .time{font-family:var(--display);font-weight:600;font-size:1.05rem;color:var(--amber);text-align:center;}
-  .time small{display:block;font-family:var(--body);font-size:.62rem;color:var(--ink-faint);font-weight:400;letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+  .time{grid-area:time;font-family:var(--display);font-weight:600;font-size:1.05rem;color:var(--amber);text-align:center;}
+  .time small{display:block;font-family:var(--body);font-size:.6rem;color:var(--ink-faint);font-weight:400;letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
 
-  .thumb{width:56px;height:56px;border-radius:10px;object-fit:cover;background:var(--bg-2);border:1px solid var(--line);}
+  .thumb{grid-area:thumb;width:64px;height:90px;border-radius:10px;object-fit:cover;background:var(--bg-2);border:1px solid var(--line-soft);}
   .thumb.ph{display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:1.3rem;}
 
-  .meta{min-width:0;}
+  .meta{grid-area:meta;min-width:0;}
   .show{font-weight:600;font-size:1.02rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .ep{font-size:.84rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .net{font-size:.76rem;color:var(--ink-faint);margin-top:2px;}
   .net span{color:var(--ink-soft);}
+  .more-hint{display:inline-block;font-size:.68rem;color:var(--ink-faint);margin-top:5px;letter-spacing:.04em;}
+  .more-hint::after{content:" ›";color:var(--amber);}
 
-  .badges{display:flex;flex-direction:column;gap:5px;align-items:flex-end;}
-  .badge{font-size:.66rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;white-space:nowrap;}
-  .b-sports{background:rgba(255,111,111,.16);color:#ff9a9a;border:1px solid rgba(255,111,111,.4);}
-  .b-news{background:rgba(70,214,195,.14);color:#7fe6da;border:1px solid rgba(70,214,195,.35);}
-  .b-default{background:rgba(255,255,255,.06);color:var(--ink-soft);border:1px solid var(--line);}
+  .badges{grid-area:badges;display:flex;flex-direction:column;gap:5px;align-items:flex-end;}
+  .badge{font-size:.64rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+  .b-sports{background:rgba(255,111,111,.14);color:#ff9a9a;border:1px solid rgba(255,111,111,.35);}
+  .b-news{background:rgba(70,214,195,.12);color:#7fe6da;border:1px solid rgba(70,214,195,.3);}
+  .b-default{background:rgba(255,255,255,.05);color:var(--ink-soft);border:1px solid var(--line-soft);}
+
+  /* ---------- Detail sheet (tap a show) ---------- */
+  .sheet-wrap{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center;}
+  .sheet-wrap[hidden]{display:none;}
+  .sheet-backdrop{position:absolute;inset:0;background:rgba(3,5,9,.68);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fadein .25s both;}
+  @keyframes fadein{from{opacity:0;}to{opacity:1;}}
+  .sheet{
+    position:relative;width:100%;max-width:620px;max-height:88vh;max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;
+    background:var(--panel-solid);border:1px solid var(--line);border-radius:22px 22px 0 0;
+    box-shadow:0 -20px 70px rgba(0,0,0,.6);
+    animation:sheetup .34s cubic-bezier(.2,.9,.3,1) both;
+    -webkit-overflow-scrolling:touch;
+  }
+  @keyframes sheetup{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  @media (min-width:640px){
+    .sheet-wrap{align-items:center;padding:28px;}
+    .sheet{border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.65);}
+  }
+  .sheet-hero{position:relative;height:200px;background:var(--bg-2);}
+  .sheet-hero img{width:100%;height:100%;object-fit:cover;display:block;}
+  .sheet-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(17,21,29,.05) 25%,var(--panel-solid) 100%);}
+  .sheet-hero.noimg{height:64px;background:linear-gradient(180deg,rgba(255,179,71,.1),transparent);}
+  .sheet-grip{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:42px;height:5px;border-radius:999px;background:rgba(255,255,255,.35);z-index:2;}
+  @media (min-width:640px){ .sheet-grip{display:none;} }
+  .sheet-close{
+    position:absolute;top:12px;right:12px;z-index:3;width:42px;height:42px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.16);background:rgba(7,9,14,.6);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    color:#fff;font-size:1.15rem;line-height:1;cursor:pointer;
+  }
+  .sheet-close:hover{background:rgba(7,9,14,.85);}
+  .sheet-close:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+  .sheet-body{position:relative;padding:8px 22px calc(26px + env(safe-area-inset-bottom));margin-top:-34px;z-index:2;}
+  .sheet-hero.noimg + .sheet-body{margin-top:0;}
+  .sheet-kicker{font-size:.64rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;}
+  .sheet-title{font-family:var(--display);font-weight:800;font-size:1.55rem;letter-spacing:-.01em;line-height:1.1;}
+  .sheet-ep{font-size:.92rem;color:var(--ink-soft);margin-top:6px;}
+  .sheet-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+  .sheet-chip{font-size:.7rem;font-weight:600;letter-spacing:.03em;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.05);color:var(--ink-soft);border:1px solid var(--line-soft);}
+  .sheet-chip.hot{background:rgba(255,179,71,.12);color:var(--amber);border-color:rgba(255,179,71,.35);}
+  .sheet-sec{margin-top:18px;}
+  .sheet-sec h3{font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:7px;}
+  .sheet-desc{font-size:.92rem;color:var(--ink-soft);line-height:1.6;}
+  .sheet-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;}
+  .sheet-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    text-decoration:none;font-family:var(--body);font-weight:600;font-size:.88rem;
+    padding:12px 20px;border-radius:13px;min-height:44px;cursor:pointer;border:1px solid var(--line);
+    color:var(--ink);background:var(--panel-2);transition:border-color .16s,filter .16s;
+  }
+  .sheet-btn:hover{border-color:var(--amber-deep);}
+  .sheet-btn.primary{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;border-color:var(--amber-deep);}
+  .sheet-btn.primary:hover{filter:brightness(1.06);}
+  body.sheet-open{overflow:hidden;}
 
   /* ---------- States ---------- */
   .state{text-align:center;padding:60px 20px;color:var(--ink-soft);}
   .state .big{font-family:var(--display);font-size:1.4rem;color:var(--ink);margin-bottom:8px;}
   .spinner{width:38px;height:38px;border:3px solid var(--line);border-top-color:var(--amber);border-radius:50%;margin:0 auto 18px;animation:spin .8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
-  .retry{margin-top:16px;border:1px solid var(--amber);background:transparent;color:var(--amber);padding:9px 18px;border-radius:10px;cursor:pointer;font-family:var(--body);font-weight:600;}
+  .retry{margin-top:16px;border:1px solid var(--amber);background:transparent;color:var(--amber);padding:11px 20px;border-radius:12px;cursor:pointer;font-family:var(--body);font-weight:600;min-height:44px;}
   .retry:hover{background:var(--amber);color:#241704;}
 
   /* ---------- Footer ---------- */
-  footer.site{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--ink-faint);font-size:.8rem;text-align:center;}
+  footer.site{border-top:1px solid var(--line-soft);padding:26px 0 calc(40px + env(safe-area-inset-bottom));color:var(--ink-faint);font-size:.8rem;text-align:center;}
   footer.site a{color:var(--ink-soft);text-decoration:none;border-bottom:1px dotted var(--line);}
   footer.site a:hover{color:var(--amber);}
   footer.site .cr{margin-top:8px;}
 
-  @media (max-width:560px){
-    .item{grid-template-columns:52px 1fr auto;gap:11px;}
-    .thumb{display:none;}
-    .badges{flex-direction:row;}
+  @media (max-width:600px){
+    .item{
+      grid-template-columns:56px 1fr;
+      grid-template-areas:
+        "thumb meta"
+        "thumb foot";
+      gap:6px 12px;padding:11px 13px;align-items:start;
+    }
+    .thumb{width:56px;height:80px;}
+    .time{grid-area:foot;justify-self:start;align-self:end;text-align:left;font-size:.88rem;}
+    .time small{display:inline;margin-left:4px;font-size:.6rem;}
+    .badges{grid-area:foot;justify-self:end;align-self:end;flex-direction:row;}
+    .meta{align-self:start;}
+    .more-hint{display:none;}
     .row2{flex-direction:column;align-items:stretch;}
     .search{flex:0 0 auto;max-width:none;width:100%;}
+    .nba{padding:14px;}
+    .game{grid-template-columns:1fr;gap:8px;}
+    .gright{flex-direction:row;align-items:center;text-align:left;flex-wrap:wrap;}
   }
 
   /* respect users who prefer less motion */
@@ -296,7 +389,7 @@
 
   /* back-to-top button */
   .btt{
-    position:fixed;right:18px;bottom:18px;width:44px;height:44px;border-radius:50%;
+    position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;
     border:1px solid var(--amber-deep);background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;
     font-size:1.15rem;font-weight:800;line-height:1;cursor:pointer;z-index:60;
     box-shadow:0 8px 24px rgba(0,0,0,.35);
@@ -305,6 +398,7 @@
   .btt.show{opacity:1;pointer-events:auto;transform:translateY(0);}
   .btt:hover{filter:brightness(1.06);}
   .btt:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+
 </style>
 </head>
 <body>
@@ -315,7 +409,7 @@
       <span class="kicker"><a href="https://torontoeatsandreviews.com">Toronto Eats &amp; Reviews</a> · MsJAG</span>
     </div>
     <h1><span class="on">On&nbsp;Air</span> Tonight</h1>
-    <p class="blurb">A live guide to what's playing on American and Canadian channels right now, with a sports section. Listings refresh on their own every time you open the page.</p>
+    <p class="blurb">A live guide to what's playing on American and Canadian channels right now, with a sports section. Tap any show for the full story, artwork and details. Listings refresh on their own every time you open the page.</p>
     <span class="live"><span class="dot" aria-hidden="true"></span> Live data, auto-updating</span>
   </header>
 
@@ -364,6 +458,16 @@
 </div>
 
 <button class="btt" id="btt" type="button" aria-label="Back to top" hidden>↑</button>
+
+<!-- Detail sheet: opens when a show card is tapped. One reusable dialog. -->
+<div class="sheet-wrap" id="sheetWrap" hidden>
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <button class="sheet-close" id="sheetClose" type="button" aria-label="Close details">✕</button>
+    <div id="sheetContent"></div>
+  </div>
+</div>
 
 <script>
 /* =========================================================
@@ -426,6 +530,8 @@ const LEAGUE_META = {
 };
 
 const state = { view: "US", date: todayStr(), query: "", filter: "all", service: "netflix" };
+let gridDetail = [];     // items currently painted in the main grid (US / Sports)
+let streamDetail = [];   // items currently painted on the Streaming tab
 
 const els = {
   tabs:     document.getElementById("tabs"),
@@ -979,6 +1085,7 @@ function renderStreaming(){
       stamp(); return;
     }
     els.count.textContent=`${list.length} streaming premiere${list.length>1?"s":""}`;
+    streamDetail = list;   // keep these so a tap can open the detail sheet
     const cards=list.map((it,i)=>{
       const s=streamShow(it);
       const ch=streamChannel(it)||"Streaming";
@@ -989,13 +1096,14 @@ function renderStreaming(){
       const ep=epbits.join(" · ");
       const delay=Math.min(i*0.025,0.6);
       const typ=s.type||(s.genres&&s.genres[0])||"";
-      return `<div class="item" style="animation-delay:${delay}s">
+      return `<div class="item" data-sdi="${i}" role="button" tabindex="0" aria-label="Details for ${escapeHtml(s.name||"this show")}" style="animation-delay:${delay}s">
         <div class="time">▶<small>Stream</small></div>
         ${img?`<img class="thumb" src="${img}" alt="" loading="lazy">`:`<div class="thumb ph">🎬</div>`}
         <div class="meta">
           <div class="show">${escapeHtml(s.name||"Untitled")}</div>
           ${ep?`<div class="ep">${ep}</div>`:""}
           <div class="net">on <span>${escapeHtml(ch)}</span></div>
+          <span class="more-hint">Tap for details</span>
         </div>
         <div class="badges">${typ?`<span class="badge b-default">${escapeHtml(typ)}</span>`:""}</div>
       </div>`;
@@ -1474,6 +1582,9 @@ function paint(list, totalForDay){
 
   els.count.textContent=`${list.length} listing${list.length>1?"s":""}`;
 
+  // keep the painted items so a tap on a card can open its detail sheet
+  gridDetail = list;
+
   // "on now" only applies when viewing today's date; airtimes are ET
   const showNow = (state.date===todayStr());
   const nowMin = etNowMinutes();
@@ -1496,13 +1607,14 @@ function paint(list, totalForDay){
     const onNow = (showNow && start!=null && nowMin>=start && nowMin<start+dur);
     const small=it.airtime?`${ampm(it.airtime)} ET`:"";
 
-    return `<div class="item${onNow?" now":""}" data-start="${start==null?"":start}" data-dur="${dur}" style="animation-delay:${delay}s">
+    return `<div class="item${onNow?" now":""}" data-di="${i}" role="button" tabindex="0" aria-label="Details for ${escapeHtml(s.name||"this show")}" data-start="${start==null?"":start}" data-dur="${dur}" style="animation-delay:${delay}s">
       <div class="time">${time}<small>${small}</small></div>
       ${img?`<img class="thumb" src="${img}" alt="" loading="lazy">`:`<div class="thumb ph">📺</div>`}
       <div class="meta">
         <div class="show">${escapeHtml(s.name||"Untitled")}</div>
         ${ep?`<div class="ep">${ep}</div>`:""}
         <div class="net">on <span>${escapeHtml(net)}</span></div>
+        <span class="more-hint">Tap for details</span>
       </div>
       <div class="badges"><span class="badge b-now"${onNow?"":" hidden"}>● On now</span>${badge}</div>
     </div>`;
@@ -1664,6 +1776,114 @@ if(btt){
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) render(); });
 setInterval(render, REFRESH_MS);
 setInterval(tickNow, 60*1000);   // keep the "on now" highlight current to the minute
+
+/* ---------- Detail sheet (tap any show card) ----------
+   Self-contained: reads data the page already loaded, so opening the sheet
+   makes no extra network calls. Works as a bottom sheet on phones and a
+   centered dialog on bigger screens. Esc, the ✕ button, or tapping the
+   dim background all close it; focus returns to the card you tapped.   */
+const sheetEls={
+  wrap: document.getElementById("sheetWrap"),
+  backdrop: document.getElementById("sheetBackdrop"),
+  close: document.getElementById("sheetClose"),
+  content: document.getElementById("sheetContent"),
+};
+let sheetLastFocus=null;
+
+function openSheet(d){
+  const heroImg = d.hero || d.poster || null;
+  const chips=[];
+  if(d.when) chips.push(`<span class="sheet-chip hot">${escapeHtml(d.when)}</span>`);
+  if(d.network) chips.push(`<span class="sheet-chip">${escapeHtml(d.network)}</span>`);
+  if(d.rating) chips.push(`<span class="sheet-chip">★ ${escapeHtml(String(d.rating))}</span>`);
+  if(d.runtime) chips.push(`<span class="sheet-chip">${escapeHtml(String(d.runtime))} min</span>`);
+  if(d.status && d.status!=="Running") chips.push(`<span class="sheet-chip">${escapeHtml(d.status)}</span>`);
+  (d.genres||[]).slice(0,4).forEach(g=>chips.push(`<span class="sheet-chip">${escapeHtml(g)}</span>`));
+
+  const secs=[];
+  if(d.epSummary) secs.push(`<div class="sheet-sec"><h3>This episode</h3><div class="sheet-desc">${escapeHtml(d.epSummary)}</div></div>`);
+  if(d.showSummary) secs.push(`<div class="sheet-sec"><h3>About the show</h3><div class="sheet-desc">${escapeHtml(d.showSummary)}</div></div>`);
+  if(!secs.length) secs.push(`<div class="sheet-sec"><div class="sheet-desc">No description is available for this one yet.</div></div>`);
+
+  const actions=[];
+  if(d.official) actions.push(`<a class="sheet-btn primary" href="${escapeHtml(d.official)}" target="_blank" rel="noopener">Official site</a>`);
+  if(d.tvmaze) actions.push(`<a class="sheet-btn" href="${escapeHtml(d.tvmaze)}" target="_blank" rel="noopener">More on TVmaze</a>`);
+
+  sheetEls.content.innerHTML=`
+    <div class="sheet-hero${heroImg?"":" noimg"}">${heroImg?`<img src="${escapeHtml(heroImg)}" alt="">`:""}</div>
+    <div class="sheet-body">
+      ${d.kicker?`<div class="sheet-kicker">${escapeHtml(d.kicker)}</div>`:""}
+      <div class="sheet-title" id="sheetTitle">${escapeHtml(d.title||"Untitled")}</div>
+      ${d.epLine?`<div class="sheet-ep">${escapeHtml(d.epLine)}</div>`:""}
+      ${chips.length?`<div class="sheet-meta">${chips.join("")}</div>`:""}
+      ${secs.join("")}
+      ${actions.length?`<div class="sheet-actions">${actions.join("")}</div>`:""}
+    </div>`;
+  sheetLastFocus=document.activeElement;
+  sheetEls.wrap.hidden=false;
+  document.body.classList.add("sheet-open");
+  sheetEls.close.focus();
+}
+function closeSheet(){
+  sheetEls.wrap.hidden=true;
+  document.body.classList.remove("sheet-open");
+  sheetEls.content.innerHTML="";
+  if(sheetLastFocus && sheetLastFocus.focus) sheetLastFocus.focus();
+  sheetLastFocus=null;
+}
+sheetEls.close.addEventListener("click", closeSheet);
+sheetEls.backdrop.addEventListener("click", closeSheet);
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape" && !sheetEls.wrap.hidden) closeSheet();
+});
+
+/* Build the sheet's data from a TVmaze schedule item. The streaming feed nests
+   the show under _embedded.show, so streamShow() reads the right one. */
+function detailFromItem(it, isStream){
+  const s = isStream ? streamShow(it) : (it.show||{});
+  const net=(s.network&&s.network.name)||(s.webChannel&&s.webChannel.name)||"";
+  const epbits=[];
+  if(it.season&&it.number) epbits.push(`Season ${it.season}, Episode ${it.number}`);
+  if(it.name && it.name!==s.name) epbits.push(it.name);
+  let when="";
+  if(isStream){ when="Streaming today"; }
+  else if(it.airtime){ when=`${prettyTime(it.airtime)} ${ampm(it.airtime)} ET`; }
+  return {
+    title: s.name||"Untitled",
+    kicker: isStream ? "Streaming premiere" : "On the air",
+    epLine: epbits.join(" · "),
+    hero: (s.image&&(s.image.original||s.image.medium))||null,
+    network: net,
+    when,
+    rating: (s.rating&&s.rating.average)||null,
+    runtime: it.runtime||s.averageRuntime||null,
+    status: s.status||"",
+    genres: s.genres||[],
+    epSummary: stripHtml(it.summary||""),
+    showSummary: stripHtml(s.summary||""),
+    official: s.officialSite||null,
+    tvmaze: s.url||null,
+  };
+}
+
+/* One delegated listener covers every card the grid ever paints. */
+function handleCardOpen(target){
+  const card=target.closest(".item[data-di],.item[data-sdi]");
+  if(!card) return false;
+  if(card.dataset.di!=null && card.dataset.di!==""){
+    const it=gridDetail[Number(card.dataset.di)];
+    if(it) openSheet(detailFromItem(it,false));
+  } else if(card.dataset.sdi!=null && card.dataset.sdi!==""){
+    const it=streamDetail[Number(card.dataset.sdi)];
+    if(it) openSheet(detailFromItem(it,true));
+  }
+  return true;
+}
+els.listings.addEventListener("click", e=>{ handleCardOpen(e.target); });
+els.listings.addEventListener("keydown", e=>{
+  if(e.key!=="Enter" && e.key!==" ") return;
+  if(handleCardOpen(e.target)) e.preventDefault();
+});
 
 /* ---------- init ---------- */
 els.year.textContent=new Date().getFullYear();
