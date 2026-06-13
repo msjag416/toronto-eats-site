@@ -244,7 +244,20 @@
   a.nfx-card:hover{border-color:var(--amber-deep);transform:translateY(-2px);box-shadow:var(--glow);}
   .nfx-poster{width:92px;height:130px;border-radius:10px;background:var(--bg-2);object-fit:cover;border:1px solid var(--line-soft);}
   .nfx-poster.ph{display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:var(--ink-faint);}
-  .nfx-body{min-width:0;display:flex;flex-direction:column;gap:5px;}
+  .nfx-body{min-width:0;display:flex;flex-direction:column;gap:5px;position:relative;}
+
+  /* flashing premiere / next-season badge on Coming Soon cards */
+  .prem-badge{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
+    margin-bottom:2px;padding:4px 11px;border-radius:999px;
+    background:linear-gradient(180deg,#ff8a8a,var(--coral));border:1px solid #ff5252;
+    color:#2a0606;font-size:.64rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    box-shadow:0 0 14px rgba(255,111,111,.4);
+    animation:prempulse 1.5s ease-in-out infinite;}
+  .prem-badge.pending{display:none;}   /* hidden until a date is confirmed */
+  .prem-badge .prem-flash{animation:premblink 1.5s ease-in-out infinite;}
+  .prem-badge .prem-date{background:rgba(0,0,0,.18);padding:1px 7px;border-radius:999px;letter-spacing:.03em;}
+  @keyframes prempulse{0%,100%{box-shadow:0 0 10px rgba(255,111,111,.30);}50%{box-shadow:0 0 22px rgba(255,111,111,.65);}}
+  @keyframes premblink{0%,100%{opacity:1;}50%{opacity:.5;}}
   .nfx-title{font-family:var(--display);font-weight:700;font-size:1.05rem;line-height:1.2;color:var(--ink);}
   .nfx-sub{font-size:.78rem;color:var(--ink-soft);}
   .nfx-genres{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px;}
@@ -1215,7 +1228,8 @@ async function tmdbSearchTV(query){
   }
 }
 
-function tmdbCard(show){
+function tmdbCard(show, opts){
+  opts=opts||{};
   const poster=show.poster_path ? TMDB_IMG+show.poster_path : null;
   const year=(show.first_air_date||"").slice(0,4);
   const rating=(show.vote_average && show.vote_count>=10) ? show.vote_average.toFixed(1) : null;
@@ -1224,9 +1238,13 @@ function tmdbCard(show){
   const desc=(show.overview||"").trim();
   const href=`https://www.themoviedb.org/tv/${show.id}`;
   const name=show.name||show.original_name||"Untitled";
+  // Coming-soon cards get an empty badge slot; a background lookup fills it with
+  // "Premieres <date>" or "Season N returns <date>" once TMDB confirms a date.
+  const premiereSlot = opts.premiere ? `<div class="prem-badge pending" data-prem-id="${show.id}"></div>` : "";
   const inner=`
     ${poster?`<img class="nfx-poster" src="${escapeHtml(poster)}" alt="" loading="lazy">`:`<div class="nfx-poster ph">🎬</div>`}
     <div class="nfx-body">
+      ${premiereSlot}
       <div class="nfx-title">${escapeHtml(name)}</div>
       ${sub?`<div class="nfx-sub">${escapeHtml(sub)}</div>`:""}
       ${genres.length?`<div class="nfx-genres">${genres.map(g=>`<span class="nfx-genre">${escapeHtml(g)}</span>`).join("")}</div>`:""}
@@ -1234,6 +1252,48 @@ function tmdbCard(show){
       <div class="nfx-ca loading">Checking Canadian availability...</div>
     </div>`;
   return `<a class="nfx-card" data-tv-id="${show.id}" href="${href}" target="_blank" rel="noopener" aria-label="Open ${escapeHtml(name)} on TMDB">${inner}</a>`;
+}
+
+/* Per-show premiere / next-season lookup. TMDB stores the next dated episode on
+   the show record (next_episode_to_air) along with its season number and the
+   total number of seasons, which is enough to tell a brand-new premiere from a
+   returning season. Cached an hour per show, same as the provider lookup. */
+const tmdbNextCache = {};
+async function tmdbNextAir(showId){
+  const c=tmdbNextCache[showId];
+  if(c && Date.now()-c.time < 60*60*1000) return c.info;
+  try{
+    const res=await fetch(`${TMDB_BASE}/tv/${showId}?language=en-US`, { headers:{ Authorization:"Bearer "+TMDB_TOKEN, accept:"application/json" }});
+    if(!res.ok) throw new Error("tv detail "+res.status);
+    const j=await res.json();
+    const ne=j.next_episode_to_air||null;
+    const info = ne && ne.air_date ? {
+      date: ne.air_date,
+      season: ne.season_number||null,
+      epNum: ne.episode_number||null,
+      totalSeasons: j.number_of_seasons||null,
+    } : null;
+    tmdbNextCache[showId]={info, time:Date.now()};
+    return info;
+  }catch(err){
+    if(c) return c.info;
+    return null;
+  }
+}
+
+/* Fill each coming-soon card's flashing badge. A first-ever episode
+   (season 1, episode 1) reads "Premieres"; anything else reads "Season N
+   returns". Cards with no confirmed date quietly drop the badge. */
+function fillPremiereBadges(){
+  els.featured.querySelectorAll(".prem-badge[data-prem-id]").forEach(async slot=>{
+    const info=await tmdbNextAir(slot.dataset.premId);
+    if(!info){ slot.remove(); return; }
+    const when=fmtReleaseDate(info.date);
+    const isReturn = (info.season && info.season>1) || (info.epNum && info.epNum>1) || (info.totalSeasons && info.totalSeasons>1);
+    const label = isReturn ? `Season ${info.season||""} returns`.replace(/\s+/g," ").trim() : "Premieres";
+    slot.classList.remove("pending");
+    slot.innerHTML=`<span class="prem-flash">${escapeHtml(label)}</span><span class="prem-date">${escapeHtml(when)}</span>`;
+  });
 }
 
 /* Per-show watch-provider lookup. Discovery stays global (with_networks), so
@@ -1378,7 +1438,7 @@ function renderNetflixWeek(){
       return;
     }
     const trendingHTML = trending.slice(0,8).map(tmdbCard).join("");
-    const upcomingHTML = upcoming.slice(0,8).map(tmdbCard).join("");
+    const upcomingHTML = upcoming.slice(0,8).map(s=>tmdbCard(s,{premiere:true})).join("");
     els.featured.innerHTML=`<div class="nba">
       <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
       <div class="svc-chips">${chips}</div>
@@ -1389,6 +1449,7 @@ function renderNetflixWeek(){
       <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. Discovery is global (network originals worldwide); the "In Canada" line per card uses TMDB's regional watch-provider data (via JustWatch).</div>
     </div>`;
     fillCanadaProviders();   // populate each card's "In Canada" line in the background
+    fillPremiereBadges();    // stamp the flashing premiere / next-season badge on Coming Soon cards
   }).catch(()=>{
     els.featured.innerHTML=`<div class="nba">
       <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
