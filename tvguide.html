@@ -205,6 +205,19 @@
   .game.passed{opacity:.5;}
   .game.passed .matchup{font-weight:500;}
 
+  /* live game in session: pulsing coral border + LIVE NOW badge */
+  .game.live{
+    border-color:var(--coral);
+    background:linear-gradient(180deg,rgba(255,111,111,.09),rgba(7,9,14,.5));
+    animation:livepulse 1.7s ease-in-out infinite;
+  }
+  @keyframes livepulse{
+    0%,100%{ box-shadow:0 0 0 1px rgba(255,111,111,.45),0 0 12px rgba(255,111,111,.10); }
+    50%   { box-shadow:0 0 0 2px var(--coral),0 0 26px rgba(255,111,111,.32); }
+  }
+  .glive .now-word{animation:liveblink 1.7s ease-in-out infinite;}
+  @keyframes liveblink{0%,100%{opacity:1;}50%{opacity:.45;}}
+
   /* World Cup star-player highlight: a slow amber pulse (≈0.4 Hz, well under
      accessibility flash thresholds) plus a small badge naming the player(s).
      The reduced-motion block further down disables the animation entirely. */
@@ -633,14 +646,15 @@ async function loadLeague(league){
   const c=leagueCache[league];
   if(c && (Date.now()-c.time < 5*60*1000)) return c.data;
   let start=new Date();
+  start.setDate(start.getDate()-2);   // reach two days back so finished games keep their final scores
   let end=new Date();
   if(league==="wc"){
-    // World Cup has fixed tournament dates; show from the opener (or today, once underway) forward
+    // World Cup has fixed tournament dates; never reach back before the opener
     const open=new Date("2026-06-11T00:00:00");
     if(start<open) start=open;
-    end=new Date(start); end.setDate(end.getDate()+18);
+    end=new Date(); end.setDate(end.getDate()+18);
   } else {
-    end.setDate(end.getDate()+13);   // two-week window
+    end.setDate(end.getDate()+13);   // two-week window ahead
   }
   try{
     const res=await fetch(`${ESPN_BASE}/${SPORT_PATH[league]}/scoreboard?dates=${ymd(start)}-${ymd(end)}&limit=300`);
@@ -668,6 +682,14 @@ function gameRowHTML(ev, opts){
           || (c.geoBroadcasts&&c.geoBroadcasts[0]&&c.geoBroadcasts[0].media&&c.geoBroadcasts[0].media.shortName)
           || "";
   const chan=opts.channelOverride!=null ? opts.channelOverride : usChan;
+  // World Cup rows show both countries' broadcasters: the live US channel from
+  // ESPN plus a fixed Canadian label (every match is on Bell Media networks).
+  const chans=[];
+  if(opts.caChan){
+    if(chan) chans.push("🇺🇸 "+chan);
+    chans.push("🇨🇦 "+opts.caChan);
+  } else if(chan){ chans.push(chan); }
+  const chanHTML=chans.map(c=>`<span class="chan">${escapeHtml(c)}</span>`).join("");
   const sep=opts.vs?"vs":"at";
   const sepScore=opts.vs?"vs":"@";
   const prefix=opts.labelPrefix?escapeHtml(opts.labelPrefix)+" · ":"";
@@ -702,18 +724,18 @@ function gameRowHTML(ev, opts){
     matchup=`<div class="matchup">${teamChip(away)} <span class="at">${sep}</span> ${teamChip(home)}</div>`;
     const d=new Date(ev.date);
     const t=d.toLocaleString([], {weekday:"short", hour:"numeric", minute:"2-digit"});
-    right=`<div class="gtime">${t}</div>`+(chan?`<span class="chan">${escapeHtml(chan)}</span>`:"");
+    right=`<div class="gtime">${t}</div>`+chanHTML;
   } else {
     const as=away.score!=null?away.score:"";
     const hs=home.score!=null?home.score:"";
     matchup=`<div class="matchup">${teamChip(away)} <span class="sc">${as}</span> <span class="at">${sepScore}</span> ${teamChip(home)} <span class="sc">${hs}</span></div>`;
     if(dstate==="in"){
-      right=`<span class="glive"><span class="d" aria-hidden="true"></span>${escapeHtml(st.shortDetail||"Live")}</span>`+(chan?`<span class="chan">${escapeHtml(chan)}</span>`:"");
+      right=`<span class="glive"><span class="d" aria-hidden="true"></span><span class="now-word">Live now</span> · ${escapeHtml(st.shortDetail||"")}</span>`+chanHTML;
     } else {
       right=`<span class="gfinal">${escapeHtml(st.shortDetail||"Final")}</span>`;
     }
   }
-  const extraClass=opts.extraClass?" "+opts.extraClass:"";
+  const extraClass=(opts.extraClass?" "+opts.extraClass:"")+(dstate==="in"?" live":"");
   const starBadgeHTML=opts.starBadge?`<div class="starbadge">⭐ Star · ${escapeHtml(opts.starBadge)}</div>`:"";
   return `<div class="game${extraClass}">
     <div>${starBadgeHTML}<div class="label">${label}</div>${matchup}${series}</div>
@@ -827,12 +849,12 @@ function tennisRowHTML(m){
     const t=m.date?new Date(m.date).toLocaleString([], {weekday:"short", hour:"numeric", minute:"2-digit"}):"TBD";
     right=`<div class="gtime">${t}</div>`;
   } else if(m.state==="in"){
-    right=`<span class="glive"><span class="d" aria-hidden="true"></span>${escapeHtml(m.status.shortDetail||"Live")}</span>`;
+    right=`<span class="glive"><span class="d" aria-hidden="true"></span><span class="now-word">Live now</span> · ${escapeHtml(m.status.shortDetail||"")}</span>`;
   } else {
     right=`<span class="gfinal">${escapeHtml(m.status.shortDetail||"Final")}</span>`;
   }
 
-  return `<div class="game">
+  return `<div class="game${m.state==="in"?" live":""}">
     <div><div class="label">${escapeHtml(label)}</div><div class="matchup">${aChip} <span class="at">vs</span> ${bChip}</div>${scoreLine}</div>
     <div class="gright">${right}</div>
   </div>`;
@@ -977,7 +999,7 @@ function renderWorldCup(){
         const name=starPlayerFor(c);
         return name ? { name, country:(c.team&&(c.team.abbreviation||c.team.displayName))||"" } : null;
       }).filter(Boolean);
-      const opts={ vs:true, showVenue:true, channelOverride:"", fallbackLabel:"World Cup" };
+      const opts={ vs:true, showVenue:true, caChan:"CTV / TSN / RDS", fallbackLabel:"World Cup" };
       if(stars.length){
         opts.extraClass="starmatch";
         opts.starBadge=stars.map(s=>`${s.name} (${s.country})`).join(" vs ");
