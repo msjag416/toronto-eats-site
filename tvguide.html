@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>On Air Tonight | Live US & Canada TV Guide | MsJAG</title>
+<title>On the Air TV Guide | Live US & Canada Listings | MsJAG</title>
 <meta name="description" content="A live TV guide for American and Canadian channels, updated automatically every time you open it. Browse tonight's shows, new movie releases in theatres and on streaming, and check what sports are on.">
 <meta name="author" content="MsJAG">
 <meta name="theme-color" content="#0e1116">
@@ -13,55 +13,127 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 <!-- Open Graph for sharing previews (iMessage, WhatsApp, Slack, Facebook, LinkedIn) -->
-<meta property="og:title" content="On Air Tonight | Live US & Canada TV Guide">
+<meta property="og:title" content="On the Air TV Guide | Live US & Canada Listings">
 <meta property="og:description" content="Live listings for American and Canadian channels, plus sports, movies and streaming. Always current.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://torontoeatsandreviews.com/tvguide.html">
 <meta property="og:image" content="https://torontoeatsandreviews.com/tvguide-og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="On Air Tonight — a live TV guide for USA, Canada, Sports, World Cup and Streaming.">
+<meta property="og:image:alt" content="On the Air TV Guide, a live guide for USA, Canada, Sports, World Cup and Streaming.">
 
 <!-- Twitter / X card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="On Air Tonight | Live US & Canada TV Guide">
+<meta name="twitter:title" content="On the Air TV Guide | Live US & Canada Listings">
 <meta name="twitter:description" content="Live listings for American and Canadian channels, plus sports, movies and streaming. Always current.">
 <meta name="twitter:image" content="https://torontoeatsandreviews.com/tvguide-og.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Spline+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=Spline+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 
+  /* ===== THEMES =====================================================
+     Aurora (cool dark) is the default in :root. Two override blocks add
+     Marquee (bright) and Noir (magenta dark). The page picks one via a
+     data-theme attribute on <html>; see the switcher script near the end.
+     --amber = main accent, --teal = secondary, --coral = live/alert. ===== */
   :root{
-    --bg:#07090e;
-    --bg-2:#0d1118;
-    --panel:rgba(255,255,255,.035);
-    --panel-2:rgba(255,255,255,.06);
-    --panel-solid:#11151d;
-    --line:rgba(255,255,255,.09);
-    --line-soft:rgba(255,255,255,.055);
-    --ink:#f2f5fa;
-    --ink-soft:#a9b4c4;
-    --ink-faint:#69758c;
-    --amber:#ffb347;
-    --amber-deep:#f59a2e;
-    --teal:#46d6c3;
-    --coral:#ff6f6f;
+    --bg:#0a0c14;
+    --bg-2:#141829;
+    --panel:rgba(255,255,255,.04);
+    --panel-2:rgba(255,255,255,.075);
+    --panel-solid:#141829;
+    --line:rgba(150,160,255,.13);
+    --line-soft:rgba(150,160,255,.08);
+    --ink:#eef0fb;
+    --ink-soft:#aab1d6;
+    --ink-faint:#727aa6;
+    --amber:#8b7bff;
+    --amber-deep:#6a5cf0;
+    --teal:#46e0e6;
+    --coral:#ff5c8a;
     --glow:0 14px 40px rgba(0,0,0,.5);
-    --radius:16px;
-    --display:'Bricolage Grotesque',serif;
+    --radius:18px;
+    --display:'Space Grotesk',sans-serif;
     --body:'Spline Sans',sans-serif;
+    --on-accent:#070912;
+    --accent-tint:rgba(139,123,255,.1);
+    --info-bg:rgba(70,224,230,.12);
+    --info-ink:#8df0f4;
+    --info-line:rgba(70,224,230,.32);
+    --alert-bg:rgba(255,92,138,.14);
+    --alert-ink:#ffaac4;
+    --alert-line:rgba(255,92,138,.35);
+    --page-bg:radial-gradient(1000px 560px at 92% -10%,rgba(106,92,240,.2),transparent 58%),radial-gradient(820px 520px at -10% 12%,rgba(70,224,230,.13),transparent 55%),#0a0c14;
+    --title-accent-bg:linear-gradient(120deg,#a89bff,#5fe7ec);
+  }
+  html[data-theme="marquee"]{
+    --bg:#f4f6f9;
+    --bg-2:#eef1f6;
+    --panel:#ffffff;
+    --panel-2:#ffffff;
+    --panel-solid:#ffffff;
+    --line:rgba(20,24,42,.13);
+    --line-soft:rgba(20,24,42,.09);
+    --ink:#14182a;
+    --ink-soft:#525a72;
+    --ink-faint:#8b93a7;
+    --amber:#d6178f;
+    --amber-deep:#a8106e;
+    --teal:#0fa37f;
+    --coral:#e23a3a;
+    --glow:0 12px 30px rgba(20,24,42,.1);
+    --radius:14px;
+    --display:'Archivo',sans-serif;
+    --body:'Inter',sans-serif;
+    --on-accent:#ffffff;
+    --accent-tint:rgba(214,23,143,.08);
+    --info-bg:#eef1f6;
+    --info-ink:#1f7a5e;
+    --info-line:rgba(15,163,127,.35);
+    --alert-bg:#fdeaea;
+    --alert-ink:#b42323;
+    --alert-line:rgba(226,58,58,.3);
+    --page-bg:#f4f6f9;
+    --title-accent-bg:linear-gradient(#d6178f,#d6178f);
+  }
+  html[data-theme="noir"]{
+    --bg:#101218;
+    --bg-2:#161922;
+    --panel:rgba(255,255,255,.04);
+    --panel-2:rgba(255,255,255,.075);
+    --panel-solid:#171a22;
+    --line:rgba(255,255,255,.1);
+    --line-soft:rgba(255,255,255,.06);
+    --ink:#f4f5fa;
+    --ink-soft:#aab2c4;
+    --ink-faint:#6c7588;
+    --amber:#ff4fae;
+    --amber-deep:#e0318f;
+    --teal:#46d6c3;
+    --coral:#ff5a5a;
+    --glow:0 14px 40px rgba(0,0,0,.5);
+    --radius:14px;
+    --display:'Archivo',sans-serif;
+    --body:'Inter',sans-serif;
+    --on-accent:#2a0518;
+    --accent-tint:rgba(255,79,174,.1);
+    --info-bg:rgba(70,214,195,.12);
+    --info-ink:#7fe6da;
+    --info-line:rgba(70,214,195,.3);
+    --alert-bg:rgba(255,90,90,.14);
+    --alert-ink:#ff9a9a;
+    --alert-line:rgba(255,90,90,.35);
+    --page-bg:radial-gradient(900px 520px at 88% -12%,rgba(255,79,174,.14),transparent 56%),radial-gradient(700px 480px at -8% 8%,rgba(120,90,255,.1),transparent 55%),#101218;
+    --title-accent-bg:linear-gradient(#ff4fae,#ff4fae);
   }
 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html{scroll-behavior:smooth;}
   body{
-    background:
-      radial-gradient(1100px 540px at 85% -12%, rgba(255,179,71,.09), transparent 60%),
-      radial-gradient(850px 480px at -12% 6%, rgba(70,214,195,.07), transparent 55%),
-      var(--bg);
+    background:var(--page-bg);
     color:var(--ink);
     font-family:var(--body);
     line-height:1.55;
@@ -70,12 +142,7 @@
   }
 
   /* faint scanline texture for a broadcast feel */
-  body::before{
-    content:"";
-    position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:repeating-linear-gradient(to bottom,rgba(255,255,255,.01) 0 1px,transparent 1px 3px);
-    mix-blend-mode:overlay;
-  }
+  body::before{display:none;}
 
   .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 18px;}
 
@@ -86,13 +153,13 @@
     font-family:var(--body);font-weight:600;letter-spacing:.24em;
     text-transform:uppercase;font-size:.66rem;color:var(--amber);
   }
-  .kicker a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,179,71,.45);}
+  .kicker a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--amber);}
   h1{
     font-family:var(--display);font-weight:800;line-height:.98;
     font-size:clamp(2.1rem,6vw,3.6rem);letter-spacing:-.02em;margin-top:6px;
   }
   h1 .on{
-    background:linear-gradient(180deg,#ffd28a,var(--amber) 55%,var(--amber-deep));
+    background:var(--title-accent-bg);
     -webkit-background-clip:text;background-clip:text;color:transparent;
   }
   .blurb{color:var(--ink-soft);max-width:62ch;margin-top:10px;font-size:.96rem;}
@@ -102,6 +169,13 @@
   }
   .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(70,214,195,.6);animation:pulse 2s infinite;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(70,214,195,.55);}70%{box-shadow:0 0 0 9px rgba(70,214,195,0);}100%{box-shadow:0 0 0 0 rgba(70,214,195,0);}}
+
+  /* theme switcher (Auto / Light / Noir / Aurora) */
+  .themer{display:flex;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap;}
+  .themer .tl{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-right:2px;}
+  .themebtn{appearance:none;border:1px solid var(--line-soft);background:var(--panel);color:var(--ink-soft);font-family:var(--body);font-size:.74rem;font-weight:600;padding:6px 13px;border-radius:999px;cursor:pointer;min-height:32px;transition:border-color .15s,color .15s,background .15s;}
+  .themebtn:hover{border-color:var(--amber);color:var(--ink);}
+  .themebtn.active{background:var(--amber);color:var(--on-accent);border-color:var(--amber);}
 
   /* ---------- Controls ---------- */
   .controls{margin-top:18px;display:flex;flex-direction:column;gap:14px;}
@@ -126,7 +200,7 @@
     flex:0 0 auto;min-height:40px;
   }
   .tab:hover{color:var(--ink);}
-  .tab.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;box-shadow:0 4px 16px rgba(245,154,46,.35);}
+  .tab.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:var(--on-accent);box-shadow:0 4px 16px color-mix(in srgb,var(--amber-deep) 32%,transparent);}
 
   .row2{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
 
@@ -158,7 +232,7 @@
   .updated{font-size:.76rem;color:var(--ink-faint);}
   .count{font-size:.76rem;color:var(--ink-faint);}
   .note{
-    margin-top:12px;background:rgba(70,214,195,.06);border:1px solid rgba(70,214,195,.22);
+    margin-top:12px;background:var(--info-bg);border:1px solid var(--info-line);
     border-radius:14px;padding:12px 15px;font-size:.82rem;color:var(--ink-soft);
   }
   .note b{color:var(--teal);}
@@ -170,17 +244,17 @@
   .catbtn.active{background:var(--panel-2);border-color:var(--amber);color:var(--amber);}
 
   /* "on now" highlight */
-  .item.now{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-deep),0 10px 30px rgba(245,154,46,.14);}
-  .badge.b-now{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;border:1px solid var(--amber-deep);}
+  .item.now{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-deep),0 10px 30px color-mix(in srgb,var(--amber-deep) 16%,transparent);}
+  .badge.b-now{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:var(--on-accent);border:1px solid var(--amber-deep);}
 
   /* ---------- Featured panels ---------- */
   .featured{margin-top:16px;}
   .nba{
-    background:linear-gradient(180deg,rgba(255,179,71,.07),rgba(255,255,255,.025));
+    background:linear-gradient(180deg,var(--accent-tint),var(--panel-2));
     border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;
   }
   .nba h2{font-family:var(--display);font-weight:800;font-size:1.12rem;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
-  .nba h2 .tag{font-family:var(--body);font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#241704;background:linear-gradient(180deg,var(--amber),var(--amber-deep));padding:3px 10px;border-radius:999px;}
+  .nba h2 .tag{font-family:var(--body);font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--on-accent);background:linear-gradient(180deg,var(--amber),var(--amber-deep));padding:3px 10px;border-radius:999px;}
   .nba .sub{font-size:.8rem;color:var(--ink-soft);margin:4px 0 14px;}
   .games{display:flex;flex-direction:column;gap:8px;}
   .game{
@@ -199,7 +273,7 @@
   .glive{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--coral);display:inline-flex;align-items:center;gap:6px;}
   .glive .d{width:7px;height:7px;border-radius:50%;background:var(--coral);animation:pulse 1.4s infinite;}
   .gfinal{font-size:.76rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;}
-  .chan{font-size:.66rem;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:7px;background:rgba(70,214,195,.13);color:#7fe6da;border:1px solid rgba(70,214,195,.3);}
+  .chan{font-size:.66rem;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:7px;background:var(--info-bg);color:var(--info-ink);border:1px solid var(--info-line);}
   .nba .empty{font-size:.84rem;color:var(--ink-soft);padding:6px 2px;}
   .nba .src{font-size:.68rem;color:var(--ink-faint);margin-top:12px;}
   .game.passed{opacity:.5;}
@@ -233,7 +307,7 @@
   .starbadge{
     display:inline-flex;align-items:center;gap:6px;
     font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-    color:#241704;background:linear-gradient(180deg,var(--amber),var(--amber-deep));
+    color:var(--on-accent);background:linear-gradient(180deg,var(--amber),var(--amber-deep));
     padding:4px 10px;border-radius:999px;border:1px solid var(--amber-deep);
     margin-bottom:6px;
   }
@@ -277,7 +351,7 @@
   .svc-chips::-webkit-scrollbar{display:none;}
   .svc-chip{flex:0 0 auto;appearance:none;border:1px solid var(--line-soft);background:var(--panel);color:var(--ink-soft);font-family:var(--body);font-size:.78rem;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;transition:border-color .16s,color .16s;white-space:nowrap;min-height:36px;}
   .svc-chip:hover{border-color:var(--amber-deep);color:var(--ink);}
-  .svc-chip.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;border-color:var(--amber-deep);}
+  .svc-chip.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:var(--on-accent);border-color:var(--amber-deep);}
 
   /* ---------- Listings ---------- */
   .listings{margin-top:16px;display:flex;flex-direction:column;gap:10px;padding-bottom:30px;}
@@ -311,8 +385,8 @@
 
   .badges{grid-area:badges;display:flex;flex-direction:column;gap:5px;align-items:flex-end;}
   .badge{font-size:.64rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:999px;white-space:nowrap;}
-  .b-sports{background:rgba(255,111,111,.14);color:#ff9a9a;border:1px solid rgba(255,111,111,.35);}
-  .b-news{background:rgba(70,214,195,.12);color:#7fe6da;border:1px solid rgba(70,214,195,.3);}
+  .b-sports{background:var(--alert-bg);color:var(--alert-ink);border:1px solid var(--alert-line);}
+  .b-news{background:var(--info-bg);color:var(--info-ink);border:1px solid var(--info-line);}
   .b-default{background:rgba(255,255,255,.05);color:var(--ink-soft);border:1px solid var(--line-soft);}
 
   /* ---------- Detail sheet (tap a show) ---------- */
@@ -335,7 +409,7 @@
   .sheet-hero{position:relative;height:200px;background:var(--bg-2);}
   .sheet-hero img{width:100%;height:100%;object-fit:cover;display:block;}
   .sheet-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(17,21,29,.05) 25%,var(--panel-solid) 100%);}
-  .sheet-hero.noimg{height:64px;background:linear-gradient(180deg,rgba(255,179,71,.1),transparent);}
+  .sheet-hero.noimg{height:64px;background:linear-gradient(180deg,var(--accent-tint),transparent);}
   .sheet-grip{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:42px;height:5px;border-radius:999px;background:rgba(255,255,255,.35);z-index:2;}
   @media (min-width:640px){ .sheet-grip{display:none;} }
   .sheet-close{
@@ -353,7 +427,7 @@
   .sheet-ep{font-size:.92rem;color:var(--ink-soft);margin-top:6px;}
   .sheet-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
   .sheet-chip{font-size:.7rem;font-weight:600;letter-spacing:.03em;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.05);color:var(--ink-soft);border:1px solid var(--line-soft);}
-  .sheet-chip.hot{background:rgba(255,179,71,.12);color:var(--amber);border-color:rgba(255,179,71,.35);}
+  .sheet-chip.hot{background:var(--accent-tint);color:var(--amber);border-color:var(--accent-tint);}
   .sheet-sec{margin-top:18px;}
   .sheet-sec h3{font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:7px;}
   .sheet-desc{font-size:.92rem;color:var(--ink-soft);line-height:1.6;}
@@ -365,7 +439,7 @@
     color:var(--ink);background:var(--panel-2);transition:border-color .16s,filter .16s;
   }
   .sheet-btn:hover{border-color:var(--amber-deep);}
-  .sheet-btn.primary{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;border-color:var(--amber-deep);}
+  .sheet-btn.primary{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:var(--on-accent);border-color:var(--amber-deep);}
   .sheet-btn.primary:hover{filter:brightness(1.06);}
   body.sheet-open{overflow:hidden;}
 
@@ -375,7 +449,7 @@
   .spinner{width:38px;height:38px;border:3px solid var(--line);border-top-color:var(--amber);border-radius:50%;margin:0 auto 18px;animation:spin .8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
   .retry{margin-top:16px;border:1px solid var(--amber);background:transparent;color:var(--amber);padding:11px 20px;border-radius:12px;cursor:pointer;font-family:var(--body);font-weight:600;min-height:44px;}
-  .retry:hover{background:var(--amber);color:#241704;}
+  .retry:hover{background:var(--amber);color:var(--on-accent);}
 
   /* ---------- Footer ---------- */
   footer.site{border-top:1px solid var(--line-soft);padding:26px 0 calc(40px + env(safe-area-inset-bottom));color:var(--ink-faint);font-size:.8rem;text-align:center;}
@@ -416,7 +490,7 @@
   /* back-to-top button */
   .btt{
     position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;
-    border:1px solid var(--amber-deep);background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#241704;
+    border:1px solid var(--amber-deep);background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:var(--on-accent);
     font-size:1.15rem;font-weight:800;line-height:1;cursor:pointer;z-index:60;
     box-shadow:0 8px 24px rgba(0,0,0,.35);
     opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s, transform .2s;
@@ -426,6 +500,9 @@
   .btt:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
 
 </style>
+<script>
+(function(){try{var s=localStorage.getItem("otaTheme")||"auto";var t=s;if(s==="auto"){var h=new Date().getHours();t=(h>=7&&h<19)?"marquee":"aurora";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","marquee");}})();
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -434,9 +511,16 @@
     <div class="brandrow">
       <span class="kicker"><a href="https://torontoeatsandreviews.com">Toronto Eats &amp; Reviews</a> · MsJAG</span>
     </div>
-    <h1><span class="on">On&nbsp;Air</span> Tonight</h1>
+    <h1><span class="on">On the Air</span> TV Guide</h1>
     <p class="blurb">A live guide to what's playing on American and Canadian channels right now, with a sports section. Tap any show for the full story, artwork and details. Listings refresh on their own every time you open the page.</p>
     <span class="live"><span class="dot" aria-hidden="true"></span> Live data, auto-updating</span>
+    <div class="themer" id="themer" role="group" aria-label="Choose a colour theme">
+      <span class="tl">Theme</span>
+      <button class="themebtn" type="button" data-set="auto" aria-pressed="true">Auto</button>
+      <button class="themebtn" type="button" data-set="marquee" aria-pressed="false">Light</button>
+      <button class="themebtn" type="button" data-set="noir" aria-pressed="false">Noir</button>
+      <button class="themebtn" type="button" data-set="aurora" aria-pressed="false">Aurora</button>
+    </div>
   </header>
 
   <nav class="tabs" id="tabs" role="tablist" aria-label="TV guide sections">
@@ -498,7 +582,7 @@
 
 <script>
 /* =========================================================
-   On Air Tonight — live TV guide
+   On the Air TV Guide - live TV guide
 
    ARCHITECTURE (plain-English)
    - One static HTML file. No server, no build step, no keys.
@@ -2184,6 +2268,36 @@ buildDateButtons();
 syncTabUI();
 render();
 window.addEventListener("hashchange",()=>{ readHash(); state.query=""; els.search.value=""; buildDateButtons(); syncTabUI(); render(); });
+
+/* ---------- theme switcher (Auto / Light / Noir / Aurora) ----------
+   "auto" follows the clock: Light (Marquee) from 7am, Aurora after 7pm.
+   A manual pick is saved and overrides the clock until "Auto" is chosen
+   again. Saved in localStorage; degrades gracefully if storage is blocked. */
+(function(){
+  var root=document.documentElement;
+  var themer=document.getElementById("themer");
+  var KEY="otaTheme";
+  function nightAware(){ var h=new Date().getHours(); return (h>=7 && h<19) ? "marquee" : "aurora"; }
+  function resolve(set){ return set==="auto" ? nightAware() : set; }
+  function getSaved(){ try{ return localStorage.getItem(KEY)||"auto"; }catch(e){ return "auto"; } }
+  function apply(set){
+    root.setAttribute("data-theme", resolve(set));
+    if(themer){ themer.querySelectorAll(".themebtn").forEach(function(b){
+      var on=b.dataset.set===set;
+      b.classList.toggle("active",on);
+      b.setAttribute("aria-pressed", on?"true":"false");
+    }); }
+  }
+  apply(getSaved());
+  if(themer){ themer.addEventListener("click",function(e){
+    var b=e.target.closest(".themebtn"); if(!b) return;
+    try{ localStorage.setItem(KEY,b.dataset.set); }catch(err){}
+    apply(b.dataset.set);
+  }); }
+  document.addEventListener("visibilitychange",function(){
+    if(!document.hidden && getSaved()==="auto") apply("auto");
+  });
+})();
 </script>
 </body>
 </html>
