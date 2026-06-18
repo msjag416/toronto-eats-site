@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TO-Sync — Toronto Daily Event Ingestion Dashboard</title>
+<meta name="description" content="TO-Sync: a live Toronto event feed with real, verifiable events, pipeline dev tools, an architecture view, and an interactive neighborhood map. Every event links to its source.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b0f17'/%3E%3Cpath d='M30 64 L50 30 L70 64' stroke='%2353e0d4' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='72' r='6' fill='%23f5c14e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070a11; --bg-2:#0b1018;
+    --glass:rgba(255,255,255,0.045); --glass-2:rgba(255,255,255,0.07);
+    --stroke:rgba(255,255,255,0.10); --stroke-2:rgba(255,255,255,0.16);
+    --txt:#e9eef6; --muted:#8a96aa; --faint:#5e6a7e;
+    --cyan:#53e0d4; --green:#5ad17f; --amber:#f5c14e; --rose:#ff6a8e; --violet:#9d8bff;
+    --radius:16px; --shadow:0 18px 50px rgba(0,0,0,0.45);
+    --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+    --disp:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--body); color:var(--txt);
+    background:
+      radial-gradient(1100px 700px at 12% -8%, rgba(83,224,212,0.10), transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, rgba(157,139,255,0.10), transparent 55%),
+      radial-gradient(800px 600px at 50% 120%, rgba(245,193,78,0.06), transparent 55%),
+      linear-gradient(180deg,var(--bg),var(--bg-2));
+    background-attachment:fixed; min-height:100vh; -webkit-font-smoothing:antialiased; line-height:1.5;
+  }
+  a{color:inherit}
+  ::selection{background:rgba(83,224,212,0.3)}
+  .wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
+
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:6px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:46px;height:46px;border-radius:13px;flex:0 0 auto;background:linear-gradient(140deg,rgba(83,224,212,0.22),rgba(157,139,255,0.18));border:1px solid var(--stroke-2);display:grid;place-items:center;box-shadow:var(--shadow)}
+  .logo svg{width:26px;height:26px}
+  .brand h1{font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:0.5px;margin:0;line-height:1}
+  .brand h1 b{color:var(--cyan);font-weight:700}
+  .brand .sub{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:0.3px}
+  .clock{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-align:right}
+  .clock .live{display:inline-flex;align-items:center;gap:7px;color:var(--amber);font-weight:600}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 0 rgba(245,193,78,0.6);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,193,78,0.55)}70%{box-shadow:0 0 0 9px rgba(245,193,78,0)}100%{box-shadow:0 0 0 0 rgba(245,193,78,0)}}
+  .verified{font-size:12px;color:var(--faint);margin:2px 0 16px}
+  .verified b{color:var(--green);font-weight:600}
+
+  .ribbon{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+  .stat{background:var(--glass);border:1px solid var(--stroke);border-radius:var(--radius);padding:14px 16px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);position:relative;overflow:hidden}
+  .stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent,var(--cyan));opacity:0.85}
+  .stat .k{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--faint);font-weight:600}
+  .stat .v{font-family:var(--disp);font-weight:700;font-size:26px;margin-top:4px;font-variant-numeric:tabular-nums}
+  .stat .m{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .stat.s-free{--accent:var(--green)} .stat.s-dupe{--accent:var(--rose)} .stat.s-lines{--accent:var(--violet)} .stat.s-db{--accent:var(--cyan)}
+
+  nav.tabs{display:flex;gap:6px;background:var(--glass);border:1px solid var(--stroke);border-radius:14px;padding:6px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);margin-bottom:20px;flex-wrap:wrap}
+  .tab{flex:1 1 auto;min-width:120px;border:0;background:transparent;color:var(--muted);font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:0.3px;padding:11px 14px;border-radius:10px;cursor:pointer;transition:.18s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .tab:hover{color:var(--txt)}
+  .tab[aria-selected="true"]{background:linear-gradient(140deg,rgba(83,224,212,0.18),rgba(157,139,255,0.14));color:var(--txt);box-shadow:inset 0 0 0 1px var(--stroke-2)}
+  .tab .ic{width:16px;height:16px;opacity:.9}
+
+  .view{display:none;animation:fade .35s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .panel{background:var(--glass);border:1px solid var(--stroke);border-radius:var(--radius);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow)}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.6px;color:var(--cyan);font-weight:600}
+  h2.sec{font-family:var(--disp);font-weight:700;font-size:19px;margin:6px 0 2px}
+  .sec-note{font-size:13px;color:var(--muted);margin:0}
+
+  .filters{padding:18px;margin-bottom:18px}
+  .frow{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--faint);font-weight:600}
+  .search{flex:1 1 240px;min-width:200px}
+  input[type="text"],select{font-family:var(--body);font-size:14px;color:var(--txt);background:rgba(255,255,255,0.04);border:1px solid var(--stroke);border-radius:10px;padding:10px 12px;outline:none;transition:.15s;width:100%}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%238a96aa' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px;cursor:pointer}
+  input[type="text"]:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(83,224,212,0.16)}
+  .seg{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--stroke);border-radius:10px;overflow:hidden}
+  .seg button{border:0;background:transparent;color:var(--muted);font-family:var(--body);font-weight:500;font-size:13px;padding:9px 13px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .seg button[aria-pressed="true"]{background:var(--seg,rgba(83,224,212,0.16));color:var(--txt)}
+  .seg.price button[aria-pressed="true"]{--seg:rgba(90,209,127,0.18)}
+
+  .chiprow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .chip{border:1px solid var(--stroke);background:rgba(255,255,255,0.03);color:var(--muted);font-size:12.5px;font-weight:500;padding:6px 12px;border-radius:999px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px}
+  .chip:hover{color:var(--txt);border-color:var(--stroke-2)}
+  .chip[aria-pressed="true"]{color:#08110f;background:var(--cyan);border-color:transparent;font-weight:600}
+  .chip .swatch{width:8px;height:8px;border-radius:50%;background:var(--c,var(--cyan))}
+  .chip[aria-pressed="true"] .swatch{background:#08110f}
+
+  .filterhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;flex-wrap:wrap}
+  .resultline{font-size:13px;color:var(--muted)}
+  .resultline b{color:var(--txt);font-variant-numeric:tabular-nums}
+  .linkbtn{background:none;border:0;color:var(--cyan);font-family:var(--body);font-weight:600;font-size:13px;cursor:pointer;padding:0}
+  .linkbtn:hover{text-decoration:underline}
+  .subfilters{display:flex;flex-direction:column;gap:10px;margin-top:14px;border-top:1px solid var(--stroke);padding-top:14px}
+  .sf{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .sf .lab{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--faint);font-weight:600;min-width:74px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--glass);border:1px solid var(--stroke);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden;transition:.18s;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  a.card:hover{transform:translateY(-3px);border-color:var(--stroke-2);box-shadow:var(--shadow)}
+  .card .cat-strip{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c,var(--cyan))}
+  .card h3{font-family:var(--disp);font-weight:600;font-size:16px;margin:0 0 2px;line-height:1.25}
+  .card .venue{font-size:12.5px;color:var(--muted)}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+  .b{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;letter-spacing:.2px;border:1px solid transparent}
+  .b.cat{background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c);border-color:color-mix(in srgb,var(--c) 35%,transparent)}
+  .b.free{background:rgba(90,209,127,0.14);color:var(--green)}
+  .b.paid{background:rgba(255,106,142,0.13);color:var(--rose)}
+  .b.src{background:rgba(255,255,255,0.05);color:var(--muted)}
+  .b.new{background:var(--amber);color:#1a1405}
+  .card p.desc{font-size:13px;color:#c4ccd9;margin:11px 0 0}
+  .card .meta{display:flex;justify-content:space-between;align-items:center;margin-top:13px;padding-top:12px;border-top:1px solid var(--stroke);font-size:12.5px;gap:10px}
+  .card .when{font-family:var(--mono);color:var(--cyan);font-weight:500}
+  .card .verify{color:var(--muted);font-weight:600;white-space:nowrap}
+  a.card:hover .verify{color:var(--cyan)}
+  .card .hood{color:var(--faint);font-size:12px;margin-top:9px}
+  .empty{padding:50px 20px;text-align:center;color:var(--muted)}
+  .empty .big{font-family:var(--disp);font-size:17px;color:var(--txt);margin-bottom:6px}
+
+  .dev-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px}
+  .block{padding:18px}
+  .stages{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  .stage{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--stroke);border-radius:11px;background:rgba(255,255,255,0.02);transition:.2s}
+  .stage .n{font-family:var(--mono);font-size:12px;color:var(--faint);width:22px;flex:0 0 auto}
+  .stage .nm{font-family:var(--disp);font-weight:600;font-size:14px;flex:1}
+  .stage .st{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+  .stage.run{border-color:rgba(245,193,78,0.5);background:rgba(245,193,78,0.07)} .stage.run .st{color:var(--amber)}
+  .stage.done{border-color:rgba(90,209,127,0.4)} .stage.done .st{color:var(--green)}
+  .stage .spin{width:13px;height:13px;border:2px solid rgba(245,193,78,0.3);border-top-color:var(--amber);border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .progress{height:6px;border-radius:6px;background:rgba(255,255,255,0.06);overflow:hidden;margin-top:14px}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .3s}
+
+  .btn{font-family:var(--disp);font-weight:600;font-size:13.5px;letter-spacing:.3px;border:1px solid var(--stroke-2);background:rgba(255,255,255,0.05);color:var(--txt);padding:10px 16px;border-radius:11px;cursor:pointer;transition:.16s;display:inline-flex;align-items:center;gap:8px}
+  .btn:hover{background:rgba(255,255,255,0.09);border-color:var(--cyan)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.primary{background:linear-gradient(140deg,rgba(83,224,212,0.9),rgba(83,224,212,0.7));color:#06120f;border-color:transparent}
+  .btn.primary:hover{filter:brightness(1.06)}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+  .console{font-family:var(--mono);font-size:12px;background:#05080d;border:1px solid var(--stroke);border-radius:11px;padding:13px;height:188px;overflow:auto;margin-top:14px;line-height:1.65}
+  .console .ln{white-space:pre-wrap;word-break:break-word}
+  .console .t{color:var(--faint)}
+  .console .ok{color:var(--green)} .console .warn{color:var(--amber)} .console .err{color:var(--rose)} .console .info{color:var(--cyan)}
+
+  .scrapers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+  .scraper{border:1px solid var(--stroke);border-radius:11px;padding:13px;background:rgba(255,255,255,0.02);text-align:left}
+  .scraper .s-src{font-family:var(--disp);font-weight:600;font-size:13.5px}
+  .scraper .s-kind{font-family:var(--mono);font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+  .scraper .btn{width:100%;justify-content:center;margin-top:11px;font-size:12.5px;padding:8px}
+
+  .json{font-family:var(--mono);font-size:11.5px;background:#05080d;border:1px solid var(--stroke);border-radius:11px;padding:14px;overflow:auto;max-height:300px;margin-top:12px;line-height:1.6}
+  .json .key{color:var(--cyan)} .json .str{color:var(--green)} .json .num{color:var(--amber)} .json .bool{color:var(--violet)} .json .pn{color:var(--faint)}
+
+  .dedupe .pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .dedupe .rec{border:1px solid var(--stroke);border-radius:11px;padding:12px;font-family:var(--mono);font-size:11.5px;background:rgba(255,255,255,0.02)}
+  .dedupe .rec .lbl{color:var(--faint);text-transform:uppercase;letter-spacing:.6px;font-size:10px;margin-bottom:6px}
+  .dedupe .rec .field2{margin-bottom:5px} .dedupe .rec .field2 span{color:var(--cyan)}
+  .verdict{margin-top:14px;border:1px solid var(--stroke);border-radius:11px;padding:14px;display:none}
+  .verdict.show{display:block}
+  .verdict .score{font-family:var(--disp);font-size:30px;font-weight:700}
+  .verdict.block{border-color:rgba(255,106,142,0.5);background:rgba(255,106,142,0.07)} .verdict.block .score{color:var(--rose)}
+  .verdict.keep{border-color:rgba(90,209,127,0.5);background:rgba(90,209,127,0.07)} .verdict.keep .score{color:var(--green)}
+  .verdict .vt{font-family:var(--disp);font-weight:600;margin-bottom:4px}
+  .verdict .vd{font-size:12.5px;color:var(--muted)}
+
+  .arch-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+  .arch-svg{width:100%;height:auto;display:block}
+  .node{cursor:pointer}
+  .node rect{fill:rgba(255,255,255,0.04);stroke:var(--stroke-2);stroke-width:1.2;transition:.18s}
+  .node:hover rect,.node.sel rect{fill:rgba(83,224,212,0.12);stroke:var(--cyan)}
+  .node text{fill:var(--txt);font-family:var(--disp);font-weight:600;font-size:13px}
+  .node .ntype{fill:var(--faint);font-family:var(--mono);font-size:9.5px;letter-spacing:.5px}
+  .flowline{stroke:var(--stroke-2);stroke-width:1.6;fill:none;marker-end:url(#arrow)}
+  .flowline.dash{stroke-dasharray:5 5;stroke:var(--violet)}
+  .archinfo{padding:18px}
+  .archinfo .ai-type{font-family:var(--mono);font-size:11px;color:var(--cyan);text-transform:uppercase;letter-spacing:1px}
+  .archinfo h3{font-family:var(--disp);font-size:18px;margin:6px 0 8px}
+  .archinfo p{font-size:13.5px;color:#c4ccd9;margin:0 0 10px}
+  .archinfo .tag{font-family:var(--mono);font-size:11px;color:var(--muted);background:rgba(255,255,255,0.05);border:1px solid var(--stroke);padding:3px 8px;border-radius:7px;display:inline-block;margin:3px 4px 0 0}
+
+  .map-wrap{padding:18px}
+  .map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .map-svg{width:100%;height:auto;display:block;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.015),rgba(0,0,0,0.15))}
+  .zone{cursor:pointer}
+  .zone rect{fill:rgba(255,255,255,0.05);stroke:var(--stroke-2);stroke-width:1.2;transition:.18s}
+  .zone:hover rect{fill:rgba(83,224,212,0.12);stroke:var(--cyan)}
+  .zone.active rect{fill:rgba(83,224,212,0.2);stroke:var(--cyan);stroke-width:1.8}
+  .zone.empty rect{opacity:.4} .zone.empty .zl{opacity:.5}
+  .zone .zl{fill:var(--txt);font-family:var(--disp);font-weight:600;font-size:12.5px;pointer-events:none}
+  .zone.active .zl{fill:var(--cyan)}
+  .zone .zc{fill:var(--amber);font-family:var(--mono);font-size:10.5px;font-weight:600;pointer-events:none}
+  .zone .ring{fill:none;stroke:var(--cyan);stroke-width:1.5;opacity:0;transition:.2s}
+  .zone.active .ring{opacity:1;animation:zring 2s infinite}
+  @keyframes zring{0%{opacity:.7}50%{opacity:.2}100%{opacity:.7}}
+  .gardiner{stroke:var(--amber);stroke-width:5;fill:none;stroke-linecap:round;opacity:.65;filter:drop-shadow(0 0 6px rgba(245,193,78,0.5))}
+  .gardiner-lbl{fill:var(--amber);font-family:var(--mono);font-size:10px;letter-spacing:2px;opacity:.8}
+  .lake-lbl{fill:var(--faint);font-family:var(--mono);font-size:11px;letter-spacing:3px}
+  .compass{fill:var(--faint);font-family:var(--mono);font-size:11px;font-weight:600}
+  .map-feed-note{margin-top:14px;padding:13px 16px;border:1px solid var(--stroke);border-radius:11px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+  .map-feed-note b{color:var(--txt)}
+
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:rgba(11,16,24,0.96);border:1px solid var(--stroke-2);border-radius:12px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:50;backdrop-filter:blur(10px);max-width:90vw}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast .ti{font-weight:600;margin-right:6px}
+  #toast.good .ti{color:var(--green)} #toast.warn .ti{color:var(--amber)} #toast.block .ti{color:var(--rose)} #toast.info .ti{color:var(--cyan)}
+
+  footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--stroke);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--faint)}
+  footer a{color:var(--muted);text-decoration:none} footer a:hover{color:var(--cyan)}
+  *:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:6px}
+
+  @media (max-width:880px){
+    .ribbon{grid-template-columns:repeat(2,1fr)}
+    .dev-grid,.arch-grid{grid-template-columns:1fr}
+    .scrapers{grid-template-columns:1fr}
+    .dedupe .pair{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){ *{animation:none !important;transition:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><svg viewBox="0 0 100 100"><path d="M30 64 L50 30 L70 64" stroke="#53e0d4" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="73" r="6" fill="#f5c14e"/></svg></div>
+      <div><h1>TO<b>·</b>Sync</h1><div class="sub">Toronto Daily Event Ingestion Dashboard</div></div>
+    </div>
+    <div class="clock"><div class="live"><span class="dot"></span> LIVE FEED</div><div id="clock-time">—</div></div>
+  </header>
+  <div class="verified">Real Toronto events, <b>verified June 2026</b>. Tap any event card to open and confirm it at the original source. Dates and details can change, so always check the source link.</div>
+
+  <section class="ribbon" aria-label="Live ingestion metrics">
+    <div class="stat s-free"><div class="k">Free events ratio</div><div class="v" id="st-free">—</div><div class="m" id="st-free-m">of curated feed</div></div>
+    <div class="stat s-dupe"><div class="k">Dupes blocked today</div><div class="v" id="st-dupe">0</div><div class="m">caught by dedupe engine</div></div>
+    <div class="stat s-lines"><div class="k">Total parsed lines</div><div class="v" id="st-lines">—</div><div class="m">across all source feeds</div></div>
+    <div class="stat s-db"><div class="k">Database health</div><div class="v" id="st-db">99.4%</div><div class="m">all shards responding</div></div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+    <button class="tab" role="tab" aria-selected="true" data-view="feed">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
+      Live Feed</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="dev">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 6 3 12 8 18"/><polyline points="16 6 21 12 16 18"/></svg>
+      Pipeline DevTools</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="arch">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M9 6h6v9"/></svg>
+      Architecture</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="map">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>
+      Neighborhood Map</button>
+  </nav>
+
+  <!-- FEED -->
+  <section class="view active" id="view-feed" role="tabpanel">
+    <div class="panel filters">
+      <div class="filterhead">
+        <div><div class="eyebrow">Curated live database</div><h2 class="sec">Toronto event feed</h2></div>
+        <div style="text-align:right"><div class="resultline"><b id="result-count">0</b> events match</div><button class="linkbtn" id="clear-filters">Reset all filters</button></div>
+      </div>
+      <div class="frow">
+        <div class="field search"><label for="search">Search</label><input type="text" id="search" placeholder="Search title, venue, or description…" autocomplete="off"></div>
+        <div class="field"><label for="zone-select">Focus area</label><select id="zone-select"><option value="all">All neighborhoods</option></select></div>
+        <div class="field"><label>Price</label>
+          <div class="seg price" id="price-seg" role="group" aria-label="Price filter">
+            <button data-price="all" aria-pressed="true">All</button><button data-price="free" aria-pressed="false">Free</button><button data-price="paid" aria-pressed="false">Paid</button>
+          </div></div>
+        <div class="field"><label for="sort-select">Sort by</label><select id="sort-select"><option value="date">Date (soonest)</option><option value="hood">Neighborhood (A–Z)</option></select></div>
+      </div>
+      <div class="subfilters">
+        <div class="sf"><span class="lab">When</span>
+          <div class="seg" id="time-seg" role="group" aria-label="Date window filter">
+            <button data-when="all" aria-pressed="true">All upcoming</button><button data-when="today" aria-pressed="false">Today</button><button data-when="tomorrow" aria-pressed="false">Tomorrow</button><button data-when="weekend" aria-pressed="false">This weekend</button><button data-when="nextweek" aria-pressed="false">Next week</button>
+          </div></div>
+        <div class="sf"><span class="lab">Category</span><div class="chiprow" id="cat-chips"></div></div>
+        <div class="sf"><span class="lab">Source</span><div class="chiprow" id="src-chips"></div></div>
+      </div>
+    </div>
+    <div class="grid" id="event-grid"></div>
+  </section>
+
+  <!-- DEVTOOLS -->
+  <section class="view" id="view-dev" role="tabpanel">
+    <div class="dev-grid">
+      <div>
+        <div class="panel block">
+          <div class="eyebrow">Five-stage ingestion run</div><h2 class="sec">Pipeline console</h2>
+          <p class="sec-note">Run the daily ingestion job stage by stage. Watch sources get fetched, parsed, normalized, deduplicated, and published.</p>
+          <div class="stages" id="stages"></div>
+          <div class="progress"><i id="pipe-bar"></i></div>
+          <div class="btn-row"><button class="btn primary" id="run-pipe">Run ingestion job</button><button class="btn" id="reset-pipe">Clear console</button></div>
+          <div class="console" id="console"></div>
+        </div>
+        <div class="panel block" style="margin-top:18px">
+          <div class="eyebrow">Dynamic event sandbox insertion</div><h2 class="sec">Fallback scrapers</h2>
+          <p class="sec-note">Launch a simulated fallback scraper to pull in more real events and add them to the live feed. Near-identical listings get caught by the dedupe engine instead of being added twice. Every event that lands keeps its real source link.</p>
+          <div class="field" style="margin:14px 0 4px"><label for="focus-scrape">Scrape focus area</label><select id="focus-scrape"><option value="all">City-wide</option></select></div>
+          <div class="scrapers" id="scrapers"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel block">
+          <div class="eyebrow">Raw source payload</div><h2 class="sec">JSON inspector</h2>
+          <p class="sec-note">Inspect the raw record a source returns before normalization.</p>
+          <div class="field" style="margin:14px 0 0"><label for="raw-src">Source feed</label><select id="raw-src"></select></div>
+          <div class="json" id="raw-json"></div>
+        </div>
+        <div class="panel block dedupe" style="margin-top:18px">
+          <div class="eyebrow">Deduplication sandbox</div><h2 class="sec">Match two records</h2>
+          <p class="sec-note">The engine compares normalized title, venue, and date. A similarity at or above 0.72 is treated as a duplicate and blocked. These are real cross-listings of the same Toronto events.</p>
+          <div class="pair" id="dedupe-pair"></div>
+          <div class="btn-row"><button class="btn primary" id="run-dedupe">Run dedupe check</button><button class="btn" id="shuffle-dedupe">Load another pair</button></div>
+          <div class="verdict" id="verdict"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="view" id="view-arch" role="tabpanel">
+    <div class="arch-grid">
+      <div class="panel block">
+        <div class="eyebrow">Daily ingestion pipeline</div><h2 class="sec">How events reach the feed</h2>
+        <p class="sec-note">Click any node to read what it does. A scheduled job kicks the whole chain off once a day.</p>
+        <svg class="arch-svg" viewBox="0 0 720 540" role="img" aria-label="Architecture flow diagram" style="margin-top:10px">
+          <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#53e0d4"/></marker></defs>
+          <g class="node" data-node="cron"><rect x="270" y="14" width="180" height="58" rx="12"/><text x="360" y="40" text-anchor="middle">Daily Cron · 06:00</text><text class="ntype" x="360" y="58" text-anchor="middle">SCHEDULER</text></g>
+          <line class="flowline" x1="360" y1="72" x2="360" y2="104"/>
+          <g class="node" data-node="api"><rect x="40" y="106" width="180" height="58" rx="12"/><text x="130" y="132" text-anchor="middle">Open Data APIs</text><text class="ntype" x="130" y="150" text-anchor="middle">REST · JSON</text></g>
+          <g class="node" data-node="rss"><rect x="270" y="106" width="180" height="58" rx="12"/><text x="360" y="132" text-anchor="middle">RSS / Atom feeds</text><text class="ntype" x="360" y="150" text-anchor="middle">blogTO · Daily Hive</text></g>
+          <g class="node" data-node="headless"><rect x="500" y="106" width="180" height="58" rx="12"/><text x="590" y="132" text-anchor="middle">Headless browser</text><text class="ntype" x="590" y="150" text-anchor="middle">FALLBACK SCRAPER</text></g>
+          <line class="flowline" x1="130" y1="164" x2="320" y2="214"/>
+          <line class="flowline" x1="360" y1="164" x2="360" y2="214"/>
+          <line class="flowline dash" x1="590" y1="164" x2="400" y2="214"/>
+          <g class="node" data-node="ingest"><rect x="270" y="216" width="180" height="58" rx="12"/><text x="360" y="242" text-anchor="middle">Ingestion worker</text><text class="ntype" x="360" y="260" text-anchor="middle">FETCH · RETRY · QUEUE</text></g>
+          <line class="flowline" x1="360" y1="274" x2="360" y2="306"/>
+          <g class="node" data-node="normalize"><rect x="270" y="308" width="180" height="58" rx="12"/><text x="360" y="334" text-anchor="middle">Normalizer</text><text class="ntype" x="360" y="352" text-anchor="middle">UNIFIED SCHEMA</text></g>
+          <line class="flowline" x1="360" y1="366" x2="360" y2="398"/>
+          <g class="node" data-node="dedupe"><rect x="270" y="400" width="180" height="58" rx="12"/><text x="360" y="426" text-anchor="middle">Dedupe engine</text><text class="ntype" x="360" y="444" text-anchor="middle">FUZZY MATCH</text></g>
+          <line class="flowline" x1="450" y1="429" x2="540" y2="429"/>
+          <g class="node" data-node="db"><rect x="540" y="400" width="150" height="58" rx="12"/><text x="615" y="426" text-anchor="middle">Postgres DB</text><text class="ntype" x="615" y="444" text-anchor="middle">EVENTS TABLE</text></g>
+          <line class="flowline" x1="360" y1="458" x2="360" y2="488"/>
+          <g class="node" data-node="feed"><rect x="270" y="490" width="180" height="42" rx="12"/><text x="360" y="516" text-anchor="middle">Published feed</text></g>
+        </svg>
+      </div>
+      <div class="panel archinfo" id="arch-info">
+        <div class="ai-type">Select a node</div><h3>The ingestion chain</h3>
+        <p>Every box is one step in the daily job. Click a node in the diagram to see what it handles, what feeds into it, and where its output goes.</p>
+        <p style="color:var(--faint)">Solid arrows are normal data flow. The dashed violet arrow is the headless-browser fallback, only triggered when a source has no API or RSS feed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section class="view" id="view-map" role="tabpanel">
+    <div class="panel map-wrap">
+      <div class="map-head">
+        <div><div class="eyebrow">Interactive focus areas</div><h2 class="sec">Toronto neighborhood map</h2>
+          <p class="sec-note">Tap a neighborhood to highlight it and filter the live feed to that area. Numbers show upcoming events per zone; dimmed zones have none in the current window.</p></div>
+        <button class="btn" id="map-clear">Show all areas</button>
+      </div>
+      <svg class="map-svg" id="map-svg" viewBox="0 0 1000 640" role="img" aria-label="Stylized map of Toronto neighborhoods">
+        <text class="compass" x="956" y="34">N ↑</text>
+        <path class="gardiner" id="gardiner-line" d="M40 452 Q 360 432 620 446 T 962 452"/>
+        <text class="gardiner-lbl" x="700" y="438">GARDINER  EXPWY</text>
+        <rect x="0" y="560" width="1000" height="80" fill="rgba(83,224,212,0.05)"/>
+        <text class="lake-lbl" x="500" y="612" text-anchor="middle">L A K E   O N T A R I O</text>
+        <g id="zones"></g>
+      </svg>
+      <div class="map-feed-note">
+        <div id="map-note-text">Showing <b id="map-total">0</b> upcoming events across all neighborhoods.</div>
+        <button class="btn" id="map-to-feed">Open in Live Feed →</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>© <span id="year"></span> MsJAG · TO-Sync · Curated Toronto event intelligence</div>
+    <div><a href="https://torontoeatsandreviews.com/">torontoeatsandreviews.com</a></div>
+  </footer>
+</div>
+
+<div id="toast"><span class="ti"></span><span class="tx"></span></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   TO-Sync — single-file Toronto event dashboard.
+   The events below are REAL and were verified in June 2026. Each carries a
+   source URL; tapping a card opens that source so the user can confirm it.
+   Static pages age: dates/details can change, so the source link is the
+   source of truth. The pipeline/scraper console is a local simulation —
+   the "scrapers" only add more of the real, held-back events listed here.
+   ========================================================================= */
+
+const CATS = {
+  "Music":"#53e0d4","Food & Drink":"#f5c14e","Art & Culture":"#9d8bff","Markets":"#5ad17f",
+  "Sports & Fitness":"#ff6a8e","Festivals":"#7ab8ff","Nightlife":"#d98bff","Family":"#ffb35a",
+  "Film":"#67e0a3","Community":"#aab4c4"
+};
+
+const ZONES = [
+  {key:"highpark",     label:"High Park",            x:70,  y:250},
+  {key:"annex",        label:"The Annex",            x:300, y:120},
+  {key:"yorkville",    label:"Yorkville",            x:560, y:110},
+  {key:"kensington",   label:"Kensington Market",    x:270, y:255},
+  {key:"queenwest",    label:"Queen West",           x:130, y:360},
+  {key:"downtown",     label:"Downtown Core",        x:545, y:255},
+  {key:"distillery",   label:"Distillery District",  x:785, y:300},
+  {key:"stlawrence",   label:"St. Lawrence",         x:615, y:345},
+  {key:"danforth",     label:"The Danforth",         x:850, y:185},
+  {key:"leslieville",  label:"Leslieville",          x:835, y:370},
+  {key:"entertainment",label:"Entertainment District",x:420,y:365},
+  {key:"liberty",      label:"Liberty Village",      x:80,  y:485},
+  {key:"bentway",      label:"The Bentway",          x:420, y:475},
+  {key:"harbourfront", label:"Harbourfront",         x:610, y:512}
+];
+const ZONE_LABEL = Object.fromEntries(ZONES.map(z=>[z.key,z.label]));
+
+let nextId = 1;
+function ev(o){ o.id="evt_"+String(nextId++).padStart(4,"0"); o.fresh=!!o.fresh; o.end=o.end||o.start; return o; }
+
+/* ---- Real, verified Toronto events (June 2026). Each has a source URL. ---- */
+const TorontoEventsDataset = [
+  // World Cup / Fort York–Bentway cluster
+  ev({title:"adidas Home of Soccer: World Cup Watch Parties", venue:"STACKT market · 28 Bathurst St", zone:"bentway", category:"Sports & Fitness", source:"STACKT Market", url:"https://stacktmarket.com/event/adidas-home-of-soccer-toronto/", start:"2026-06-12", end:"2026-07-19", time:"11:00", free:true, amount:0, desc:"adidas turns STACKT into a soccer hub with an outdoor viewing area for official FIFA World Cup watch parties, plus activations all summer."}),
+  ev({title:"Heineken Pavilion", venue:"STACKT market · 28 Bathurst St", zone:"bentway", category:"Food & Drink", source:"STACKT Market", url:"https://stacktmarket.com/event/heineken-pop-up/", start:"2026-06-09", end:"2026-08-31", time:"12:00", free:true, amount:0, desc:"A summer-long social pavilion for after-work pints and weekend hangs in the container market."}),
+  ev({title:"Experience the Wonder of the Aurora", venue:"STACKT market · 28 Bathurst St", zone:"bentway", category:"Art & Culture", source:"STACKT Market", url:"https://stacktmarket.com/event/experience-the-wonder-of-the-aurora/", start:"2026-06-11", end:"2026-07-26", free:true, amount:0, desc:"A Northwest Territories installation bringing the northern lights experience to downtown Toronto."}),
+  ev({title:"Toon Goons Art Caricatures", venue:"STACKT market Pavilion", zone:"bentway", category:"Art & Culture", source:"STACKT Market", url:"https://stacktmarket.com/event/toon-goons-art-caricatures-9/", start:"2026-06-20", end:"2026-06-21", time:"12:00", free:false, amount:15, priceLabel:"From $15", desc:"Live caricature artists set up in the Pavilion every weekend through the summer."}),
+  ev({title:"Brews & Chews (dog-friendly happy hour)", venue:"STACKT market Bark Yard", zone:"bentway", category:"Community", source:"STACKT Market", url:"https://stacktmarket.com/event/brews-chews-4/", start:"2026-06-24", time:"16:00", free:true, amount:0, desc:"Bring your dog for tunes, $6 rail drinks, and market vendors in the Bark Yard."}),
+  ev({title:"Bring Your Thing Networking", venue:"STACKT market · 28 Bathurst St", zone:"bentway", category:"Community", source:"STACKT Market", url:"https://stacktmarket.com/event/bring-your-thing-networking/", start:"2026-06-24", time:"17:00", free:true, amount:0, desc:"A casual networking night where people share what they actually do for work."}),
+  ev({title:"BACKYARD: The Cookout", venue:"STACKT market · 28 Bathurst St", zone:"bentway", category:"Festivals", source:"STACKT Market", url:"https://stacktmarket.com/event/backyard-the-cookout/", start:"2026-07-25", time:"12:00", free:true, amount:0, desc:"Part three of the BACKYARD series celebrating Toronto's Black and Afro-Caribbean community."}),
+  ev({title:"Barkada Summer Market", venue:"STACKT market Horseshoe", zone:"bentway", category:"Markets", source:"STACKT Market", url:"https://stacktmarket.com/event/barkada-summer-market/", start:"2026-07-26", time:"12:00", free:true, amount:0, desc:"A day of good eats, handmade finds, and drinks from local makers."}),
+  ev({title:"Goat Yoga Toronto by Yoga Kawa", venue:"STACKT market Studio", zone:"bentway", category:"Sports & Fitness", source:"STACKT Market", url:"https://stacktmarket.com/event/goat-yoga-toronto-by-yoga-kawa/", start:"2026-08-30", time:"12:00", free:false, amount:55, priceLabel:"$55", desc:"Yoga and wellness blended with playful miniature goats."}),
+  ev({title:"FIFA Fan Festival (Fort York × The Bentway)", venue:"The Bentway · Fort York", zone:"bentway", category:"Festivals", source:"The Bentway", url:"https://thebentway.ca/news/the-bentway-named-as-a-host-site-for-torontos-fifa-fan-festival-coming-summer-2026/", start:"2026-06-11", end:"2026-07-19", free:true, amount:0, desc:"Toronto's central fan destination with big-screen match broadcasts, cultural performances, art installations, and local food."}),
+  ev({title:"Roller Skate Lessons at the Skate Trail", venue:"The Bentway Skate Trail · 250 Fort York Blvd", zone:"bentway", category:"Sports & Fitness", source:"The Bentway", url:"https://thebentway.ca/event/", start:"2026-08-07", end:"2026-09-25", time:"18:30", recurring:"Fri", free:false, amount:0, priceLabel:"Ticketed", desc:"Weekly beginner roller skate lessons with expert instructors on the figure-eight trail under the Gardiner."}),
+  ev({title:"Art Socials with Noble Space", venue:"The Bentway Studio · 55 Fort York Blvd", zone:"bentway", category:"Art & Culture", source:"The Bentway", url:"https://thebentway.ca/event/", start:"2026-06-02", end:"2026-08-25", time:"18:30", recurring:"Tue", free:false, amount:0, priceLabel:"Ticketed", desc:"A weekly beginner-friendly creative night: miniatures, screen printing, watercolour, and more."}),
+
+  // Harbourfront
+  ev({title:"GE Appliances Canada Soccer House", venue:"Harbourfront Centre · 235 Queens Quay W", zone:"harbourfront", category:"Festivals", source:"Harbourfront Centre", url:"https://harbourfrontcentre.com/summer/", start:"2026-06-11", end:"2026-07-02", free:true, amount:0, desc:"Canada Soccer's official World Cup fan destination on the waterfront, with watch parties and activations."}),
+  ev({title:"Concerts by the Lake", venue:"Harbourfront Centre Concert Stage", zone:"harbourfront", category:"Music", source:"Harbourfront Centre", url:"https://harbourfrontcentre.com/whats-on/", start:"2026-06-19", time:"19:00", free:true, amount:0, desc:"Free waterfront live music with lush, genre-bending sound and the skyline behind the stage."}),
+  ev({title:"Summer Music in the Garden (25th season)", venue:"Toronto Music Garden", zone:"harbourfront", category:"Music", source:"Harbourfront Centre", url:"https://harbourfrontcentre.com/whats-on/", start:"2026-06-21", end:"2026-08-27", time:"16:00", recurring:"Sun", free:true, amount:0, desc:"Free concerts in the lakeside Toronto Music Garden, marking the series' 25th season."}),
+  ev({title:"Fun Philippines Food & Music Festival", venue:"Harbourfront Centre", zone:"harbourfront", category:"Food & Drink", source:"Harbourfront Centre", url:"https://harbourfrontcentre.com/whats-on/", start:"2026-07-03", end:"2026-07-05", free:true, amount:0, desc:"Three days of Filipino street food, music, and culture by the water."}),
+  ev({title:"Free Flicks: Outdoor Films by the Lake", venue:"Harbourfront Centre Concert Stage", zone:"harbourfront", category:"Film", source:"Harbourfront Centre", url:"https://harbourfrontcentre.com/whats-on/", start:"2026-07-14", end:"2026-09-01", time:"21:00", recurring:"Tue", free:true, amount:0, desc:"Free outdoor movie screenings every Tuesday. Bring a chair or blanket; seating is not provided."}),
+  ev({title:"Island Soul Festival", venue:"Harbourfront Centre", zone:"harbourfront", category:"Festivals", source:"Harbourfront Centre", url:"https://harbourfrontcentre.com/whats-on/", start:"2026-07-31", end:"2026-08-03", free:true, amount:0, desc:"A waterfront celebration of Caribbean music, dance, and cuisine."}),
+
+  // Jazz / Yorkville / Danforth
+  ev({title:"TD Toronto Jazz Festival: Free Outdoor Sets", venue:"Bloor-Yorkville · OLG Village Stage", zone:"yorkville", category:"Music", source:"Toronto Jazz Festival", url:"https://torontojazz.com/", start:"2026-06-19", end:"2026-06-28", free:true, amount:0, desc:"Ten days of free open-air jazz across Bloor-Yorkville, plus Sidewalk Sessions at five locations."}),
+  ev({title:"Toronto Jazz Fest: DOMi & JD Beck", venue:"Danforth Music Hall · 147 Danforth Ave", zone:"danforth", category:"Music", source:"Toronto Jazz Festival", url:"https://torontojazz.com/schedule-2026/", start:"2026-06-22", time:"19:00", free:false, amount:0, priceLabel:"Ticketed", desc:"A ticketed festival headline show at the Danforth Music Hall."}),
+
+  // Pride
+  ev({title:"Pride Toronto Street Fair", venue:"Church-Wellesley Village", zone:"downtown", category:"Festivals", source:"Pride Toronto", url:"https://www.pridetoronto.com/", start:"2026-06-26", end:"2026-06-28", free:true, amount:0, desc:"The free festival hub on Church Street with stages, a vendor market, and community programming."}),
+  ev({title:"Pride Toronto Parade", venue:"Yonge Street · downtown", zone:"downtown", category:"Festivals", source:"Pride Toronto", url:"https://www.pridetoronto.com/", start:"2026-06-28", time:"14:00", free:true, amount:0, desc:"The 45th-anniversary parade down Yonge Street, one of the largest Pride parades in the world."}),
+  ev({title:"Dyke March", venue:"Church-Wellesley Village", zone:"downtown", category:"Community", source:"Pride Toronto", url:"https://www.pridetoronto.com/", start:"2026-06-27", time:"14:00", free:true, amount:0, desc:"A community-led march with its own route and activist energy, ahead of Sunday's parade."}),
+
+  // Citywide arts
+  ev({title:"Luminato Festival", venue:"Citywide · Harbourfront & beyond", zone:"downtown", category:"Art & Culture", source:"Luminato", url:"https://www.luminatofestival.com/", start:"2026-06-03", end:"2026-06-28", free:true, amount:0, priceLabel:"Free & ticketed", desc:"Toronto's flagship arts festival: music, dance, theatre, circus, and large-scale public art across the city."}),
+
+  // High Park
+  ev({title:"Dream in High Park: Twelfth Night", venue:"High Park Amphitheatre · 1873 Bloor St W", zone:"highpark", category:"Art & Culture", source:"Canadian Stage", url:"https://www.canadianstage.com/shows-events/dream-in-high-park-26", start:"2026-07-12", end:"2026-09-06", time:"20:00", free:false, amount:35, priceLabel:"From $35 · rush $20", desc:"Canadian Stage's 43rd season of outdoor Shakespeare under the stars. Tue–Sat 8pm, Sun 7pm. Pack a picnic."}),
+
+  // Liberty Village
+  ev({title:"Give Me Liberty Street Party", venue:"Lamport Stadium lot · 75 Fraser Ave", zone:"liberty", category:"Festivals", source:"Liberty Village BIA", url:"https://www.libertyvillagebia.com/events/give-me-liberty-street-party", start:"2026-09-17", time:"16:00", free:true, amount:0, desc:"The Liberty Village BIA's signature block party: 40+ local vendors, live music, a beer garden, and activities for all ages."}),
+  ev({title:"Liberty Matchdays at Left Field Brewery", venue:"Left Field Brewery · Liberty Village", zone:"liberty", category:"Community", source:"Left Field Brewery", url:"https://allevents.in/toronto/liberty%20village", start:"2026-06-20", time:"13:00", free:true, amount:0, desc:"A free World Cup watch party with DJ sets at the brewery in Liberty Village."})
+];
+
+/* Held-back REAL events the fallback scrapers can ingest. dupOf entries are
+   genuine cross-listings of an event already in the feed, so dedupe blocks them. */
+const SCRAPER_POOLS = {
+  "blogTO": { kind:"RSS / Atom feed",
+    pool:[
+      { add:{title:"Evergreen Brick Works Saturday Farmers Market", venue:"Evergreen Brick Works · 550 Bayview Ave", zone:"danforth", category:"Markets", source:"blogTO", url:"https://www.blogto.com/events/evergreen-brick-works-farmers-market-toronto-2026/", start:"2026-05-30", end:"2026-10-24", time:"08:00", recurring:"Sat", free:true, amount:0, desc:"Toronto's largest year-round farmers market: 100+ Ontario farmers, producers, and chefs every Saturday."} },
+      { dupOf:"Summer Music in the Garden (25th season)", title:"Summer Music in the Garden — Harbourfront", venue:"Toronto Music Garden" }
+    ]},
+  "City of Toronto Open Data": { kind:"REST · JSON API",
+    pool:[
+      { add:{title:"Dancing on the Square", venue:"Harbourfront Centre", zone:"harbourfront", category:"Community", source:"Harbourfront Centre", url:"https://harbourfrontcentre.com/whats-on/", start:"2026-07-15", end:"2026-09-02", recurring:"Wed", free:true, amount:0, desc:"A free weekly outdoor dance series with salsa, line dancing, Cajun, Lindy Hop, and more."} },
+      { dupOf:"GE Appliances Canada Soccer House", title:"Canada Soccer House at Harbourfront", venue:"Harbourfront Centre" }
+    ]},
+  "Daily Hive": { kind:"RSS / Atom feed",
+    pool:[
+      { add:{title:"Liberty Matchdays: DJ Jayemkayem & Freeza Chin", venue:"Left Field Brewery · Liberty Village", zone:"liberty", category:"Community", source:"Daily Hive", url:"https://allevents.in/toronto/liberty%20village", start:"2026-06-26", time:"13:00", free:true, amount:0, desc:"Another free World Cup watch party with DJ sets in Liberty Village."} },
+      { dupOf:"adidas Home of Soccer: World Cup Watch Parties", title:"adidas World Cup Watch Party at STACKT", venue:"STACKT market" }
+    ]}
+};
+
+const DEDUPE_PAIRS = [
+  { a:{title:"adidas Home of Soccer: World Cup Watch Parties", venue:"STACKT market", date:"2026-06-12"},
+    b:{title:"adidas World Cup Watch Party at STACKT", venue:"STACKT market Bathurst", date:"2026-06-12"} },
+  { a:{title:"TD Toronto Jazz Festival: Free Outdoor Sets", venue:"Bloor-Yorkville", date:"2026-06-19"},
+    b:{title:"Dream in High Park: Twelfth Night", venue:"High Park Amphitheatre", date:"2026-07-12"} },
+  { a:{title:"Summer Music in the Garden", venue:"Toronto Music Garden", date:"2026-06-21"},
+    b:{title:"Summer Music in the Garden 25th Season", venue:"Toronto Music Garden Harbourfront", date:"2026-06-21"} }
+];
+
+const state = {
+  view:"feed", search:"", zone:"all", price:"all", when:"all", sort:"date",
+  cats:new Set(), srcs:new Set(),
+  dupesBlocked:0, parsedLines:14820, dbHealth:99.4, usedScrapes:{}
+};
+
+/* ---------- Dates ---------- */
+const WD = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+function startOfDay(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
+function parseD(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function endOfDayD(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d,23,59,59); }
+function fmtDay(d){ return d.toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric"}); }
+function fmtMd(d){ return d.toLocaleDateString("en-CA",{month:"short",day:"numeric"}); }
+function fmtTime(t){ const [h,m]=t.split(":").map(Number); const ap=h>=12?"PM":"AM"; const hh=((h+11)%12)+1; return hh+":"+String(m).padStart(2,"0")+" "+ap; }
+function weekendRange(now){ const s=startOfDay(now); const toSat=(6-s.getDay()+7)%7; const sat=new Date(s); sat.setDate(s.getDate()+toSat); const sun=new Date(sat); sun.setDate(sat.getDate()+1); return {start:sat,end:new Date(sun.getFullYear(),sun.getMonth(),sun.getDate(),23,59,59)}; }
+function nextWeekRange(now){ const s=startOfDay(now); const toMon=((8-s.getDay())%7)||7; const mon=new Date(s); mon.setDate(s.getDate()+toMon); const sun=new Date(mon); sun.setDate(mon.getDate()+6); return {start:mon,end:new Date(sun.getFullYear(),sun.getMonth(),sun.getDate(),23,59,59)}; }
+
+function interval(e, now){
+  const today=startOfDay(now);
+  if(e.recurring){
+    const seasonStart=parseD(e.start), seasonEnd=endOfDayD(e.end);
+    const base = today>seasonStart ? today : seasonStart;
+    const wd=WD[e.recurring];
+    const d=new Date(base); d.setDate(d.getDate()+((wd-d.getDay()+7)%7));
+    const occ = d<=seasonEnd ? startOfDay(d) : null;
+    const disp = "Every "+e.recurring+(occ? " · next "+fmtMd(occ)+(e.time?" · "+fmtTime(e.time):"") : " · season ended");
+    return { start:occ, end:occ, sort: occ||seasonEnd, display:disp, past: !occ };
+  }
+  const s=parseD(e.start), en=endOfDayD(e.end);
+  const multi = e.start!==e.end;
+  const disp = multi ? (fmtMd(s)+" – "+fmtMd(en)) : (fmtDay(s)+(e.time?" · "+fmtTime(e.time):""));
+  return { start:s, end:en, sort:s, display:disp, past: en<today };
+}
+function matchesWhen(iv, when, now){
+  if(iv.past || iv.start==null) return false;
+  if(when==="all") return true;
+  let r;
+  if(when==="today"){ const t=startOfDay(now); r={start:t,end:new Date(t.getFullYear(),t.getMonth(),t.getDate(),23,59,59)}; }
+  else if(when==="tomorrow"){ const t=startOfDay(now); t.setDate(t.getDate()+1); r={start:t,end:new Date(t.getFullYear(),t.getMonth(),t.getDate(),23,59,59)}; }
+  else if(when==="weekend"){ r=weekendRange(now); }
+  else if(when==="nextweek"){ r=nextWeekRange(now); }
+  else return true;
+  return iv.start<=r.end && iv.end>=r.start;
+}
+
+/* ---------- Toast ---------- */
+let toastTimer=null;
+function toast(kind,title,msg){ const t=document.getElementById("toast"); t.className=kind+" show"; t.querySelector(".ti").textContent=title; t.querySelector(".tx").textContent=msg; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3600); }
+
+/* ---------- Filtering ---------- */
+function priceText(e){ return e.free ? "Free" : (e.priceLabel || ("$"+e.amount)); }
+function applyFilters(){
+  const now=new Date(); const q=state.search.trim().toLowerCase();
+  let list=TorontoEventsDataset.map(e=>({e, iv:interval(e,now)})).filter(({e,iv})=>{
+    if(state.zone!=="all" && e.zone!==state.zone) return false;
+    if(state.price==="free" && !e.free) return false;
+    if(state.price==="paid" && e.free) return false;
+    if(state.cats.size && !state.cats.has(e.category)) return false;
+    if(state.srcs.size && !state.srcs.has(e.source)) return false;
+    if(!matchesWhen(iv, state.when, now)) return false;
+    if(q){ const hay=(e.title+" "+e.venue+" "+e.desc+" "+ZONE_LABEL[e.zone]+" "+e.source).toLowerCase(); if(!hay.includes(q)) return false; }
+    return true;
+  });
+  list.sort((a,b)=>{
+    if(state.sort==="hood") return ZONE_LABEL[a.e.zone].localeCompare(ZONE_LABEL[b.e.zone]) || (a.iv.sort-b.iv.sort);
+    return a.iv.sort-b.iv.sort;
+  });
+  return list;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* ---------- Render feed ---------- */
+function renderFeed(){
+  const list=applyFilters();
+  document.getElementById("result-count").textContent=list.length;
+  const grid=document.getElementById("event-grid");
+  if(!list.length){ grid.innerHTML='<div class="panel empty"><div class="big">No events match these filters</div>Try a different date window or reset all filters to see the full feed.</div>'; return; }
+  grid.innerHTML=list.map(({e,iv})=>{
+    const c=CATS[e.category]||"#53e0d4";
+    const price = e.free ? '<span class="b free">Free</span>' : '<span class="b paid">'+esc(priceText(e))+'</span>';
+    const fresh = e.fresh ? '<span class="b new">Just ingested</span>' : '';
+    return `<a class="card" style="--c:${c}" href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">
+      <span class="cat-strip"></span>
+      <h3>${esc(e.title)}</h3><div class="venue">${esc(e.venue)}</div>
+      <div class="badges"><span class="b cat" style="--c:${c}">${e.category}</span>${price}<span class="b src">${esc(e.source)}</span>${fresh}</div>
+      <p class="desc">${esc(e.desc)}</p>
+      <div class="hood">${ZONE_LABEL[e.zone]}</div>
+      <div class="meta"><span class="when">${esc(iv.display)}</span><span class="verify">Verify at source ↗</span></div>
+    </a>`;
+  }).join("");
+}
+
+function renderStats(){
+  const total=TorontoEventsDataset.length;
+  const free=TorontoEventsDataset.filter(e=>e.free).length;
+  document.getElementById("st-free").textContent=Math.round((free/total)*100)+"%";
+  document.getElementById("st-free-m").textContent=free+" of "+total+" events are free";
+  document.getElementById("st-dupe").textContent=state.dupesBlocked;
+  document.getElementById("st-lines").textContent=state.parsedLines.toLocaleString("en-CA");
+  document.getElementById("st-db").textContent=state.dbHealth.toFixed(1)+"%";
+}
+
+/* ---------- Map ---------- */
+function zoneCounts(){
+  const now=new Date(); const counts={}; ZONES.forEach(z=>counts[z.key]=0);
+  const q=state.search.trim().toLowerCase();
+  TorontoEventsDataset.forEach(e=>{
+    if(state.price==="free" && !e.free) return;
+    if(state.price==="paid" && e.free) return;
+    if(state.cats.size && !state.cats.has(e.category)) return;
+    if(state.srcs.size && !state.srcs.has(e.source)) return;
+    if(!matchesWhen(interval(e,now), state.when, now)) return;
+    if(q){ const hay=(e.title+" "+e.venue+" "+e.desc).toLowerCase(); if(!hay.includes(q)) return; }
+    if(counts[e.zone]!==undefined) counts[e.zone]++;
+  });
+  return counts;
+}
+function renderMap(){
+  const counts=zoneCounts();
+  const g=document.getElementById("zones");
+  g.innerHTML=ZONES.map(z=>{
+    const w=Math.max(96, z.label.length*7.4+30), h=36;
+    const active=state.zone===z.key, cnt=counts[z.key]||0;
+    return `<g class="zone ${active?"active":""} ${cnt===0?"empty":""}" data-zone="${z.key}" tabindex="0" role="button" aria-pressed="${active}" aria-label="${z.label}, ${cnt} events">
+      <rect class="ring" x="${z.x-4}" y="${z.y-4}" width="${w+8}" height="${h+8}" rx="13"></rect>
+      <rect x="${z.x}" y="${z.y}" width="${w}" height="${h}" rx="10"></rect>
+      <text class="zl" x="${z.x+12}" y="${z.y+23}">${z.label}</text>
+      <text class="zc" x="${z.x+w-10}" y="${z.y+23}" text-anchor="end">${cnt}</text></g>`;
+  }).join("");
+  g.querySelectorAll(".zone").forEach(node=>{
+    const k=node.getAttribute("data-zone");
+    node.addEventListener("click",()=>selectZone(state.zone===k?"all":k));
+    node.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); selectZone(state.zone===k?"all":k);} });
+  });
+  const total=applyFilters().length;
+  document.getElementById("map-total").textContent=total;
+  const txt=document.getElementById("map-note-text");
+  txt.innerHTML = state.zone==="all"
+    ? 'Showing <b>'+total+'</b> upcoming events across all neighborhoods.'
+    : 'Showing <b>'+total+'</b> events in <b>'+ZONE_LABEL[state.zone]+'</b>.';
+}
+function selectZone(key){
+  state.zone=key; document.getElementById("zone-select").value=key;
+  renderMap(); renderFeed();
+  if(key!=="all") toast("info","Filter set","Live Feed now showing "+ZONE_LABEL[key]+".");
+}
+
+/* ---------- Chips (built from live data) ---------- */
+function buildChips(){
+  const cats=[...new Set(TorontoEventsDataset.map(e=>e.category))].sort();
+  document.getElementById("cat-chips").innerHTML=cats.map(c=>`<button class="chip" data-cat="${esc(c)}" aria-pressed="${state.cats.has(c)}"><span class="swatch" style="--c:${CATS[c]||'#53e0d4'}"></span>${esc(c)}</button>`).join("");
+  document.querySelectorAll("#cat-chips .chip").forEach(ch=>ch.addEventListener("click",()=>{ const c=ch.getAttribute("data-cat"); toggleSet(state.cats,c); ch.setAttribute("aria-pressed",state.cats.has(c)); refreshAll(); }));
+  const srcs=[...new Set(TorontoEventsDataset.map(e=>e.source))].sort();
+  document.getElementById("src-chips").innerHTML=srcs.map(s=>`<button class="chip" data-src="${esc(s)}" aria-pressed="${state.srcs.has(s)}"><span class="swatch"></span>${esc(s)}</button>`).join("");
+  document.querySelectorAll("#src-chips .chip").forEach(ch=>ch.addEventListener("click",()=>{ const s=ch.getAttribute("data-src"); toggleSet(state.srcs,s); ch.setAttribute("aria-pressed",state.srcs.has(s)); refreshAll(); }));
+}
+function toggleSet(set,v){ set.has(v)?set.delete(v):set.add(v); }
+function buildZoneSelects(){
+  const sorted=ZONES.slice().sort((a,b)=>a.label.localeCompare(b.label));
+  document.getElementById("zone-select").innerHTML='<option value="all">All neighborhoods</option>'+sorted.map(z=>`<option value="${z.key}">${z.label}</option>`).join("");
+  document.getElementById("focus-scrape").innerHTML='<option value="all">City-wide</option>'+sorted.map(z=>`<option value="${z.key}">${z.label}</option>`).join("");
+}
+
+/* ---------- Pipeline ---------- */
+const STAGE_DEFS=[
+  {nm:"Fetch sources",st:"feeds queued"},{nm:"Parse feeds",st:"RSS · JSON · HTML"},
+  {nm:"Normalize schema",st:"map to event model"},{nm:"Deduplicate",st:"fuzzy title match"},
+  {nm:"Publish to database",st:"upsert events table"}
+];
+function buildStages(){ document.getElementById("stages").innerHTML=STAGE_DEFS.map((s,i)=>`<div class="stage" data-i="${i}"><span class="n">${String(i+1).padStart(2,"0")}</span><span class="nm">${s.nm}</span><span class="st">${s.st}</span></div>`).join(""); }
+function logLine(cls,txt){ const c=document.getElementById("console"); const t=new Date().toLocaleTimeString("en-CA",{hour12:false}); const div=document.createElement("div"); div.className="ln"; div.innerHTML='<span class="t">'+t+'</span>  <span class="'+cls+'">'+esc(txt)+'</span>'; c.appendChild(div); c.scrollTop=c.scrollHeight; }
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+let pipeRunning=false;
+async function runPipeline(){
+  if(pipeRunning) return; pipeRunning=true; document.getElementById("run-pipe").disabled=true;
+  const stages=[...document.querySelectorAll(".stage")]; stages.forEach(s=>s.className="stage");
+  const bar=document.getElementById("pipe-bar"); bar.style.width="0%";
+  const nsrc=new Set(TorontoEventsDataset.map(e=>e.source)).size;
+  logLine("info","Cron trigger 06:00 — starting daily ingestion job");
+  const msgs=[ nsrc+" sources reached, 0 timeouts", "parsed "+(320+Math.floor(Math.random()*120))+" raw records",
+    "mapped to unified schema, 0 errors", "3 near-duplicates flagged and blocked",
+    TorontoEventsDataset.length+" events upserted to events table" ];
+  for(let i=0;i<stages.length;i++){
+    const s=stages[i]; s.classList.add("run"); const sp=document.createElement("span"); sp.className="spin"; s.appendChild(sp); s.querySelector(".st").textContent="running…";
+    await wait(620+Math.random()*420);
+    sp.remove(); s.classList.remove("run"); s.classList.add("done"); s.querySelector(".st").textContent="done";
+    bar.style.width=Math.round(((i+1)/stages.length)*100)+"%";
+    state.parsedLines+=140+Math.floor(Math.random()*90);
+    logLine(i===3?"warn":"ok", STAGE_DEFS[i].nm+": "+msgs[i]);
+    if(i===3) state.dupesBlocked+=3;
+    renderStats();
+  }
+  logLine("ok","Job complete. Feed is current.");
+  document.getElementById("run-pipe").disabled=false; pipeRunning=false;
+  toast("good","Ingestion complete","Daily job finished. Counters updated.");
+}
+
+/* ---------- Scrapers ---------- */
+function buildScrapers(){
+  const wrap=document.getElementById("scrapers");
+  wrap.innerHTML=Object.keys(SCRAPER_POOLS).map(src=>{ const s=SCRAPER_POOLS[src];
+    return `<div class="scraper"><div class="s-src">${esc(src)}</div><div class="s-kind">${esc(s.kind)}</div><button class="btn" data-scrape="${esc(src)}">Launch scraper</button></div>`;
+  }).join("");
+  wrap.querySelectorAll("[data-scrape]").forEach(b=>b.addEventListener("click",()=>launchScraper(b.getAttribute("data-scrape"),b)));
+}
+async function launchScraper(src, btn){
+  const pool=SCRAPER_POOLS[src]; const used=state.usedScrapes[src]||0;
+  if(used>=pool.pool.length){ toast("warn","Source exhausted",src+" has no more new records in this demo pool."); return; }
+  const item=pool.pool[used]; const focus=document.getElementById("focus-scrape").value;
+  btn.disabled=true; const orig=btn.textContent; btn.textContent="Scraping…"; goToView("dev");
+  logLine("info","Launching fallback scraper: "+src+(focus!=="all"?(" · focus "+ZONE_LABEL[focus]):""));
+  await wait(700); logLine("ok","Connected to "+src+" — pulling latest records"); await wait(700);
+  state.usedScrapes[src]=used+1; state.parsedLines+=60+Math.floor(Math.random()*40);
+  if(item.dupOf){
+    state.dupesBlocked+=1; logLine("warn",'Dedupe blocked: "'+item.title+'" matches existing "'+item.dupOf+'"');
+    renderStats(); btn.disabled=false; btn.textContent=orig;
+    toast("block","Duplicate blocked","“"+item.title+"” is the same event already in the feed.");
+    return;
+  }
+  if(focus!=="all" && item.add.zone!==focus){ logLine("info","Note: nearest fresh record is in "+ZONE_LABEL[item.add.zone]+", not "+ZONE_LABEL[focus]); }
+  const newEv=ev(Object.assign({fresh:true}, item.add));
+  TorontoEventsDataset.push(newEv);
+  logLine("ok",'Inserted real event: "'+item.add.title+'" → '+ZONE_LABEL[item.add.zone]);
+  buildChips(); renderStats(); renderFeed(); renderMap();
+  btn.disabled=false; btn.textContent=orig;
+  toast("good","Event added","“"+item.add.title+"” is now live in the feed, with its source link.");
+}
+
+/* ---------- Raw JSON ---------- */
+function buildRawSelect(){ const sel=document.getElementById("raw-src"); const srcs=[...new Set(TorontoEventsDataset.map(e=>e.source))]; sel.innerHTML=srcs.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join(""); sel.addEventListener("change",renderRaw); renderRaw(); }
+function sampleFor(src){
+  const e=TorontoEventsDataset.find(x=>x.source===src)||TorontoEventsDataset[0];
+  return { source:src, fetched_at:new Date().toISOString(), record:{ id:e.id, title:e.title, venue:e.venue, neighbourhood:ZONE_LABEL[e.zone], category:e.category, starts:e.start+(e.time?("T"+e.time+":00-04:00"):""), ends:e.end, price:{free:e.free, amount_cad:e.amount}, source_url:e.url, raw_html_fallback:false }, parsed_lines:40+Math.floor(Math.random()*200) };
+}
+function renderRaw(){ document.getElementById("raw-json").innerHTML=colorJson(sampleFor(document.getElementById("raw-src").value)); }
+function colorJson(obj){
+  const json=JSON.stringify(obj,null,2);
+  return json.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)/g, m=>{
+      let cls="num"; if(/^"/.test(m)){ cls=/:$/.test(m)?"key":"str"; } else if(/true|false|null/.test(m)) cls="bool";
+      if(cls==="key") return '<span class="key">'+m.replace(/:$/,'')+'</span><span class="pn">:</span>';
+      return '<span class="'+cls+'">'+m+'</span>';
+    });
+}
+
+/* ---------- Dedupe sandbox ---------- */
+let dedupeIdx=0;
+function tokens(s){ return s.toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(Boolean); }
+function jaccard(a,b){ const A=new Set(tokens(a)),B=new Set(tokens(b)); let i=0; A.forEach(t=>{if(B.has(t))i++;}); const u=new Set([...A,...B]).size; return u?i/u:0; }
+function renderDedupePair(){
+  const p=DEDUPE_PAIRS[dedupeIdx%DEDUPE_PAIRS.length];
+  document.getElementById("dedupe-pair").innerHTML=["a","b"].map(k=>{ const r=p[k];
+    return `<div class="rec"><div class="lbl">Record ${k.toUpperCase()}</div><div class="field2">title: <span>${esc(r.title)}</span></div><div class="field2">venue: <span>${esc(r.venue)}</span></div><div class="field2">date: <span>${r.date}</span></div></div>`;
+  }).join(""); document.getElementById("verdict").className="verdict";
+}
+function runDedupe(){
+  const p=DEDUPE_PAIRS[dedupeIdx%DEDUPE_PAIRS.length];
+  const tS=jaccard(p.a.title,p.b.title), vS=jaccard(p.a.venue,p.b.venue), dS=p.a.date===p.b.date?1:0;
+  const score=+(tS*0.5+vS*0.3+dS*0.2).toFixed(2);
+  const v=document.getElementById("verdict"); const blocked=score>=0.72;
+  v.className="verdict show "+(blocked?"block":"keep");
+  v.innerHTML=`<div class="score">${score.toFixed(2)}</div><div class="vt">${blocked?"Duplicate — blocked":"Distinct — kept"}</div><div class="vd">title ${(tS*100|0)}% · venue ${(vS*100|0)}% · date ${dS?"match":"differs"}. Threshold 0.72.</div>`;
+  if(blocked){ state.dupesBlocked+=1; renderStats(); toast("block","Duplicate blocked","Match scored "+score.toFixed(2)+" — record B discarded."); }
+  else toast("good","Records kept","Match scored "+score.toFixed(2)+" — both are distinct events.");
+}
+
+/* ---------- Architecture ---------- */
+const ARCH={
+  cron:{type:"Scheduler",h:"Daily Cron · 06:00",p:"A scheduled job fires once a day before morning. It wakes the ingestion worker and starts the whole chain so the feed is fresh each day.",tags:["cron","once daily","06:00 ET"]},
+  api:{type:"Source",h:"Open Data APIs",p:"Structured sources like the City of Toronto Open Data portal return clean JSON over REST. These are the most reliable inputs and need the least cleanup.",tags:["REST","JSON","most reliable"]},
+  rss:{type:"Source",h:"RSS / Atom feeds",p:"Publishers such as blogTO and Daily Hive expose recent posts as feeds. The worker reads each one and pulls event-shaped items from it.",tags:["RSS","Atom","blogTO","Daily Hive"]},
+  headless:{type:"Fallback source",h:"Headless browser",p:"When a site has no API and no usable feed, a headless browser loads the page and reads the rendered HTML. Slower and more fragile, so it only runs as a fallback.",tags:["fallback only","renders HTML","slowest path"]},
+  ingest:{type:"Worker",h:"Ingestion worker",p:"Fetches every source in parallel, retries on failure, and drops raw records into a queue. One slow source never blocks the others.",tags:["parallel fetch","retry","queue"]},
+  normalize:{type:"Transform",h:"Normalizer",p:"Raw records arrive in different shapes. The normalizer maps each to one event model with the same fields for title, venue, neighborhood, time, and price.",tags:["unified schema","field mapping"]},
+  dedupe:{type:"Filter",h:"Dedupe engine",p:"The same event often appears in more than one source. The engine compares normalized title, venue, and date, and blocks anything above the similarity threshold.",tags:["fuzzy match","threshold 0.72","blocks dupes"]},
+  db:{type:"Storage",h:"Postgres database",p:"Surviving events are upserted into the events table. Upsert means a record that already exists is updated in place rather than duplicated.",tags:["Postgres","upsert","events table"]},
+  feed:{type:"Output",h:"Published feed",p:"The dashboard reads from the database and renders the cards, filters, stats, and map you see here. Each card links back to its original source.",tags:["read model","source links","this dashboard"]}
+};
+function selectArchNode(key){
+  document.querySelectorAll(".node").forEach(n=>n.classList.toggle("sel", n.getAttribute("data-node")===key));
+  const a=ARCH[key]; if(!a) return;
+  document.getElementById("arch-info").innerHTML=`<div class="ai-type">${a.type}</div><h3>${a.h}</h3><p>${a.p}</p>`+a.tags.map(t=>`<span class="tag">${t}</span>`).join("");
+}
+
+/* ---------- Views / refresh / wiring ---------- */
+function goToView(v){ state.view=v; document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected", t.getAttribute("data-view")===v)); document.querySelectorAll(".view").forEach(s=>s.classList.toggle("active", s.id==="view-"+v)); if(v==="map") renderMap(); }
+function refreshAll(){ renderFeed(); renderMap(); renderStats(); }
+function resetFilters(){
+  state.search=""; state.zone="all"; state.price="all"; state.when="all"; state.sort="date"; state.cats.clear(); state.srcs.clear();
+  document.getElementById("search").value=""; document.getElementById("zone-select").value="all"; document.getElementById("sort-select").value="date";
+  document.querySelectorAll("#price-seg button").forEach(x=>x.setAttribute("aria-pressed", x.getAttribute("data-price")==="all"));
+  document.querySelectorAll("#time-seg button").forEach(x=>x.setAttribute("aria-pressed", x.getAttribute("data-when")==="all"));
+  document.querySelectorAll("#cat-chips .chip,#src-chips .chip").forEach(c=>c.setAttribute("aria-pressed","false"));
+  refreshAll(); toast("info","Filters reset","Showing the full curated feed.");
+}
+function wire(){
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>goToView(t.getAttribute("data-view"))));
+  document.getElementById("search").addEventListener("input",e=>{ state.search=e.target.value; refreshAll(); });
+  document.getElementById("zone-select").addEventListener("change",e=>{ state.zone=e.target.value; refreshAll(); });
+  document.getElementById("sort-select").addEventListener("change",e=>{ state.sort=e.target.value; renderFeed(); });
+  document.getElementById("price-seg").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; state.price=b.getAttribute("data-price"); e.currentTarget.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); refreshAll(); });
+  document.getElementById("time-seg").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; state.when=b.getAttribute("data-when"); e.currentTarget.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); refreshAll(); });
+  document.getElementById("clear-filters").addEventListener("click",resetFilters);
+  document.getElementById("run-pipe").addEventListener("click",runPipeline);
+  document.getElementById("reset-pipe").addEventListener("click",()=>{ document.getElementById("console").innerHTML=""; document.getElementById("pipe-bar").style.width="0%"; document.querySelectorAll(".stage").forEach((s,i)=>{ s.className="stage"; s.querySelector(".st").textContent=STAGE_DEFS[i].st; }); });
+  document.getElementById("run-dedupe").addEventListener("click",runDedupe);
+  document.getElementById("shuffle-dedupe").addEventListener("click",()=>{ dedupeIdx++; renderDedupePair(); });
+  document.querySelectorAll(".node").forEach(n=>n.addEventListener("click",()=>selectArchNode(n.getAttribute("data-node"))));
+  document.getElementById("map-clear").addEventListener("click",()=>selectZone("all"));
+  document.getElementById("map-to-feed").addEventListener("click",()=>goToView("feed"));
+}
+function tickClock(){ const now=new Date(); document.getElementById("clock-time").textContent=now.toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric"})+" · "+now.toLocaleTimeString("en-CA",{hour:"2-digit",minute:"2-digit"}); }
+
+function init(){
+  document.getElementById("year").textContent=new Date().getFullYear();
+  buildChips(); buildZoneSelects(); buildStages(); buildScrapers(); buildRawSelect(); renderDedupePair(); selectArchNode("ingest");
+  wire(); refreshAll(); tickClock(); setInterval(tickClock,30000);
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
