@@ -358,6 +358,7 @@
   .svc-chip{flex:0 0 auto;appearance:none;border:1px solid var(--line-soft);background:var(--panel);color:var(--ink-soft);font-family:var(--body);font-size:.78rem;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;transition:border-color .16s,color .16s;white-space:nowrap;min-height:36px;}
   .svc-chip:hover{border-color:var(--amber-deep);color:var(--ink);}
   .svc-chip.active{background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:var(--on-accent);border-color:var(--amber-deep);}
+  .kind-chips{display:flex;gap:6px;margin:2px 0 12px;}
 
   /* ---------- Listings ---------- */
   .listings{margin-top:16px;display:flex;flex-direction:column;gap:10px;padding-bottom:30px;}
@@ -646,7 +647,7 @@ const LEAGUE_META = {
   wta:{  icon:"🎾", name:"WTA (women)",ca:"TSN" },
 };
 
-const state = { view: "US", date: todayStr(), query: "", filter: "all", service: "netflix" };
+const state = { view: "US", date: todayStr(), query: "", filter: "all", service: "netflix", streamKind: "tv" };
 let gridDetail = [];     // items currently painted in the main grid (US / Sports)
 let streamDetail = [];   // items currently painted on the Streaming tab
 
@@ -1257,11 +1258,11 @@ const TV_GENRES = {
 };
 // Service chips → TMDB network IDs (broadcast network of each service's originals)
 const SERVICES = {
-  netflix: { label:"Netflix",       id:213,  note:"" },
-  disney:  { label:"Disney+",       id:2739, note:"" },
-  apple:   { label:"Apple TV+",     id:2552, note:"" },
-  prime:   { label:"Prime Video",   id:1024, note:"" },
-  hbo:     { label:"HBO originals", id:49,   note:"In Canada, HBO shows stream on Crave." },
+  netflix: { label:"Netflix",       id:213,  mv:"8",     note:"" },
+  disney:  { label:"Disney+",       id:2739, mv:"337",   note:"" },
+  apple:   { label:"Apple TV+",     id:2552, mv:"350",   note:"" },
+  prime:   { label:"Prime Video",   id:1024, mv:"9|119", note:"" },
+  hbo:     { label:"HBO originals", id:49,   mv:"230",   note:"In Canada, HBO shows stream on Crave." },
 };
 const tmdbCache = {};   // url -> {data, time}
 
@@ -1468,6 +1469,28 @@ function chipsHTML(){
   ).join("");
 }
 
+/* Series vs Movies switch shown inside the Streaming panel. */
+function kindToggleHTML(){
+  const k = state.streamKind==="movie" ? "movie" : "tv";
+  return `<div class="kind-chips" role="group" aria-label="Series or movies">
+    <button class="svc-chip${k==="tv"?" active":""}" data-kind="tv" aria-pressed="${k==="tv"}">Series</button>
+    <button class="svc-chip${k==="movie"?" active":""}" data-kind="movie" aria-pressed="${k==="movie"}">Movies</button>
+  </div>`;
+}
+
+/* Movies for one service: what streams on it in Canada. with_watch_providers +
+   watch_region=CA returns that service's Canadian movie catalogue. Two lists:
+   most popular right now, and recent releases (newest first). */
+async function loadServiceMovies(providerId){
+  const today=todayStr();
+  const base=`${TMDB_BASE}/discover/movie?language=en-US&watch_region=CA&with_watch_providers=${encodeURIComponent(providerId)}&with_watch_monetization_types=flatrate`;
+  const [popular, recent]=await Promise.all([
+    tmdbFetchResults(`${base}&sort_by=popularity.desc&vote_count.gte=20&page=1`).catch(()=>[]),
+    tmdbFetchResults(`${base}&sort_by=primary_release_date.desc&primary_release_date.lte=${today}&vote_count.gte=10&page=1`).catch(()=>[]),
+  ]);
+  return { popular, recent };
+}
+
 /* Renders the Streaming tab's featured panel for the currently selected service.
    Named renderNetflixWeek for backwards-compat with the routing in render().
    If a search query is set, the panel switches to TMDB show search: any TV
@@ -1475,77 +1498,113 @@ function chipsHTML(){
    the search brings the Trending/Coming Soon discovery view back. */
 function renderNetflixWeek(){
   const svc = SERVICES[state.service] || SERVICES.netflix;
-  const chips = chipsHTML();
   const q = state.query.trim();
+  const isMovie = state.streamKind === "movie";
+  // Shared panel header: title, service chips, and the Series/Movies switch.
+  const head = `<h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
+    <div class="svc-chips">${chipsHTML()}</div>
+    ${kindToggleHTML()}`;
 
-  // ---- Search mode: TMDB free-text TV search across the full catalog ----
+  // ---- Search mode (follows the Series/Movies switch) ----
   if(q){
-    els.featured.innerHTML=`<div class="nba">
-      <h2>🔎 Search results <span class="tag">TMDB</span></h2>
-      <div class="sub">Searching TMDB for "${escapeHtml(q)}"...</div>
-    </div>`;
-    tmdbSearchTV(q).then(results=>{
-      if(!results.length){
-        els.featured.innerHTML=`<div class="nba">
-          <h2>🔎 Search results <span class="tag">TMDB</span></h2>
-          <div class="empty">No TV shows on TMDB match "${escapeHtml(q)}". Try a different spelling, or clear the search to see what's trending.</div>
-        </div>`;
+    els.featured.innerHTML=`<div class="nba">${head}
+      <div class="sub">Searching TMDB for "${escapeHtml(q)}"...</div></div>`;
+    if(isMovie){
+      tmdbFetchResults(`${TMDB_BASE}/search/movie?query=${encodeURIComponent(q)}&language=en-US&include_adult=false&page=1&region=CA`).then(results=>{
+        results=(results||[]).sort((a,b)=>(b.popularity||0)-(a.popularity||0)).slice(0,20);
+        if(!results.length){
+          els.featured.innerHTML=`<div class="nba">${head}
+            <div class="empty">No movies on TMDB match "${escapeHtml(q)}". Try a different spelling, or clear the search.</div></div>`;
+          return;
+        }
+        movieStore=[];
+        const cards=results.map(m=>movieCard(m,{ca:true, fullDate:true})).join("");
+        els.featured.innerHTML=`<div class="nba">${head}
+          <div class="sub">${results.length} movie${results.length>1?"s":""} match "${escapeHtml(q)}". The "In Canada" line shows where each one streams.</div>
+          <div class="nfx-list">${cards}</div>
+          <div class="src">Search across all of TMDB. Watch-provider data via JustWatch. Clear the search to get back to ${escapeHtml(svc.label)}.</div></div>`;
+        fillMovieProviders();
+      }).catch(()=>{
+        els.featured.innerHTML=`<div class="nba">${head}
+          <div class="empty">Couldn't reach TMDB right now. Try again in a moment.</div></div>`;
+      });
+    } else {
+      tmdbSearchTV(q).then(results=>{
+        if(!results.length){
+          els.featured.innerHTML=`<div class="nba">${head}
+            <div class="empty">No TV shows on TMDB match "${escapeHtml(q)}". Try a different spelling, or clear the search.</div></div>`;
+          return;
+        }
+        const cards = results.slice(0,20).map(tmdbCard).join("");
+        const verb = results.length===1 ? "matches" : "match";
+        els.featured.innerHTML=`<div class="nba">${head}
+          <div class="sub">${results.length} TV show${results.length>1?"s":""} ${verb} "${escapeHtml(q)}". The "In Canada" line below each title shows where it streams.</div>
+          <div class="nfx-list">${cards}</div>
+          <div class="src">Search across all of TMDB's TV catalog. Watch-provider data via JustWatch. Clear the search to see Trending / Coming Soon.</div></div>`;
+        fillCanadaProviders();
+      }).catch(()=>{
+        els.featured.innerHTML=`<div class="nba">${head}
+          <div class="empty">Couldn't reach TMDB right now. Try again in a moment.</div></div>`;
+      });
+    }
+    return;
+  }
+
+  // ---- Discovery mode ----
+  els.featured.innerHTML=`<div class="nba">${head}
+    <div class="sub">Loading ${escapeHtml(svc.label)} ${isMovie?"movies":"series"}...</div></div>`;
+
+  if(isMovie){
+    loadServiceMovies(svc.mv).then(({popular, recent})=>{
+      const seen=new Set();
+      popular=(popular||[]).slice(0,8);
+      popular.forEach(m=>seen.add(m.id));
+      recent=(recent||[]).filter(m=>!seen.has(m.id)).slice(0,8);
+      const note = svc.note ? `<div class="sub" style="margin-top:4px;color:var(--ink-faint)">${escapeHtml(svc.note)}</div>` : "";
+      if(!popular.length && !recent.length){
+        els.featured.innerHTML=`<div class="nba">${head}
+          <div class="empty">No ${escapeHtml(svc.label)} movies came back from TMDB. Try the Series switch, or the Movies tab.</div></div>`;
         return;
       }
-      const cards = results.slice(0,20).map(tmdbCard).join("");
-      const verb = results.length===1 ? "matches" : "match";
-      els.featured.innerHTML=`<div class="nba">
-        <h2>🔎 Search results <span class="tag">TMDB</span></h2>
-        <div class="sub">${results.length} TV show${results.length>1?"s":""} ${verb} "${escapeHtml(q)}". The "In Canada" line below each title shows where it streams.</div>
-        <div class="nfx-list">${cards}</div>
-        <div class="src">Search across all of <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">TMDB</a>'s TV catalog. Watch-provider data via JustWatch. Clear the search to see Trending / Coming Soon.</div>
-      </div>`;
-      fillCanadaProviders();
+      movieStore=[];
+      const popHTML=popular.map(m=>movieCard(m,{ca:true})).join("");
+      const recHTML=recent.map(m=>movieCard(m,{ca:true, fullDate:true})).join("");
+      els.featured.innerHTML=`<div class="nba">${head}
+        <div class="sub">Movies you can stream on ${escapeHtml(svc.label)} in Canada right now. Tap any card for the full details.</div>
+        ${note}
+        ${popular.length?`<div class="sports-sub">Popular now</div><div class="nfx-list">${popHTML}</div>`:""}
+        ${recent.length?`<div class="sports-sub">Recent releases</div><div class="nfx-list">${recHTML}</div>`:""}
+        <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. Catalogue and the "In Canada" line use TMDB's Canadian watch-provider data (via JustWatch).</div></div>`;
+      fillMovieProviders();
     }).catch(()=>{
-      els.featured.innerHTML=`<div class="nba">
-        <h2>🔎 Search results <span class="tag">TMDB</span></h2>
-        <div class="empty">Couldn't reach TMDB right now. Try again in a moment.</div>
-      </div>`;
+      els.featured.innerHTML=`<div class="nba">${head}
+        <div class="empty">Couldn't reach TMDB right now. The daily list below still works.</div></div>`;
     });
     return;
   }
 
-  // ---- Discovery mode: Trending now + Coming soon for the picked service ----
-  els.featured.innerHTML=`<div class="nba">
-    <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
-    <div class="svc-chips">${chips}</div>
-    <div class="sub">Loading ${escapeHtml(svc.label)}...</div>
-  </div>`;
+  // Series (TV) discovery — the original behaviour.
   loadServiceTrending(svc.id).then(({trending, upcoming})=>{
     const svcLabel = escapeHtml(svc.label);
     const note = svc.note ? `<div class="sub" style="margin-top:4px;color:var(--ink-faint)">${escapeHtml(svc.note)}</div>` : "";
     if(!trending.length && !upcoming.length){
-      els.featured.innerHTML=`<div class="nba">
-        <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
-        <div class="svc-chips">${chips}</div>
-        <div class="empty">No TMDB data for ${svcLabel} came back. The daily list below still works.</div>
-      </div>`;
+      els.featured.innerHTML=`<div class="nba">${head}
+        <div class="empty">No TMDB data for ${svcLabel} came back. The daily list below still works.</div></div>`;
       return;
     }
     const trendingHTML = trending.slice(0,8).map(tmdbCard).join("");
     const upcomingHTML = upcoming.slice(0,8).map(s=>tmdbCard(s,{premiere:true})).join("");
-    els.featured.innerHTML=`<div class="nba">
-      <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
-      <div class="svc-chips">${chips}</div>
-      <div class="sub">Popular ${svcLabel} titles right now, plus what's premiering soon. Tap any card for full details.</div>
+    els.featured.innerHTML=`<div class="nba">${head}
+      <div class="sub">Popular ${svcLabel} series right now, plus what's premiering soon. Tap any card for full details.</div>
       ${note}
       ${trending.length?`<div class="sports-sub">Trending now</div><div class="nfx-list">${trendingHTML}</div>`:""}
       ${upcoming.length?`<div class="sports-sub">Coming soon</div><div class="nfx-list">${upcomingHTML}</div>`:""}
-      <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. Discovery is global (network originals worldwide); the "In Canada" line per card uses TMDB's regional watch-provider data (via JustWatch).</div>
-    </div>`;
-    fillCanadaProviders();   // populate each card's "In Canada" line in the background
-    fillPremiereBadges();    // stamp the flashing premiere / next-season badge on Coming Soon cards
+      <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. Discovery is global (network originals worldwide); the "In Canada" line per card uses TMDB's regional watch-provider data (via JustWatch).</div></div>`;
+    fillCanadaProviders();
+    fillPremiereBadges();
   }).catch(()=>{
-    els.featured.innerHTML=`<div class="nba">
-      <h2>🎬 Streaming · What to watch <span class="tag">TMDB</span></h2>
-      <div class="svc-chips">${chips}</div>
-      <div class="empty">Couldn't reach TMDB right now. The daily list below still works.</div>
-    </div>`;
+    els.featured.innerHTML=`<div class="nba">${head}
+      <div class="empty">Couldn't reach TMDB right now. The daily list below still works.</div></div>`;
   });
 }
 
@@ -2123,6 +2182,12 @@ els.catfilter.addEventListener("click",e=>{
 });
 // chips inside the Streaming featured panel (re-rendered on each load, so use delegation)
 els.featured.addEventListener("click",e=>{
+  const kindBtn=e.target.closest("[data-kind]");
+  if(kindBtn){
+    const kind=kindBtn.dataset.kind;
+    if((kind==="tv"||kind==="movie") && state.streamKind!==kind){ state.streamKind=kind; renderNetflixWeek(); }
+    return;
+  }
   const chip=e.target.closest(".svc-chip"); if(!chip) return;
   if(!SERVICES[chip.dataset.svc]) return;
   state.service=chip.dataset.svc;
