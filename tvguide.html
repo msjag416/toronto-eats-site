@@ -35,8 +35,9 @@
 <style>
 
   /* ===== THEMES =====================================================
-     Aurora (cool dark) is the default in :root. Two override blocks add
-     Marquee (bright) and Noir (magenta dark). The page picks one via a
+     Aurora (cool dark) is the default in :root. Three override blocks add
+     Marquee (bright), Noir (magenta dark), and Original (red/white/black).
+     The page picks one via a
      data-theme attribute on <html>; see the switcher script near the end.
      --amber = main accent, --teal = secondary, --coral = live/alert. ===== */
   :root{
@@ -134,6 +135,38 @@
     --title-accent-bg:linear-gradient(#ff4fae,#ff4fae);
     --game-bg:rgba(0,0,0,.22);
     --tab-bg:rgba(20,22,28,.6);
+  }
+  html[data-theme="original"]{
+    --bg:#000000;
+    --bg-2:#0c0c0c;
+    --panel:rgba(255,255,255,.05);
+    --panel-2:rgba(255,255,255,.09);
+    --panel-solid:#121212;
+    --line:rgba(255,255,255,.14);
+    --line-soft:rgba(255,255,255,.08);
+    --ink:#ffffff;
+    --ink-soft:#cfcfcf;
+    --ink-faint:#8a8a8a;
+    --amber:#e50914;
+    --amber-deep:#b00610;
+    --teal:#ff4d4d;
+    --coral:#ff3b3b;
+    --glow:0 14px 40px rgba(0,0,0,.6);
+    --radius:14px;
+    --display:'Space Grotesk',sans-serif;
+    --body:'Spline Sans',sans-serif;
+    --on-accent:#ffffff;
+    --accent-tint:rgba(229,9,20,.12);
+    --info-bg:rgba(255,255,255,.07);
+    --info-ink:#ffffff;
+    --info-line:rgba(255,255,255,.26);
+    --alert-bg:rgba(229,9,20,.16);
+    --alert-ink:#ff6b6b;
+    --alert-line:rgba(229,9,20,.4);
+    --page-bg:radial-gradient(1000px 560px at 92% -10%,rgba(229,9,20,.16),transparent 58%),radial-gradient(820px 520px at -10% 12%,rgba(229,9,20,.05),transparent 55%),#000000;
+    --title-accent-bg:linear-gradient(120deg,#ff3b3b,#e50914);
+    --game-bg:rgba(0,0,0,.5);
+    --tab-bg:rgba(15,15,15,.65);
   }
 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -547,6 +580,7 @@
       <button class="themebtn" type="button" data-set="marquee" aria-pressed="false">Light</button>
       <button class="themebtn" type="button" data-set="noir" aria-pressed="false">Noir</button>
       <button class="themebtn" type="button" data-set="aurora" aria-pressed="false">Aurora</button>
+      <button class="themebtn" type="button" data-set="original" aria-pressed="false">Original</button>
     </div>
   </header>
 
