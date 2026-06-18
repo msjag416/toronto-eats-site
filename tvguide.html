@@ -226,12 +226,15 @@
   .search{position:relative;min-width:220px;flex:1 1 240px;max-width:340px;}
   .search input{
     width:100%;background:var(--panel);border:1px solid var(--line-soft);color:var(--ink);
-    border-radius:13px;padding:12px 14px 12px 38px;font-family:var(--body);font-size:16px;
+    border-radius:13px;padding:12px 40px 12px 38px;font-family:var(--body);font-size:16px;
     min-height:44px;
   }
   .search input::placeholder{color:var(--ink-faint);}
   .search input:focus{outline:none;border-color:var(--amber);background:var(--panel-2);}
   .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.5;}
+  .search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;border:0;border-radius:50%;background:var(--panel-2);color:var(--ink-soft);font-size:.8rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .search-clear:hover{color:var(--ink);}
+  .search-clear[hidden]{display:none;}
 
   /* ---------- Status ---------- */
   .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;}
@@ -554,6 +557,7 @@
       <div class="search">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="search" type="text" placeholder="Search a show or channel..." autocomplete="off" aria-label="Search a show or channel">
+        <button id="searchClear" class="search-clear" type="button" aria-label="Clear search" hidden>✕</button>
       </div>
     </div>
   </main>
@@ -2173,6 +2177,7 @@ function stripHtml(s){
 function switchView(v){
   state.view=v;
   state.query=""; els.search.value="";   // search is per-tab; don't carry it over
+  { const _sc=document.getElementById("searchClear"); if(_sc) _sc.hidden=true; }
   syncTabUI();
   render();
 }
@@ -2195,9 +2200,15 @@ els.tabs.addEventListener("keydown",e=>{
   switchView(tabs[i].dataset.view);
 });
 let typingTimer;
+const searchClear=document.getElementById("searchClear");
 els.search.addEventListener("input",e=>{
+  if(searchClear) searchClear.hidden=!e.target.value;
   clearTimeout(typingTimer);
   typingTimer=setTimeout(()=>{ state.query=e.target.value; render(); },200);
+});
+if(searchClear) searchClear.addEventListener("click",()=>{
+  els.search.value=""; searchClear.hidden=true;
+  state.query=""; render(); els.search.focus();
 });
 els.catfilter.addEventListener("click",e=>{
   const btn=e.target.closest(".catbtn"); if(!btn) return;
@@ -2310,6 +2321,38 @@ document.addEventListener("keydown", e=>{
   if(e.key==="Escape" && !sheetEls.wrap.hidden) closeSheet();
 });
 
+/* Swipe the detail sheet down to dismiss it on touch screens. The drag only
+   engages when the sheet is scrolled to the top, so it never fights content
+   scrolling. Past ~120px it closes; otherwise it snaps back. */
+(function(){
+  const sheet=document.getElementById("sheet");
+  if(!sheet) return;
+  let startY=0, dy=0, dragging=false;
+  sheet.addEventListener("touchstart",e=>{
+    if(sheet.scrollTop>0){ dragging=false; return; }
+    startY=e.touches[0].clientY; dy=0; dragging=true;
+    sheet.style.transition="none";
+  },{passive:true});
+  sheet.addEventListener("touchmove",e=>{
+    if(!dragging) return;
+    dy=e.touches[0].clientY-startY;
+    if(dy<0) dy=0;
+    sheet.style.transform="translateY("+dy+"px)";
+  },{passive:true});
+  sheet.addEventListener("touchend",()=>{
+    if(!dragging) return;
+    dragging=false;
+    sheet.style.transition="transform .25s ease";
+    if(dy>120){
+      sheet.style.transform="translateY(100%)";
+      setTimeout(()=>{ sheet.style.transform=""; sheet.style.transition=""; closeSheet(); },180);
+    } else {
+      sheet.style.transform="";
+      setTimeout(()=>{ sheet.style.transition=""; },260);
+    }
+  });
+})();
+
 /* Build the sheet's data from a TVmaze schedule item. The streaming feed nests
    the show under _embedded.show, so streamShow() reads the right one. */
 function detailFromItem(it, isStream){
@@ -2364,7 +2407,7 @@ readHash();              // open to a shared view/date if the URL has one
 buildDateButtons();
 syncTabUI();
 render();
-window.addEventListener("hashchange",()=>{ readHash(); state.query=""; els.search.value=""; buildDateButtons(); syncTabUI(); render(); });
+window.addEventListener("hashchange",()=>{ readHash(); state.query=""; els.search.value=""; { const _sc=document.getElementById("searchClear"); if(_sc) _sc.hidden=true; } buildDateButtons(); syncTabUI(); render(); });
 
 /* ---------- theme switcher (Auto / Light / Noir / Aurora) ----------
    "auto" follows the clock: Light (Marquee) from 7am, Aurora after 7pm.
