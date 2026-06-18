@@ -350,6 +350,9 @@
   @media (max-width:560px){
     .nfx-card{grid-template-columns:72px 1fr;gap:11px;padding:11px;}
     .nfx-poster{width:72px;height:102px;}
+    /* On phones, wrap the tab bar onto two rows so every section shows without swiping. */
+    .tabs{flex-wrap:wrap;justify-content:center;overflow-x:visible;width:100%;border-radius:20px;row-gap:4px;}
+    .tab{flex:0 1 auto;padding:9px 13px;font-size:.84rem;}
   }
 
   /* service selector chips inside the Streaming featured panel */
@@ -1900,7 +1903,8 @@ function renderEvents(){
 function render(){
   writeHash();   // keep the address bar shareable (#view=...&date=...)
   // the date strip only applies to listings-by-day views
-  els.dates.style.display = (state.view==="EVENTS"||state.view==="CA"||state.view==="WC"||state.view==="MOVIES") ? "none" : "flex";
+  // The date picker only changes the USA TV grid; other tabs are live or date-agnostic.
+  els.dates.style.display = (state.view==="US") ? "flex" : "none";
   // the network filter only applies to the USA grid
   els.catfilter.style.display = (state.view==="US") ? "flex" : "none";
   // the search box has nothing to act on the Canada tab (sports panel only)
