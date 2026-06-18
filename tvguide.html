@@ -1302,11 +1302,12 @@ function dedupeById(arr){
    so there is plenty), and the service's own originals. Both filtered by
    vote_count so obscure long-tail titles drop off. */
 async function loadServiceSeries(svc){
-  const cat=`${TMDB_BASE}/discover/tv?language=en-US&watch_region=CA&with_watch_providers=${encodeURIComponent(svc.mv)}&with_watch_monetization_types=flatrate&sort_by=popularity.desc&vote_count.gte=50`;
+  const floor=(new Date().getFullYear()-2)+"-01-01";   // last ~2 years only; no dusty back catalogue
+  const cat=`${TMDB_BASE}/discover/tv?language=en-US&watch_region=CA&with_watch_providers=${encodeURIComponent(svc.mv)}&with_watch_monetization_types=flatrate&sort_by=popularity.desc&vote_count.gte=40&first_air_date.gte=${floor}`;
   const [pop1, pop2, originals]=await Promise.all([
     tmdbFetchResults(`${cat}&page=1`).catch(()=>[]),
     tmdbFetchResults(`${cat}&page=2`).catch(()=>[]),
-    tmdbDiscoverNetwork(svc.id, { sort_by:"popularity.desc", "vote_count.gte":"40" }).catch(()=>[]),
+    tmdbDiscoverNetwork(svc.id, { sort_by:"popularity.desc", "vote_count.gte":"30", "first_air_date.gte":floor }).catch(()=>[]),
   ]);
   return { popular:[...pop1, ...pop2], originals };
 }
@@ -1497,11 +1498,12 @@ function kindToggleHTML(){
    most popular right now, and recent releases (newest first). */
 async function loadServiceMovies(providerId){
   const today=todayStr();
-  const base=`${TMDB_BASE}/discover/movie?language=en-US&watch_region=CA&with_watch_providers=${encodeURIComponent(providerId)}&with_watch_monetization_types=flatrate`;
+  const floor=(new Date().getFullYear()-2)+"-01-01";   // last ~2 years only
+  const base=`${TMDB_BASE}/discover/movie?language=en-US&watch_region=CA&with_watch_providers=${encodeURIComponent(providerId)}&with_watch_monetization_types=flatrate&primary_release_date.gte=${floor}&primary_release_date.lte=${today}`;
   const [pop1, pop2, recent]=await Promise.all([
-    tmdbFetchResults(`${base}&sort_by=popularity.desc&vote_count.gte=50&page=1`).catch(()=>[]),
-    tmdbFetchResults(`${base}&sort_by=popularity.desc&vote_count.gte=50&page=2`).catch(()=>[]),
-    tmdbFetchResults(`${base}&sort_by=primary_release_date.desc&primary_release_date.lte=${today}&vote_count.gte=25&page=1`).catch(()=>[]),
+    tmdbFetchResults(`${base}&sort_by=popularity.desc&vote_count.gte=40&page=1`).catch(()=>[]),
+    tmdbFetchResults(`${base}&sort_by=popularity.desc&vote_count.gte=40&page=2`).catch(()=>[]),
+    tmdbFetchResults(`${base}&sort_by=primary_release_date.desc&vote_count.gte=15&page=1`).catch(()=>[]),
   ]);
   return { popular:[...pop1, ...pop2], recent };
 }
@@ -1585,7 +1587,7 @@ function renderNetflixWeek(){
       const popHTML=popular.map(m=>movieCard(m,{ca:true})).join("");
       const recHTML=recent.map(m=>movieCard(m,{ca:true, fullDate:true})).join("");
       els.featured.innerHTML=`<div class="nba">${head}
-        <div class="sub">Movies you can stream on ${escapeHtml(svc.label)} in Canada right now, popular titles first. Tap any card for the full details.</div>
+        <div class="sub">Recent movies on ${escapeHtml(svc.label)} in Canada, popular titles first. Tap any card for the full details.</div>
         ${note}
         ${popular.length?`<div class="sports-sub">Popular now</div><div class="nfx-list">${popHTML}</div>`:""}
         ${recent.length?`<div class="sports-sub">Recent releases</div><div class="nfx-list">${recHTML}</div>`:""}
@@ -1614,7 +1616,7 @@ function renderNetflixWeek(){
     const popHTML = popular.map(tmdbCard).join("");
     const origHTML = originals.map(tmdbCard).join("");
     els.featured.innerHTML=`<div class="nba">${head}
-      <div class="sub">Popular series on ${svcLabel} in Canada right now, plus originals it produced. Tap any card for full details.</div>
+      <div class="sub">Recent, popular series on ${svcLabel} in Canada, plus recent originals it produced. Tap any card for full details.</div>
       ${note}
       ${popular.length?`<div class="sports-sub">Popular now</div><div class="nfx-list">${popHTML}</div>`:""}
       ${originals.length?`<div class="sports-sub">Originals</div><div class="nfx-list">${origHTML}</div>`:""}
