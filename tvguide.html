@@ -353,14 +353,16 @@
   @media (max-width:560px){
     .nfx-card{grid-template-columns:72px 1fr;gap:11px;padding:11px;}
     .nfx-poster{width:72px;height:102px;}
-    /* On phones, wrap the tab bar onto two rows so every section shows without swiping. */
-    .tabs{flex-wrap:wrap;justify-content:center;overflow-x:visible;width:100%;border-radius:20px;row-gap:4px;}
-    .tab{flex:0 1 auto;padding:9px 13px;font-size:.84rem;}
-    /* Same for the streaming service chips: wrap so every service is visible. */
+    /* On phones these rows wrap so every item is visible without swiping, and
+       they are kept compact so the program listings stay high on the screen. */
+    .tabs{flex-wrap:wrap;justify-content:center;overflow-x:visible;width:100%;border-radius:18px;row-gap:4px;margin-top:10px;padding:4px;}
+    .tab{flex:0 1 auto;padding:7px 12px;font-size:.82rem;min-height:34px;}
     .svc-chips{flex-wrap:wrap;overflow-x:visible;row-gap:6px;}
-    .svc-chip{flex:0 1 auto;}
-    /* And the date buttons on USA TV: wrap so every day is visible without swiping. */
-    .dates{flex-wrap:wrap;overflow-x:visible;row-gap:8px;}
+    .svc-chip{flex:0 1 auto;min-height:32px;padding:6px 12px;font-size:.74rem;}
+    .kind-chips{margin:2px 0 10px;}
+    .dates{flex-wrap:wrap;overflow-x:visible;row-gap:6px;gap:6px;}
+    .datebtn{min-height:38px;padding:6px 11px;font-size:.74rem;}
+    .datebtn b{font-size:.88rem;}
   }
 
   /* service selector chips inside the Streaming featured panel */
@@ -667,6 +669,7 @@ const els = {
   tabs:     document.getElementById("tabs"),
   dates:    document.getElementById("dates"),
   search:   document.getElementById("search"),
+  searchClear: document.getElementById("searchClear"),
   searchBox: document.querySelector(".search"),
   listings: document.getElementById("listings"),
   featured: document.getElementById("featured"),
@@ -682,6 +685,15 @@ function todayStr(){ return toStr(new Date()); }
 function toStr(d){
   const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
   return `${y}-${m}-${day}`;
+}
+/* Swap a broken poster/thumbnail for its placeholder instead of showing a
+   broken-image icon. Runs once per image (clears its own handler). */
+function imgFallback(img){
+  img.onerror=null;
+  const ph=document.createElement("div");
+  ph.className=img.className+" ph";
+  ph.textContent=img.classList.contains("thumb") ? "📺" : "🎬";
+  img.replaceWith(ph);
 }
 function buildDateButtons(){
   const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -823,7 +835,7 @@ function gameRowHTML(ev, opts){
     // team-based leagues (NBA/NHL/MLB/WNBA/soccer)
     if(t.team){
       const nm=t.team.abbreviation||t.team.shortDisplayName||t.team.displayName||"TBD";
-      const logo=t.team.logo?`<img src="${t.team.logo}" alt="">`:"";
+      const logo=t.team.logo?`<img src="${t.team.logo}" alt="" onerror="this.style.display='none'">`:"";
       return `${logo}${escapeHtml(nm)}`;
     }
     // individual sports (tennis ATP/WTA) — ESPN nests an `athlete` instead of a `team`
@@ -1237,7 +1249,7 @@ function renderStreaming(){
       const typ=s.type||(s.genres&&s.genres[0])||"";
       return `<div class="item" data-sdi="${i}" role="button" tabindex="0" aria-label="Details for ${escapeHtml(s.name||"this show")}" style="animation-delay:${delay}s">
         <div class="time">▶<small>Stream</small></div>
-        ${img?`<img class="thumb" src="${img}" alt="" loading="lazy">`:`<div class="thumb ph">🎬</div>`}
+        ${img?`<img class="thumb" src="${img}" alt="" loading="lazy" onerror="imgFallback(this)">`:`<div class="thumb ph">🎬</div>`}
         <div class="meta">
           <div class="show">${escapeHtml(s.name||"Untitled")}</div>
           ${ep?`<div class="ep">${ep}</div>`:""}
@@ -1357,7 +1369,7 @@ function tmdbCard(show, opts){
   // "Premieres <date>" or "Season N returns <date>" once TMDB confirms a date.
   const premiereSlot = opts.premiere ? `<div class="prem-badge pending" data-prem-id="${show.id}"></div>` : "";
   const inner=`
-    ${poster?`<img class="nfx-poster" src="${escapeHtml(poster)}" alt="" loading="lazy">`:`<div class="nfx-poster ph">🎬</div>`}
+    ${poster?`<img class="nfx-poster" src="${escapeHtml(poster)}" alt="" loading="lazy" onerror="imgFallback(this)">`:`<div class="nfx-poster ph">🎬</div>`}
     <div class="nfx-body">
       ${premiereSlot}
       <div class="nfx-title">${escapeHtml(name)}</div>
@@ -1687,7 +1699,7 @@ function movieCard(m, opts){
   const desc=(m.overview||"").trim();
   const name=m.title||m.original_title||"Untitled";
   return `<div class="nfx-card" data-mvi="${i}" role="button" tabindex="0" aria-label="Details for ${escapeHtml(name)}">
-    ${poster?`<img class="nfx-poster" src="${escapeHtml(poster)}" alt="" loading="lazy">`:`<div class="nfx-poster ph">🎬</div>`}
+    ${poster?`<img class="nfx-poster" src="${escapeHtml(poster)}" alt="" loading="lazy" onerror="imgFallback(this)">`:`<div class="nfx-poster ph">🎬</div>`}
     <div class="nfx-body">
       <div class="nfx-title">${escapeHtml(name)}</div>
       ${sub?`<div class="nfx-sub">${escapeHtml(sub)}</div>`:""}
@@ -2079,7 +2091,7 @@ function paint(list, totalForDay){
 
     return `<div class="item${onNow?" now":""}" data-di="${i}" role="button" tabindex="0" aria-label="Details for ${escapeHtml(s.name||"this show")}" data-start="${start==null?"":start}" data-dur="${dur}" style="animation-delay:${delay}s">
       <div class="time">${time}<small>${small}</small></div>
-      ${img?`<img class="thumb" src="${img}" alt="" loading="lazy">`:`<div class="thumb ph">📺</div>`}
+      ${img?`<img class="thumb" src="${img}" alt="" loading="lazy" onerror="imgFallback(this)">`:`<div class="thumb ph">📺</div>`}
       <div class="meta">
         <div class="show">${escapeHtml(s.name||"Untitled")}</div>
         ${ep?`<div class="ep">${ep}</div>`:""}
@@ -2177,7 +2189,7 @@ function stripHtml(s){
 function switchView(v){
   state.view=v;
   state.query=""; els.search.value="";   // search is per-tab; don't carry it over
-  { const _sc=document.getElementById("searchClear"); if(_sc) _sc.hidden=true; }
+  if(els.searchClear) els.searchClear.hidden=true;
   syncTabUI();
   render();
 }
@@ -2200,14 +2212,13 @@ els.tabs.addEventListener("keydown",e=>{
   switchView(tabs[i].dataset.view);
 });
 let typingTimer;
-const searchClear=document.getElementById("searchClear");
 els.search.addEventListener("input",e=>{
-  if(searchClear) searchClear.hidden=!e.target.value;
+  if(els.searchClear) els.searchClear.hidden=!e.target.value;
   clearTimeout(typingTimer);
   typingTimer=setTimeout(()=>{ state.query=e.target.value; render(); },200);
 });
-if(searchClear) searchClear.addEventListener("click",()=>{
-  els.search.value=""; searchClear.hidden=true;
+if(els.searchClear) els.searchClear.addEventListener("click",()=>{
+  els.search.value=""; els.searchClear.hidden=true;
   state.query=""; render(); els.search.focus();
 });
 els.catfilter.addEventListener("click",e=>{
@@ -2294,7 +2305,7 @@ function openSheet(d){
   if(d.tmdb) actions.push(`<a class="sheet-btn" href="${escapeHtml(d.tmdb)}" target="_blank" rel="noopener">More on TMDB</a>`);
 
   sheetEls.content.innerHTML=`
-    <div class="sheet-hero${heroImg?"":" noimg"}">${heroImg?`<img src="${escapeHtml(heroImg)}" alt="">`:""}</div>
+    <div class="sheet-hero${heroImg?"":" noimg"}">${heroImg?`<img src="${escapeHtml(heroImg)}" alt="" onerror="this.style.display='none'">`:""}</div>
     <div class="sheet-body">
       ${d.kicker?`<div class="sheet-kicker">${escapeHtml(d.kicker)}</div>`:""}
       <div class="sheet-title" id="sheetTitle">${escapeHtml(d.title||"Untitled")}</div>
@@ -2407,7 +2418,7 @@ readHash();              // open to a shared view/date if the URL has one
 buildDateButtons();
 syncTabUI();
 render();
-window.addEventListener("hashchange",()=>{ readHash(); state.query=""; els.search.value=""; { const _sc=document.getElementById("searchClear"); if(_sc) _sc.hidden=true; } buildDateButtons(); syncTabUI(); render(); });
+window.addEventListener("hashchange",()=>{ readHash(); state.query=""; els.search.value=""; if(els.searchClear) els.searchClear.hidden=true; buildDateButtons(); syncTabUI(); render(); });
 
 /* ---------- theme switcher (Auto / Light / Noir / Aurora) ----------
    "auto" follows the clock: Light (Marquee) from 7am, Aurora after 7pm.
