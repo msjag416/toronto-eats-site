@@ -2406,11 +2406,23 @@ els.tabs.addEventListener("keydown",e=>{
   tabs[i].focus();
   switchView(tabs[i].dataset.view);
 });
+/* After a search, slide the page down to the results so the match is visible
+   instead of staying parked on the search box. Leaves room for the sticky tab
+   bar, which can wrap to several rows on a phone. */
+function scrollToResults(){
+  if(!state.query.trim()) return;
+  const target = (els.featured && els.featured.style.display!=="none") ? els.featured : els.listings;
+  if(!target) return;
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const tabH = els.tabs ? els.tabs.getBoundingClientRect().height : 0;
+  const y = window.scrollY + target.getBoundingClientRect().top - tabH - 20;
+  window.scrollTo({ top: Math.max(0, y), behavior: reduce ? "auto" : "smooth" });
+}
 let typingTimer;
 els.search.addEventListener("input",e=>{
   if(els.searchClear) els.searchClear.hidden=!e.target.value;
   clearTimeout(typingTimer);
-  typingTimer=setTimeout(()=>{ state.query=e.target.value; render(); },200);
+  typingTimer=setTimeout(()=>{ state.query=e.target.value; render(); requestAnimationFrame(scrollToResults); },200);
 });
 if(els.searchClear) els.searchClear.addEventListener("click",()=>{
   els.search.value=""; els.searchClear.hidden=true;
