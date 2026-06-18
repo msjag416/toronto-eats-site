@@ -551,6 +551,7 @@
     <button class="tab" data-view="STREAM" role="tab" aria-selected="false">Streaming</button>
     <button class="tab" data-view="MOVIES" role="tab" aria-selected="false">Movies</button>
     <button class="tab" data-view="EVENTS" role="tab" aria-selected="false">Events</button>
+    <button class="tab" data-view="TRACKER" role="tab" aria-selected="false">Tracker</button>
   </nav>
 
   <main class="controls" role="main">
@@ -642,7 +643,7 @@ const REFRESH_MS = 1000 * 60 * 60 * 6;            // background refresh every 6 
 const cache = {};                                  // TVmaze schedule cache: key -> {data, time}
 const leagueCache = {};                            // ESPN scores cache, keyed by league -> {data, time}
 let streamCache = null;                            // TVmaze streaming cache {date, data, time}
-const VALID_VIEWS = ["US","CA","SPORTS","WC","STREAM","MOVIES","EVENTS"];
+const VALID_VIEWS = ["US","CA","SPORTS","WC","STREAM","MOVIES","EVENTS","TRACKER"];
 
 // ESPN scoreboard paths per league
 const SPORT_PATH = {
@@ -1745,6 +1746,50 @@ function detailFromMovie(m){
   };
 }
 
+function renderTracker(){
+  // Recent, popular shows grouped by TMDB status. "Returning Series" covers
+  // both ongoing and freshly renewed shows (TMDB has no separate renewed flag);
+  // status is community-maintained, so a brand-new renewal or cancellation can
+  // take a little while to appear here.
+  const floor=(new Date().getFullYear()-3)+"-01-01";
+  const base=`${TMDB_BASE}/discover/tv?language=en-US&sort_by=popularity.desc&vote_count.gte=50&first_air_date.gte=${floor}&page=1`;
+  els.featured.innerHTML=`<div class="nba">
+    <h2>\u{1F4FA} Renewed &amp; Canceled <span class="tag">TMDB</span></h2>
+    <div class="sub">Loading the latest show statuses...</div>
+  </div>`;
+  Promise.all([
+    tmdbFetchResults(`${base}&with_status=0`).catch(()=>[]),   // returning / renewed
+    tmdbFetchResults(`${base}&with_status=4`).catch(()=>[]),   // canceled
+    tmdbFetchResults(`${base}&with_status=3`).catch(()=>[]),   // ended
+  ]).then(([returning, canceled, ended])=>{
+    returning=dedupeById(returning).slice(0,12);
+    canceled=dedupeById(canceled).slice(0,12);
+    ended=dedupeById(ended).slice(0,12);
+    if(!returning.length && !canceled.length && !ended.length){
+      els.featured.innerHTML=`<div class="nba">
+        <h2>\u{1F4FA} Renewed &amp; Canceled <span class="tag">TMDB</span></h2>
+        <div class="empty">No status data came back from TMDB. Try again in a moment.</div>
+      </div>`;
+      return;
+    }
+    const sec=(title,arr)=> arr.length?`<div class="sports-sub">${title}</div><div class="nfx-list">${arr.map(s=>tmdbCard(s)).join("")}</div>`:"";
+    els.featured.innerHTML=`<div class="nba">
+      <h2>\u{1F4FA} Renewed &amp; Canceled <span class="tag">TMDB</span></h2>
+      <div class="sub">Recent, popular shows grouped by status. Renewed and ongoing shows both appear under Returning. Tap any card for details; the "In Canada" line shows where to watch it.</div>
+      ${sec("Returning / Renewed", returning)}
+      ${sec("Canceled", canceled)}
+      ${sec("Ended", ended)}
+      <div class="src">Status data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>, community-maintained, so a brand-new renewal or cancellation can take a little while to update. Watch-provider data via JustWatch.</div>
+    </div>`;
+    fillCanadaProviders();
+  }).catch(()=>{
+    els.featured.innerHTML=`<div class="nba">
+      <h2>\u{1F4FA} Renewed &amp; Canceled <span class="tag">TMDB</span></h2>
+      <div class="empty">Couldn't reach TMDB right now. Try again in a moment.</div>
+    </div>`;
+  });
+}
+
 function renderMovies(){
   movieStore=[];
   const q=state.query.trim();
@@ -1789,12 +1834,22 @@ function renderMovies(){
   const today=todayStr();
   const past=new Date(); past.setMonth(past.getMonth()-3);
   const pastStr=toStr(past);
+  // North American scope (US releases) instead of Canada-only. "New to
+  // streaming" is fetched in two passes so titles that had a theatrical run
+  // lead and straight-to-streaming titles trail.
+  const strBase=`${TMDB_BASE}/discover/movie?language=en-US&region=US&watch_region=US&with_watch_monetization_types=flatrate%7Cfree%7Cads&primary_release_date.gte=${pastStr}&primary_release_date.lte=${today}&vote_count.gte=20&sort_by=primary_release_date.desc`;
   Promise.all([
-    tmdbFetchResults(`${TMDB_BASE}/movie/now_playing?language=en-US&region=CA&page=1`).catch(()=>[]),
-    tmdbFetchResults(`${TMDB_BASE}/movie/upcoming?language=en-US&region=CA&page=1`).catch(()=>[]),
-    tmdbFetchResults(`${TMDB_BASE}/discover/movie?language=en-US&watch_region=CA&with_watch_monetization_types=flatrate%7Cfree%7Cads&sort_by=primary_release_date.desc&primary_release_date.lte=${today}&primary_release_date.gte=${pastStr}&vote_count.gte=20&page=1`).catch(()=>[]),
-  ]).then(([now, up, stream])=>{
+    tmdbFetchResults(`${TMDB_BASE}/movie/now_playing?language=en-US&region=US&page=1`).catch(()=>[]),
+    tmdbFetchResults(`${TMDB_BASE}/movie/upcoming?language=en-US&region=US&page=1`).catch(()=>[]),
+    tmdbFetchResults(`${strBase}&with_release_type=2%7C3&page=1`).catch(()=>[]),   // had a theatrical run
+    tmdbFetchResults(`${strBase}&with_release_type=4&page=1`).catch(()=>[]),       // straight to streaming
+  ]).then(([now, up, streamTheatrical, streamDigital])=>{
     movieStore=[];   // rebuild the store fresh for this paint
+    // theatre releases first, straight-to-streaming after
+    const seenStream=new Set();
+    let stream=dedupeById(streamTheatrical);
+    stream.forEach(m=>seenStream.add(m.id));
+    stream=[...stream, ...dedupeById(streamDigital).filter(m=>!seenStream.has(m.id))];
     now=now.filter(m=>m.release_date && m.release_date<=today)
            .sort((a,b)=>(b.popularity||0)-(a.popularity||0));
     up=up.filter(m=>m.release_date && m.release_date>today)
@@ -1808,14 +1863,14 @@ function renderMovies(){
     }
     const nowHTML=now.slice(0,8).map(m=>movieCard(m)).join("");
     const upHTML=up.slice(0,8).map(m=>movieCard(m,{fullDate:true})).join("");
-    const streamHTML=stream.slice(0,8).map(m=>movieCard(m,{ca:true, fullDate:true})).join("");
+    const streamHTML=stream.slice(0,12).map(m=>movieCard(m,{ca:true, fullDate:true})).join("");
     els.featured.innerHTML=`<div class="nba">
       <h2>🎬 Movies <span class="tag">New releases</span></h2>
-      <div class="sub">What's playing in Canadian theatres, what's about to open, and recent movies that just hit streaming. Tap any card for the full details, or use the search box to look up any movie.</div>
+      <div class="sub">What's playing in North American theatres, what's about to open, and recent movies that just hit streaming, theatre releases first. Tap any card for the full details, or use the search box to look up any movie.</div>
       ${now.length?`<div class="sports-sub">Now in theatres</div><div class="nfx-list">${nowHTML}</div>`:""}
       ${up.length?`<div class="sports-sub">Coming soon</div><div class="nfx-list">${upHTML}</div>`:""}
       ${stream.length?`<div class="sports-sub">New to streaming</div><div class="nfx-list">${streamHTML}</div>`:""}
-      <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. Theatre and release dates reflect Canada. Watch-provider data via JustWatch.</div>
+      <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. Theatre and release dates reflect North America (US); the line on each streaming card shows where to watch it in Canada. Watch-provider data via JustWatch.</div>
     </div>`;
     fillMovieProviders();
   }).catch(()=>{
@@ -1946,7 +2001,7 @@ function render(){
   // the network filter only applies to the USA grid
   els.catfilter.style.display = (state.view==="US") ? "flex" : "none";
   // the search box has nothing to act on the Canada tab (sports panel only)
-  els.searchBox.style.display = (state.view==="CA") ? "none" : "";
+  els.searchBox.style.display = (state.view==="CA"||state.view==="TRACKER") ? "none" : "";
 
   // featured panel: NBA on Sports, Canadian sports on Canada, World Cup on WC, Netflix on Streaming
   if(state.view==="SPORTS"){
@@ -1964,6 +2019,9 @@ function render(){
   } else if(state.view==="MOVIES"){
     els.featured.style.display="block";
     renderMovies();
+  } else if(state.view==="TRACKER"){
+    els.featured.style.display="block";
+    renderTracker();
   } else {
     els.featured.style.display="none";
     els.featured.innerHTML="";
@@ -1985,6 +2043,14 @@ function render(){
 
   // Movies: TMDB panel only
   if(state.view==="MOVIES"){
+    els.note.style.display="none";
+    els.listings.innerHTML="";
+    els.count.textContent="";
+    return;
+  }
+
+  // Tracker: renewed/canceled panel only
+  if(state.view==="TRACKER"){
     els.note.style.display="none";
     els.listings.innerHTML="";
     els.count.textContent="";
