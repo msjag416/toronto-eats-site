@@ -68,6 +68,8 @@
     --alert-line:rgba(255,92,138,.35);
     --page-bg:radial-gradient(1000px 560px at 92% -10%,rgba(106,92,240,.2),transparent 58%),radial-gradient(820px 520px at -10% 12%,rgba(70,224,230,.13),transparent 55%),#0a0c14;
     --title-accent-bg:linear-gradient(120deg,#a89bff,#5fe7ec);
+    --game-bg:rgba(10,12,20,.5);
+    --tab-bg:rgba(18,21,33,.6);
   }
   html[data-theme="marquee"]{
     --bg:#f4f6f9;
@@ -98,6 +100,8 @@
     --alert-line:rgba(226,58,58,.3);
     --page-bg:#f4f6f9;
     --title-accent-bg:linear-gradient(#d6178f,#d6178f);
+    --game-bg:#f6f8fb;
+    --tab-bg:#ffffff;
   }
   html[data-theme="noir"]{
     --bg:#101218;
@@ -128,6 +132,8 @@
     --alert-line:rgba(255,90,90,.35);
     --page-bg:radial-gradient(900px 520px at 88% -12%,rgba(255,79,174,.14),transparent 56%),radial-gradient(700px 480px at -8% 8%,rgba(120,90,255,.1),transparent 55%),#101218;
     --title-accent-bg:linear-gradient(#ff4fae,#ff4fae);
+    --game-bg:rgba(0,0,0,.22);
+    --tab-bg:rgba(20,22,28,.6);
   }
 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -182,7 +188,7 @@
 
   .tabs{
     display:flex;gap:4px;align-items:center;
-    background:rgba(13,17,24,.72);
+    background:var(--tab-bg);
     -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
     border:1px solid var(--line);border-radius:999px;padding:5px;
     width:fit-content;max-width:100%;
@@ -259,7 +265,7 @@
   .games{display:flex;flex-direction:column;gap:8px;}
   .game{
     display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
-    background:rgba(7,9,14,.5);border:1px solid var(--line-soft);border-radius:13px;padding:11px 14px;
+    background:var(--game-bg);border:1px solid var(--line-soft);border-radius:13px;padding:11px 14px;
   }
   .game .label{font-size:.64rem;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-faint);margin-bottom:5px;}
   .matchup{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;font-size:.98rem;}
@@ -282,7 +288,7 @@
   /* live game in session: pulsing coral border + LIVE NOW badge */
   .game.live{
     border-color:var(--coral);
-    background:linear-gradient(180deg,rgba(255,111,111,.09),rgba(7,9,14,.5));
+    background:linear-gradient(180deg,rgba(255,111,111,.09),var(--game-bg));
     animation:livepulse 1.7s ease-in-out infinite;
   }
   @keyframes livepulse{
@@ -297,7 +303,7 @@
      The reduced-motion block further down disables the animation entirely. */
   .game.starmatch{
     border-color:var(--amber);
-    background:linear-gradient(180deg,rgba(255,179,71,.12),rgba(7,9,14,.5));
+    background:linear-gradient(180deg,rgba(255,179,71,.12),var(--game-bg));
     animation:starpulse 2.6s ease-in-out infinite;
   }
   @keyframes starpulse{
@@ -314,7 +320,7 @@
 
   /* Streaming discovery cards: poster + name + genres + description */
   .nfx-list{display:flex;flex-direction:column;gap:10px;}
-  .nfx-card{display:grid;grid-template-columns:92px 1fr;gap:14px;background:rgba(7,9,14,.5);border:1px solid var(--line-soft);border-radius:14px;padding:12px 14px;text-decoration:none;color:inherit;transition:border-color .16s,transform .16s,box-shadow .16s;}
+  .nfx-card{display:grid;grid-template-columns:92px 1fr;gap:14px;background:var(--game-bg);border:1px solid var(--line-soft);border-radius:14px;padding:12px 14px;text-decoration:none;color:inherit;transition:border-color .16s,transform .16s,box-shadow .16s;}
   a.nfx-card:hover{border-color:var(--amber-deep);transform:translateY(-2px);box-shadow:var(--glow);}
   .nfx-poster{width:92px;height:130px;border-radius:10px;background:var(--bg-2);object-fit:cover;border:1px solid var(--line-soft);}
   .nfx-poster.ph{display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:var(--ink-faint);}
