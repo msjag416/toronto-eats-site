@@ -241,7 +241,8 @@
 
   .map-wrap{padding:18px}
   .map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:8px}
-  .map-svg{width:100%;height:auto;display:block;border-radius:12px;background:var(--map-bg)}
+  .map-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border-radius:12px}
+  .map-svg{width:100%;min-width:720px;height:auto;display:block;border-radius:12px;background:var(--map-bg)}
   .zone{cursor:pointer}
   .zone rect{fill:var(--raise);stroke:var(--stroke-2);stroke-width:1.2;transition:.18s}
   .zone:hover rect{fill:rgba(83,224,212,0.12);stroke:var(--cyan)}
@@ -278,6 +279,17 @@
     .ops{justify-content:flex-start}
     .filters,.panel,.subfilters,.sf,.frow,.field{min-width:0}
     .seg{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+    header.top{gap:12px}
+    .themer{flex-wrap:wrap}
+    .ops{gap:10px 14px;row-gap:10px}
+  }
+  @media (max-width:480px){
+    .ribbon{grid-template-columns:1fr;gap:10px}
+    .brand h1{font-size:20px}
+    .brand .sub{font-size:11px}
+    .ops{width:100%;gap:9px 12px}
+    .btn.sync{padding:8px 14px}
+    .map-head{margin-bottom:6px}
   }
   @media (prefers-reduced-motion:reduce){ *{animation:none !important;transition:none !important} }
 </style>
@@ -437,6 +449,7 @@
           <p class="sec-note">Tap a neighborhood to highlight it and filter the live feed to that area. Numbers show upcoming events per zone; dimmed zones have none in the current window.</p></div>
         <button class="btn" id="map-clear">Show all areas</button>
       </div>
+      <div class="map-scroll">
       <svg class="map-svg" id="map-svg" viewBox="0 0 1000 640" role="img" aria-label="Stylized map of Toronto neighborhoods">
         <text class="compass" x="956" y="34">N ↑</text>
         <path class="gardiner" id="gardiner-line" d="M40 452 Q 360 432 620 446 T 962 452"/>
@@ -445,6 +458,7 @@
         <text class="lake-lbl" x="500" y="612" text-anchor="middle">L A K E   O N T A R I O</text>
         <g id="zones"></g>
       </svg>
+      </div>
       <div class="map-feed-note">
         <div id="map-note-text">Showing <b id="map-total">0</b> upcoming events across all neighborhoods.</div>
         <button class="btn" id="map-to-feed">Open in Live Feed →</button>
