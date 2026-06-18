@@ -1265,7 +1265,7 @@ const SERVICES = {
   disney:  { label:"Disney+",       id:2739, mv:"337",   note:"" },
   apple:   { label:"Apple TV+",     id:2552, mv:"350",   note:"" },
   prime:   { label:"Prime Video",   id:1024, mv:"9|119", note:"" },
-  hbo:     { label:"HBO originals", id:49,   mv:"230",   note:"In Canada, HBO shows stream on Crave." },
+  hbo:     { label:"HBO / Crave",   id:49,   mv:"230",   note:"In Canada, HBO content streams on Crave." },
 };
 const tmdbCache = {};   // url -> {data, time}
 
@@ -1291,13 +1291,24 @@ async function tmdbDiscoverNetwork(networkId, extra){
   }
 }
 
-async function loadServiceTrending(networkId){
-  const today=todayStr();
-  const [trending, upcoming]=await Promise.all([
-    tmdbDiscoverNetwork(networkId, { sort_by:"popularity.desc" }).catch(()=>[]),
-    tmdbDiscoverNetwork(networkId, { sort_by:"first_air_date.asc", "first_air_date.gte":today }).catch(()=>[]),
+function dedupeById(arr){
+  const seen=new Set(); const out=[];
+  (arr||[]).forEach(x=>{ if(x && x.id!=null && !seen.has(x.id)){ seen.add(x.id); out.push(x); } });
+  return out;
+}
+
+/* Series for one service. Two lists: the popular catalogue actually streaming
+   on this service in Canada (recognizable hits, licensed + original, two pages
+   so there is plenty), and the service's own originals. Both filtered by
+   vote_count so obscure long-tail titles drop off. */
+async function loadServiceSeries(svc){
+  const cat=`${TMDB_BASE}/discover/tv?language=en-US&watch_region=CA&with_watch_providers=${encodeURIComponent(svc.mv)}&with_watch_monetization_types=flatrate&sort_by=popularity.desc&vote_count.gte=50`;
+  const [pop1, pop2, originals]=await Promise.all([
+    tmdbFetchResults(`${cat}&page=1`).catch(()=>[]),
+    tmdbFetchResults(`${cat}&page=2`).catch(()=>[]),
+    tmdbDiscoverNetwork(svc.id, { sort_by:"popularity.desc", "vote_count.gte":"40" }).catch(()=>[]),
   ]);
-  return { trending, upcoming };
+  return { popular:[...pop1, ...pop2], originals };
 }
 
 /* Free-text TV search across all of TMDB. Used by the Streaming tab when the
@@ -1487,11 +1498,12 @@ function kindToggleHTML(){
 async function loadServiceMovies(providerId){
   const today=todayStr();
   const base=`${TMDB_BASE}/discover/movie?language=en-US&watch_region=CA&with_watch_providers=${encodeURIComponent(providerId)}&with_watch_monetization_types=flatrate`;
-  const [popular, recent]=await Promise.all([
-    tmdbFetchResults(`${base}&sort_by=popularity.desc&vote_count.gte=20&page=1`).catch(()=>[]),
-    tmdbFetchResults(`${base}&sort_by=primary_release_date.desc&primary_release_date.lte=${today}&vote_count.gte=10&page=1`).catch(()=>[]),
+  const [pop1, pop2, recent]=await Promise.all([
+    tmdbFetchResults(`${base}&sort_by=popularity.desc&vote_count.gte=50&page=1`).catch(()=>[]),
+    tmdbFetchResults(`${base}&sort_by=popularity.desc&vote_count.gte=50&page=2`).catch(()=>[]),
+    tmdbFetchResults(`${base}&sort_by=primary_release_date.desc&primary_release_date.lte=${today}&vote_count.gte=25&page=1`).catch(()=>[]),
   ]);
-  return { popular, recent };
+  return { popular:[...pop1, ...pop2], recent };
 }
 
 /* Renders the Streaming tab's featured panel for the currently selected service.
@@ -1560,9 +1572,9 @@ function renderNetflixWeek(){
   if(isMovie){
     loadServiceMovies(svc.mv).then(({popular, recent})=>{
       const seen=new Set();
-      popular=(popular||[]).slice(0,8);
+      popular=dedupeById(popular).slice(0,16);
       popular.forEach(m=>seen.add(m.id));
-      recent=(recent||[]).filter(m=>!seen.has(m.id)).slice(0,8);
+      recent=(recent||[]).filter(m=>m && !seen.has(m.id)).slice(0,10);
       const note = svc.note ? `<div class="sub" style="margin-top:4px;color:var(--ink-faint)">${escapeHtml(svc.note)}</div>` : "";
       if(!popular.length && !recent.length){
         els.featured.innerHTML=`<div class="nba">${head}
@@ -1573,7 +1585,7 @@ function renderNetflixWeek(){
       const popHTML=popular.map(m=>movieCard(m,{ca:true})).join("");
       const recHTML=recent.map(m=>movieCard(m,{ca:true, fullDate:true})).join("");
       els.featured.innerHTML=`<div class="nba">${head}
-        <div class="sub">Movies you can stream on ${escapeHtml(svc.label)} in Canada right now. Tap any card for the full details.</div>
+        <div class="sub">Movies you can stream on ${escapeHtml(svc.label)} in Canada right now, popular titles first. Tap any card for the full details.</div>
         ${note}
         ${popular.length?`<div class="sports-sub">Popular now</div><div class="nfx-list">${popHTML}</div>`:""}
         ${recent.length?`<div class="sports-sub">Recent releases</div><div class="nfx-list">${recHTML}</div>`:""}
@@ -1586,25 +1598,28 @@ function renderNetflixWeek(){
     return;
   }
 
-  // Series (TV) discovery — the original behaviour.
-  loadServiceTrending(svc.id).then(({trending, upcoming})=>{
+  // Series (TV) discovery — popular catalogue on this service, plus its originals.
+  loadServiceSeries(svc).then(({popular, originals})=>{
     const svcLabel = escapeHtml(svc.label);
     const note = svc.note ? `<div class="sub" style="margin-top:4px;color:var(--ink-faint)">${escapeHtml(svc.note)}</div>` : "";
-    if(!trending.length && !upcoming.length){
+    const seen=new Set();
+    popular=dedupeById(popular).slice(0,16);
+    popular.forEach(x=>seen.add(x.id));
+    originals=dedupeById(originals).filter(x=>!seen.has(x.id)).slice(0,10);
+    if(!popular.length && !originals.length){
       els.featured.innerHTML=`<div class="nba">${head}
         <div class="empty">No TMDB data for ${svcLabel} came back. The daily list below still works.</div></div>`;
       return;
     }
-    const trendingHTML = trending.slice(0,8).map(tmdbCard).join("");
-    const upcomingHTML = upcoming.slice(0,8).map(s=>tmdbCard(s,{premiere:true})).join("");
+    const popHTML = popular.map(tmdbCard).join("");
+    const origHTML = originals.map(tmdbCard).join("");
     els.featured.innerHTML=`<div class="nba">${head}
-      <div class="sub">Popular ${svcLabel} series right now, plus what's premiering soon. Tap any card for full details.</div>
+      <div class="sub">Popular series on ${svcLabel} in Canada right now, plus originals it produced. Tap any card for full details.</div>
       ${note}
-      ${trending.length?`<div class="sports-sub">Trending now</div><div class="nfx-list">${trendingHTML}</div>`:""}
-      ${upcoming.length?`<div class="sports-sub">Coming soon</div><div class="nfx-list">${upcomingHTML}</div>`:""}
-      <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. Discovery is global (network originals worldwide); the "In Canada" line per card uses TMDB's regional watch-provider data (via JustWatch).</div></div>`;
+      ${popular.length?`<div class="sports-sub">Popular now</div><div class="nfx-list">${popHTML}</div>`:""}
+      ${originals.length?`<div class="sports-sub">Originals</div><div class="nfx-list">${origHTML}</div>`:""}
+      <div class="src">Data via <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">The Movie Database (TMDB)</a>. "Popular now" is what streams on ${svcLabel} in Canada; "Originals" are titles produced for it. The "In Canada" line uses TMDB watch-provider data (via JustWatch).</div></div>`;
     fillCanadaProviders();
-    fillPremiereBadges();
   }).catch(()=>{
     els.featured.innerHTML=`<div class="nba">${head}
       <div class="empty">Couldn't reach TMDB right now. The daily list below still works.</div></div>`;
