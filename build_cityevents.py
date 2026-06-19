@@ -15,7 +15,7 @@ except ImportError:
 OUTPUT_FILE = "cityevents.json"
 
 # Suppress noisy placeholder errors. Update this URL once you deploy your free Cloudflare Worker.
-PROXY_URL = "https://your-worker-proxy.workers.dev/fetch?url="
+PROXY_URL = "https://toronto-events-proxy.msjag416.workers.dev/?url="
 PROXY_URL_PLACEHOLDER = "https://your-worker-proxy.workers.dev/fetch?url="
 
 BROWSER_HEADERS = {
