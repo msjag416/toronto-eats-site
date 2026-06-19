@@ -6,11 +6,16 @@ import urllib.parse
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
+# Attempt HTTP/2 browser emulation protocol load, fall back to standard requests
 try:
     import httpx
+    HAS_HTTPX = True
 except ImportError:
-    # Fallback to standard requests if run in a minimal local environment
-    import requests as httpx
+    try:
+        import requests
+    except ImportError:
+        pass
+    HAS_HTTPX = False
 
 # Configuration
 OUTPUT_FILE = "cityevents.json"
@@ -161,30 +166,45 @@ def determine_zone(title, venue, description):
             return zone_key
     return "downtown"
 
-def fetch_evasive(client, url):
+def fetch_evasive(url):
     """Sends evasive TLS fingerprints and browser headers. Falls back to a proxy on 403 blocks."""
-    try:
-        # Pass HTTP/2 protocols which requests/urllib do not support out of the box
-        response = client.get(url, headers=BROWSER_HEADERS, timeout=12.0)
-        
-        # If GitHub runner datacenter IP is blocked, fall back to worker proxy
-        if response.status_code == 403:
-            print(f"[SECURITY WARNING] Standard request to {url} was rejected by WAF (403 Forbidden).")
-            print("[REDIRECTING] Routing connection through decentralized serverless edge proxy...")
+    if HAS_HTTPX:
+        try:
+            with httpx.Client(http2=True) as client:
+                response = client.get(url, headers=BROWSER_HEADERS, timeout=15.0)
+                if response.status_code == 403:
+                    print(f"[WAF WARNING] Standard request to {url} was rejected by WAF (403 Forbidden).")
+                    return fetch_via_proxy(url)
+                response.raise_for_status()
+                return response.text
+        except Exception as err:
+            print(f"[NETWORK ERROR] HTTPX connection failed for {url}: {err}")
             return fetch_via_proxy(url)
-            
-        response.raise_for_status()
-        return response.text
-    except Exception as err:
-        print(f"[NETWORK ERROR] Standard endpoint connection failed: {err}")
-        return None
+    else:
+        try:
+            response = requests.get(url, headers=BROWSER_HEADERS, timeout=15.0)
+            if response.status_code == 403:
+                print(f"[WAF WARNING] Standard request to {url} was rejected by WAF (403 Forbidden).")
+                return fetch_via_proxy(url)
+            response.raise_for_status()
+            return response.text
+        except Exception as err:
+            print(f"[NETWORK ERROR] Requests connection failed for {url}: {err}")
+            return fetch_via_proxy(url)
 
 def fetch_via_proxy(target_url):
     """Fallback proxy router routing requests through Cloudflare Workers."""
     proxy_gateway = "https://your-worker-proxy.workers.dev/fetch?url=" + urllib.parse.quote(target_url)
+    print(f"[REDIRECTING] Routing connection through decentralized serverless edge proxy: {proxy_gateway}")
     try:
-        with httpx.Client(http2=True) as client:
-            resp = client.get(proxy_gateway, timeout=15.0)
+        if HAS_HTTPX:
+            with httpx.Client(http2=True) as client:
+                resp = client.get(proxy_gateway, timeout=15.0)
+                if resp.status_code == 200:
+                    print("[SUCCESS] Successfully bypassed WAF via serverless edge proxy.")
+                    return resp.text
+        else:
+            resp = requests.get(proxy_gateway, timeout=15.0)
             if resp.status_code == 200:
                 print("[SUCCESS] Successfully bypassed WAF via serverless edge proxy.")
                 return resp.text
@@ -192,12 +212,12 @@ def fetch_via_proxy(target_url):
         print(f"[PROXY FAULT] Serverless gateway was unreachable: {proxy_err}")
     return None
 
-def ingest_open_data(client):
+def ingest_open_data():
     """Downloads, normalizes, and filters the official City of Toronto JSON calendar feed."""
     print("[INGEST] Launching extraction of City of Toronto Open Data feed...")
     api_url = "https://secure.toronto.ca/cc_sr_v1/data/edc_eventcalendar?limit=50"
     
-    raw_payload = fetch_evasive(client, api_url)
+    raw_payload = fetch_evasive(api_url)
     if not raw_payload:
         return []
 
@@ -244,12 +264,12 @@ def ingest_open_data(client):
         print(f"[PARSE ERROR] Failed to parse Toronto Open Data schema: {parse_err}")
         return []
 
-def ingest_blogto_rss(client):
+def ingest_blogto_rss():
     """Downloads and extracts XML nodes from the blogTO events pipeline."""
     print("[INGEST] Launching extraction of blogTO RSS Feed...")
     rss_url = "https://www.blogto.com/feeds/events/"
     
-    raw_xml = fetch_evasive(client, rss_url)
+    raw_xml = fetch_evasive(rss_url)
     if not raw_xml:
         return []
 
@@ -313,32 +333,51 @@ def deduplicate_events(incoming_list):
 
 def main():
     print("[PIPELINE] Initializing automatic compilation run...")
-    all_events = []
+    live_events = []
     
-    # Run the crawler with HTTP/2 capability
-    try:
-        with httpx.Client(http2=True) as client:
-            open_data = ingest_open_data(client)
-            blogto_data = ingest_blogto_rss(client)
-            all_events = open_data + blogto_data
-    except Exception as net_exception:
-        print(f"[NETWORK ERROR] Fatal client loop exception: {net_exception}")
-        all_events = []
+    # 1. Fetch from live feeds
+    open_data = ingest_open_data()
+    blogto_data = ingest_blogto_rss()
+    live_events = open_data + blogto_data
 
-    # If the network failed completely, fall back gracefully to our verified seed data
-    if not all_events:
-        print("[FALLBACK] Real-time network pipeline could not reach remote hosts.")
-        print("[FALLBACK] Merging high-fidelity baseline seed array to protect site integrity...")
-        all_events = BASELINE_EVENTS
+    # Deduplicate crawled live events
+    if live_events:
+        live_events = deduplicate_events(live_events)
+        print(f"[PIPELINE] Successfully retrieved {len(live_events)} live events.")
     else:
-        # Deduplicate only if we successfully retrieved live data
-        all_events = deduplicate_events(all_events)
+        print("[WARNING] Real-time network pipeline could not reach remote hosts directly.")
 
-    # Output file write
+    # 2. Merge with Baseline Seeds to guarantee a rich event experience (15-20+ events)
+    # This prevents the list from feeling empty if certain scraper targets fail or are partially blocked.
+    print("[MERGE] Merging live results with verified baseline dataset...")
+    final_events = list(live_events)
+    merged_baseline_count = 0
+    
+    for base_ev in BASELINE_EVENTS:
+        is_dupe = False
+        for live_ev in final_events:
+            # Match title similarities to avoid duplicating the same event across different days
+            similarity = calculate_jaccard(base_ev["title"], live_ev["title"])
+            if similarity >= 0.72:
+                is_dupe = True
+                break
+        if not is_dupe:
+            final_events.append(base_ev)
+            merged_baseline_count += 1
+            
+    print(f"[MERGE] Appended {merged_baseline_count} non-overlapping baseline events.")
+
+    # 3. Sort compiled list chronologically by start date
+    try:
+        final_events.sort(key=lambda x: x.get("start", ""))
+    except Exception as sort_err:
+        print(f"[SORT ERROR] Could not sort compiled list: {sort_err}")
+
+    # 4. Output final file to disc
     try:
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-            json.dump(all_events, f, indent=2, ensure_ascii=False)
-        print(f"[PIPELINE SUCCESS] Successfully compiled and wrote {len(all_events)} records to '{OUTPUT_FILE}'.")
+            json.dump(final_events, f, indent=2, ensure_ascii=False)
+        print(f"[PIPELINE SUCCESS] Successfully compiled and wrote {len(final_events)} records to '{OUTPUT_FILE}'.")
     except Exception as file_err:
         print(f"[FATAL FILE EXCEPTION] Could not write output to disk: {file_err}")
 
