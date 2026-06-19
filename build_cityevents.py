@@ -3,6 +3,7 @@ import json
 import urllib.parse
 from datetime import datetime
 import xml.etree.ElementTree as ET
+import requests # Ensure requests is always available
 
 # Attempt to use httpx with http2, fall back to requests if not present
 try:
@@ -10,7 +11,6 @@ try:
     HAS_HTTPX = True
 except ImportError:
     HAS_HTTPX = False
-    import requests
 
 OUTPUT_FILE = "cityevents.json"
 
@@ -40,7 +40,8 @@ def fetch_url(url):
         else:
             resp = requests.get(url, headers=BROWSER_HEADERS, timeout=10)
             if resp.status_code == 200: return resp.text
-    except: pass
+    except Exception as e:
+        print(f"[DEBUG] Direct fetch failed: {e}")
 
     # 2. Try Proxy
     proxy_url = f"{PROXY_URL}{urllib.parse.quote(url)}"
@@ -48,7 +49,6 @@ def fetch_url(url):
     try:
         resp = requests.get(proxy_url, headers=BROWSER_HEADERS, timeout=15)
         if resp.status_code == 200:
-            print(f"[DEBUG] Proxy response (first 200 chars): {resp.text[:200]}")
             return resp.text
     except Exception as e:
         print(f"[PROXY FAULT] {e}")
@@ -63,11 +63,6 @@ def ingest_toronto_open_data():
         data = json.loads(raw)
         return [{"title": e.get("event_name"), "venue": "Toronto", "zone": "downtown", "category": "Community", "source": "City of Toronto", "url": "https://open.toronto.ca", "start": e.get("start_date", ""), "end": e.get("end_date", ""), "free": True, "amount": 0, "desc": "Event from City Data"} for e in data[:10]]
     except: return []
-
-def ingest_blogto_rss():
-    raw = fetch_url("https://www.blogto.com/feeds/events/")
-    if not raw: return []
-    return []
 
 def main():
     print("[PIPELINE] Starting...")
