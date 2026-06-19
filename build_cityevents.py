@@ -76,21 +76,67 @@ def http_json(url):
         return json.loads(r.read().decode("utf-8"))
 
 
-def get_active_resource_id():
-    """Resource ids rotate when Toronto refreshes data, so discover it live."""
+def coerce_records(raw):
+    """Turn a downloaded data file into a flat list of event dicts."""
+    if isinstance(raw, list):
+        return [r for r in raw if isinstance(r, dict)]
+    if isinstance(raw, dict):
+        # GeoJSON FeatureCollection: flatten properties + keep geometry
+        if isinstance(raw.get("features"), list):
+            out = []
+            for f in raw["features"]:
+                if not isinstance(f, dict):
+                    continue
+                props = dict(f.get("properties") or {})
+                if f.get("geometry"):
+                    props["geometry"] = f["geometry"]
+                out.append(props)
+            return out
+        for key in ("records", "events", "result", "value", "data", "rows"):
+            v = raw.get(key)
+            if isinstance(v, list):
+                return [r for r in v if isinstance(r, dict)]
+            if isinstance(v, dict) and isinstance(v.get("records"), list):
+                return v["records"]
+    return []
+
+
+def fetch_records():
+    """Get event records however Toronto serves this dataset (datastore or file)."""
     data = http_json("{}/api/3/action/package_show?id={}".format(CKAN, PACKAGE))
     resources = data["result"]["resources"]
+    print("Resources in dataset:",
+          [(r.get("name"), r.get("format"), r.get("datastore_active")) for r in resources])
+
+    # 1) queryable datastore tables
     for res in resources:
         if res.get("datastore_active"):
-            return res["id"]
-    return resources[0]["id"] if resources else None
+            rid = res["id"]
+            try:
+                url = "{}/api/3/action/datastore_search?{}".format(
+                    CKAN, urllib.parse.urlencode({"resource_id": rid, "limit": MAX_RECORDS}))
+                recs = http_json(url)["result"]["records"]
+                if recs:
+                    print("Loaded", len(recs), "records via datastore resource", rid)
+                    return recs
+            except Exception as e:
+                print("datastore_search failed for", rid, ":", e)
 
+    # 2) downloadable JSON / GeoJSON file resources
+    for res in resources:
+        fmt = (res.get("format") or "").lower()
+        url = res.get("url")
+        if url and fmt in ("json", "geojson"):
+            try:
+                recs = coerce_records(http_json(url))
+                if recs:
+                    print("Loaded", len(recs), "records via", fmt, "file", res.get("id"))
+                    return recs
+            except Exception as e:
+                print("file download failed for", res.get("id"), ":", e)
 
-def get_records(resource_id):
-    url = "{}/api/3/action/datastore_search?{}".format(
-        CKAN, urllib.parse.urlencode({"id": resource_id, "limit": MAX_RECORDS})
-    )
-    return http_json(url)["result"]["records"]
+    print("No usable resource found in the dataset.")
+    return []
 
 
 def pick(rec, *names):
@@ -297,9 +343,7 @@ def build(records):
 def main():
     print("CityEvents feed builder starting...")
     try:
-        rid = get_active_resource_id()
-        print("Active resource id:", rid)
-        records = get_records(rid)
+        records = fetch_records()
         print("Records returned:", len(records))
         if records:
             print("FIELD NAMES IN FIRST RECORD:", list(records[0].keys()))
