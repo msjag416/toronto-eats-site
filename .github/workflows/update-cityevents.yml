@@ -19,17 +19,17 @@ jobs:
       - name: Set up Python Environment
         uses: actions/setup-python@v4
         with:
-          python-style: '3.10'
+          python-version: '3.10'
           cache: 'pip'
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          pip install requests httpx
 
       - name: Run CityEvents Ingestion Engine
-        run: python build_assets.py || python cityevents.py || python build_city_events.py
-        # This fallback chain ensures that if you rename the file locally, the runner still locates it
+        run: python build_cityevents.py || python build_city_events.py || python cityevents.py || python build_assets.py
+        # Added build_cityevents.py to the front of the fallback chain to match your exact file name
 
       - name: Commit and Push Updated Feed
         run: |
