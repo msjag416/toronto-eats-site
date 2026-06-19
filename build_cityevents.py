@@ -70,16 +70,29 @@ DEFAULT_CAT = "Festivals"
 UA = {"User-Agent": "CityEvents-feed/1.0 (GitHub Actions; static site)"}
 
 
+def http_text(url):
+    req = urllib.request.Request(url, headers=dict(UA, **{"Accept": "application/json, text/plain, */*"}))
+    with urllib.request.urlopen(req, timeout=90) as r:
+        return r.read().decode("utf-8-sig", errors="replace").strip()
+
+
 def http_json(url):
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.loads(r.read().decode("utf-8"))
+    return json.loads(http_text(url))
+
+
+def unwrap(item):
+    """Toronto wraps each event in a single key like {'calEvent': {...}}; unwrap it."""
+    if isinstance(item, dict) and len(item) == 1:
+        only = next(iter(item.values()))
+        if isinstance(only, dict):
+            return only
+    return item
 
 
 def coerce_records(raw):
     """Turn a downloaded data file into a flat list of event dicts."""
     if isinstance(raw, list):
-        return [r for r in raw if isinstance(r, dict)]
+        return [unwrap(r) for r in raw if isinstance(r, dict)]
     if isinstance(raw, dict):
         # GeoJSON FeatureCollection: flatten properties + keep geometry
         if isinstance(raw.get("features"), list):
@@ -95,9 +108,9 @@ def coerce_records(raw):
         for key in ("records", "events", "result", "value", "data", "rows"):
             v = raw.get(key)
             if isinstance(v, list):
-                return [r for r in v if isinstance(r, dict)]
+                return [unwrap(r) for r in v if isinstance(r, dict)]
             if isinstance(v, dict) and isinstance(v.get("records"), list):
-                return v["records"]
+                return [unwrap(r) for r in v["records"] if isinstance(r, dict)]
     return []
 
 
@@ -127,13 +140,28 @@ def fetch_records():
         fmt = (res.get("format") or "").lower()
         url = res.get("url")
         if url and fmt in ("json", "geojson"):
+            print("Trying file resource", res.get("id"), "format", fmt)
+            print("URL:", url)
             try:
-                recs = coerce_records(http_json(url))
-                if recs:
-                    print("Loaded", len(recs), "records via", fmt, "file", res.get("id"))
-                    return recs
+                text = http_text(url)
             except Exception as e:
-                print("file download failed for", res.get("id"), ":", e)
+                print("could not download:", e)
+                continue
+            try:
+                raw = json.loads(text)
+            except json.JSONDecodeError:
+                print("Response was NOT valid JSON. First 300 characters:")
+                print(repr(text[:300]))
+                continue
+            recs = coerce_records(raw)
+            if recs:
+                print("Loaded", len(recs), "records via", fmt, "file", res.get("id"))
+                return recs
+            print("Parsed JSON but found no records. Top-level type:", type(raw).__name__)
+            if isinstance(raw, dict):
+                print("Top-level keys:", list(raw.keys())[:20])
+            elif isinstance(raw, list) and raw:
+                print("First item keys:", list(raw[0].keys())[:20] if isinstance(raw[0], dict) else type(raw[0]).__name__)
 
     print("No usable resource found in the dataset.")
     return []
@@ -180,8 +208,33 @@ def parse_dt(v):
     return None, None
 
 
+def location_info(rec):
+    """Pull (venue, lat, lon) from a Toronto 'locations' array if present."""
+    locs = pick(rec, "locations", "location", "venues")
+    if isinstance(locs, str):
+        try:
+            locs = json.loads(locs)
+        except ValueError:
+            locs = None
+    if isinstance(locs, dict):
+        locs = [locs]
+    if isinstance(locs, list) and locs and isinstance(locs[0], dict):
+        L = locs[0]
+        venue = L.get("locationName") or L.get("name") or L.get("address") or L.get("addressName")
+        coords = L.get("coords") if isinstance(L.get("coords"), dict) else L
+        lat = coords.get("lat") if isinstance(coords, dict) else None
+        lon = (coords.get("lng") or coords.get("lon") or coords.get("long")) if isinstance(coords, dict) else None
+        try:
+            lat = float(lat) if lat is not None else None
+            lon = float(lon) if lon is not None else None
+        except (TypeError, ValueError):
+            lat = lon = None
+        return (str(venue).strip() if venue else None), lat, lon
+    return None, None, None
+
+
 def latlon(rec):
-    """Extract (lat, lon) from a geometry field or lat/long columns."""
+    """Extract (lat, lon) from a geometry field, lat/long columns, or a locations array."""
     g = pick(rec, "geometry", "geo", "location_geometry")
     if g:
         if isinstance(g, str):
@@ -203,7 +256,8 @@ def latlon(rec):
             return float(lat), float(lon)
     except (TypeError, ValueError):
         pass
-    return None, None
+    _, la, lo = location_info(rec)
+    return la, lo
 
 
 def nearest_zone(lat, lon):
@@ -227,16 +281,21 @@ def map_category(text):
 
 def cost_to_price(v):
     """Return (free_bool, amount, price_label)."""
+    if isinstance(v, list):
+        v = v[0] if v else None
+    if isinstance(v, dict):
+        v = v.get("description") or v.get("name") or v.get("label") or v.get("cost")
     if v is None:
         return True, 0, None
-    s = as_text(v).strip().lower()
-    if s in ("", "free", "no charge", "none", "0", "$0", "free admission"):
+    raw = as_text(v).strip()
+    s = raw.lower()
+    if s in ("", "free", "no charge", "none", "0", "$0", "free admission", "free event"):
         return True, 0, None
     import re
     m = re.search(r"(\d+(?:\.\d+)?)", s)
     if m:
-        return False, float(m.group(1)), as_text(v).strip()
-    return False, 0, as_text(v).strip()
+        return False, float(m.group(1)), raw
+    return False, 0, raw
 
 
 def google_url(title):
@@ -252,9 +311,9 @@ def normalize_record(rec):
         return None
     title = as_text(title)
 
-    start_raw = pick(rec, "startDateTime", "Start Date", "startDate", "start_date",
+    start_raw = pick(rec, "startDateTime", "Start Date", "startDate", "start_date", "startDt",
                      "dateRangeStart", "Date_Begin", "start", "Event Start Date")
-    end_raw = pick(rec, "endDateTime", "End Date", "endDate", "end_date",
+    end_raw = pick(rec, "endDateTime", "End Date", "endDate", "end_date", "endDt",
                    "dateRangeEnd", "Date_End", "end", "Event End Date")
 
     # Some feeds bundle occurrences in a JSON "dates" array; take the first.
@@ -283,9 +342,14 @@ def normalize_record(rec):
     if len(desc) > DESC_LIMIT:
         desc = desc[:DESC_LIMIT].rsplit(" ", 1)[0] + "..."
 
-    venue = as_text(pick(rec, "locationName", "Location", "venueName", "venue",
-                         "address", "Address", "PlaceName") or "Toronto")
+    venue = pick(rec, "locationName", "Location", "venueName", "venue", "address", "Address", "PlaceName")
+    if not venue:
+        venue, _, _ = location_info(rec)
+    venue = as_text(venue or "Toronto")
     free, amount, price_label = cost_to_price(pick(rec, "cost", "Cost", "admission", "Admission", "price"))
+    fe = pick(rec, "freeEvent", "free", "isFree")
+    if isinstance(fe, str) and fe.strip().lower() in ("yes", "true", "y", "1"):
+        free, amount, price_label = True, 0, None
     url = pick(rec, "eventWebsite", "website", "Website", "url", "URL", "link")
     url = as_text(url) if url else google_url(title)
     if not url.lower().startswith("http"):
