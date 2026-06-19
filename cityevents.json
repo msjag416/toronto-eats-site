@@ -1,0 +1,80 @@
+[
+  {
+    "title": "FIFA Fan Festival (Fort York × The Bentway)",
+    "venue": "The Bentway · Fort York",
+    "zone": "bentway",
+    "category": "Festivals",
+    "source": "The Bentway",
+    "url": "https://thebentway.ca/news/the-bentway-named-as-a-host-site-for-torontos-fifa-fan-festival-coming-summer-2026/",
+    "start": "2026-06-11",
+    "end": "2026-07-19",
+    "free": true,
+    "amount": 0,
+    "desc": "Toronto's central fan destination with big-screen match broadcasts, cultural performances, art installations, and local food."
+  },
+  {
+    "title": "adidas Home of Soccer: World Cup Watch Parties",
+    "venue": "STACKT market · 28 Bathurst St",
+    "zone": "bentway",
+    "category": "Sports & Fitness",
+    "source": "STACKT Market",
+    "url": "https://stacktmarket.com/event/adidas-home-of-soccer-toronto/",
+    "start": "2026-06-12",
+    "end": "2026-07-19",
+    "free": true,
+    "amount": 0,
+    "desc": "adidas turns STACKT into a soccer hub with an outdoor viewing area for official FIFA World Cup watch parties, plus activations all summer."
+  },
+  {
+    "title": "The Bentway Skate & Oasis Loop",
+    "venue": "The Bentway (Under the Gardiner Expressway)",
+    "zone": "bentway",
+    "category": "Sports & Fitness",
+    "source": "The Bentway",
+    "url": "https://thebentway.ca/event/",
+    "start": "2026-06-18",
+    "end": "2026-08-30",
+    "free": true,
+    "amount": 0,
+    "desc": "Lace up your roller skates and roll through a vibrant pop-up recreational oasis featuring live local electronic DJs and interactive lighting installations beneath the massive concrete canopy of the Gardiner Expressway."
+  },
+  {
+    "title": "TD Toronto Jazz Festival: Free Outdoor Sets",
+    "venue": "Bloor-Yorkville · OLG Village Stage",
+    "zone": "yorkville",
+    "category": "Music",
+    "source": "Toronto Jazz Festival",
+    "url": "https://torontojazz.com/",
+    "start": "2026-06-19",
+    "end": "2026-06-28",
+    "free": true,
+    "amount": 0,
+    "desc": "Ten days of free open-air jazz across Bloor-Yorkville, plus Sidewalk Sessions at five locations."
+  },
+  {
+    "title": "Summer Music in the Garden (25th season)",
+    "venue": "Toronto Music Garden",
+    "zone": "harbourfront",
+    "category": "Music",
+    "source": "Harbourfront Centre",
+    "url": "https://harbourfrontcentre.com/whats-on/",
+    "start": "2026-06-21",
+    "end": "2026-08-27",
+    "free": true,
+    "amount": 0,
+    "desc": "Free concerts in the lakeside Toronto Music Garden, marking the series' 25th season."
+  },
+  {
+    "title": "Pride Toronto Parade",
+    "venue": "Yonge Street · downtown",
+    "zone": "downtown",
+    "category": "Festivals",
+    "source": "Pride Toronto",
+    "url": "https://www.pridetoronto.com/",
+    "start": "2026-06-28",
+    "end": "2026-06-28",
+    "free": true,
+    "amount": 0,
+    "desc": "The 45th-anniversary parade down Yonge Street, one of the largest Pride parades in the world."
+  }
+]
