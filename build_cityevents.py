@@ -12,7 +12,7 @@ try:
 except ImportError:
     HAS_HTTPX = False
 
-OUTPUT_FILE = "cityevents.json"
+OUTPUT_FILE = "events.json" # Renamed from cityevents.json
 
 # Update this URL to point to your deployed Cloudflare Worker
 PROXY_URL = "https://toronto-events-proxy.msjag416.workers.dev/?url="
