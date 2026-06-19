@@ -26,6 +26,10 @@ jobs:
 
       - name: Save events.json if it changed
         run: |
+          if [ ! -f events.json ]; then
+            echo "No events.json was produced this run; nothing to commit."
+            exit 0
+          fi
           git config user.name "cityevents-bot"
           git config user.email "actions@users.noreply.github.com"
           git add events.json
