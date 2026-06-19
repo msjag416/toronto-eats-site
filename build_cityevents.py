@@ -14,7 +14,7 @@ except ImportError:
 
 OUTPUT_FILE = "cityevents.json"
 
-# CHANGE THIS to your live proxy URL
+# Update this URL to point to your deployed Cloudflare Worker
 PROXY_URL = "https://toronto-events-proxy.msjag416.workers.dev/?url="
 
 BROWSER_HEADERS = {
@@ -55,7 +55,7 @@ def fetch_url(url):
     return None
 
 def ingest_toronto_open_data():
-    # New reliable endpoint for Festivals & Events
+    # Direct reliable download URL for the Festival dataset
     json_url = "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/festivals-and-events/resource/66e3cf05-6447-49d7-867c-2b2a8d38a8e1/download/festivals-and-events-json.json"
     raw = fetch_url(json_url)
     if not raw: return []
@@ -67,7 +67,6 @@ def ingest_toronto_open_data():
 def ingest_blogto_rss():
     raw = fetch_url("https://www.blogto.com/feeds/events/")
     if not raw: return []
-    # Simplified parsing for demo
     return []
 
 def main():
@@ -79,10 +78,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
-
-### Next Steps:
-1. **Paste this code:** Replace your `build_cityevents.py` with the code above.
-2. **Commit and Push:** Update your repo.
-3. **Run Workflow:** Trigger the Action again.
-4. **Check Logs:** If it says `[DEBUG] Proxy response...` followed by text that looks like JSON or XML, we have successfully unlocked the data! If it returns an empty string or HTML, we will know exactly why by looking at that `[DEBUG]` output.
