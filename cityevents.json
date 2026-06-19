@@ -26,19 +26,6 @@
     "desc": "adidas turns STACKT into a soccer hub with an outdoor viewing area for official FIFA World Cup watch parties, plus activations all summer."
   },
   {
-    "title": "The Bentway Skate & Oasis Loop",
-    "venue": "The Bentway (Under the Gardiner Expressway)",
-    "zone": "bentway",
-    "category": "Sports & Fitness",
-    "source": "The Bentway",
-    "url": "https://thebentway.ca/event/",
-    "start": "2026-06-18",
-    "end": "2026-08-30",
-    "free": true,
-    "amount": 0,
-    "desc": "Lace up your roller skates and roll through a vibrant pop-up recreational oasis featuring live local electronic DJs and interactive lighting installations beneath the massive concrete canopy of the Gardiner Expressway."
-  },
-  {
     "title": "TD Toronto Jazz Festival: Free Outdoor Sets",
     "venue": "Bloor-Yorkville · OLG Village Stage",
     "zone": "yorkville",
@@ -65,16 +52,29 @@
     "desc": "Free concerts in the lakeside Toronto Music Garden, marking the series' 25th season."
   },
   {
-    "title": "Pride Toronto Parade",
-    "venue": "Yonge Street · downtown",
-    "zone": "downtown",
+    "title": "Dream in High Park: Twelfth Night",
+    "venue": "High Park Amphitheatre · 1873 Bloor St W",
+    "zone": "highpark",
+    "category": "Art & Culture",
+    "source": "Canadian Stage",
+    "url": "https://www.canadianstage.com/shows-events/dream-in-high-park-26",
+    "start": "2026-07-12",
+    "end": "2026-09-06",
+    "free": false,
+    "amount": 35,
+    "desc": "Canadian Stage's 43rd season of outdoor Shakespeare under the stars. Tue-Sat 8pm, Sun 7pm. Pack a picnic."
+  },
+  {
+    "title": "Give Me Liberty Street Party",
+    "venue": "Lamport Stadium lot · 75 Fraser Ave",
+    "zone": "liberty",
     "category": "Festivals",
-    "source": "Pride Toronto",
-    "url": "https://www.pridetoronto.com/",
-    "start": "2026-06-28",
-    "end": "2026-06-28",
+    "source": "Liberty Village BIA",
+    "url": "https://www.libertyvillagebia.com/events/give-me-liberty-street-party",
+    "start": "2026-09-17",
+    "end": "2026-09-17",
     "free": true,
     "amount": 0,
-    "desc": "The 45th-anniversary parade down Yonge Street, one of the largest Pride parades in the world."
+    "desc": "The Liberty Village BIA's signature block party: 40+ local vendors, live music, a beer garden, and activities for all ages."
   }
 ]
