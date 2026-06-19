@@ -319,7 +319,7 @@
       </div>
     </div>
   </header>
-  <div class="verified">Real Toronto events, <b>verified June 2026</b>. Tap any event card to open and confirm it at the original source. Dates and details can change, so always check the source link.</div>
+  <div class="verified" id="verified-note">Real Toronto events, <b>verified June 2026</b>. Tap any event card to open and confirm it at the original source. Dates and details can change, so always check the source link.</div>
 
   <section class="ribbon" aria-label="Live ingestion metrics">
     <div class="stat s-free"><div class="k">Free events ratio</div><div class="v" id="st-free">—</div><div class="m" id="st-free-m">of curated feed</div></div>
@@ -928,11 +928,11 @@ async function syncNow(opts){
   opts=opts||{};
   if(syncing) return; syncing=true;
   const btn=document.getElementById("sync-btn"); btn.classList.add("spinning"); btn.disabled=true;
-  await wait(560);
-  state.parsedLines += 40 + Math.floor(Math.random()*60);
-  refreshAll(); tickClock(); stampSynced();
+  const ok=await loadEvents();
+  if(!ok){ await wait(420); state.parsedLines += 40 + Math.floor(Math.random()*60); refreshAll(); }
+  tickClock(); stampSynced();
   btn.classList.remove("spinning"); btn.disabled=false; syncing=false;
-  if(!opts.silent) toast("good","Synced","Listings re-checked against the current time.");
+  if(!opts.silent) toast(ok?"good":"warn", ok?"Synced":"Showing saved list", ok?"Pulled the latest events from the feed.":"Couldn't reach the live feed, so the built-in list is showing.");
 }
 function setAutoRefresh(on){
   if(autoTimer){ clearInterval(autoTimer); autoTimer=null; }
@@ -952,13 +952,33 @@ function downloadCityEventsJson(){
   }catch(err){ toast("block","Export failed","This browser blocked the download. Try a different browser."); }
 }
 
+async function loadEvents(){
+  try{
+    const res=await fetch("events.json?t="+Date.now(),{cache:"no-store"});
+    if(!res.ok) throw new Error("no feed file");
+    const data=await res.json();
+    const list=Array.isArray(data)?data:(data&&data.events);
+    if(!list||!list.length) return false;
+    TorontoEventsDataset.length=0;
+    list.forEach(function(o){ TorontoEventsDataset.push(ev(Object.assign({},o))); });
+    buildChips(); refreshAll(); renderMap();
+    const v=document.getElementById("verified-note");
+    if(v){
+      let when="";
+      if(data&&data.generated){ const g=new Date(data.generated); if(!isNaN(g)) when=" Feed updated "+g.toLocaleDateString("en-CA",{month:"short",day:"numeric"})+", "+g.toLocaleTimeString("en-CA",{hour:"2-digit",minute:"2-digit"})+"."; }
+      v.innerHTML='Live Toronto events from the <b>City of Toronto Open Data</b> feed, refreshed automatically each day.'+when+' Tap any event card to confirm it at the source.';
+    }
+    return true;
+  }catch(e){ return false; }
+}
+
 function tickClock(){ const now=new Date(); document.getElementById("clock-time").textContent=now.toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric"})+" · "+now.toLocaleTimeString("en-CA",{hour:"2-digit",minute:"2-digit"}); }
 
 function init(){
   document.getElementById("year").textContent=new Date().getFullYear();
   applyTheme(getSavedTheme());
   buildChips(); buildZoneSelects(); buildStages(); buildScrapers(); buildRawSelect(); renderDedupePair(); selectArchNode("ingest");
-  wire(); refreshAll(); tickClock(); stampSynced(); setInterval(tickClock,30000);
+  wire(); refreshAll(); tickClock(); stampSynced(); setInterval(tickClock,30000); loadEvents();
 }
 document.addEventListener("DOMContentLoaded",init);
 </script>
