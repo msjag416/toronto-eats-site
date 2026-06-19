@@ -1,0 +1,28 @@
+[
+  {
+    "title": "adidas Home of Soccer: World Cup Watch Parties",
+    "venue": "STACKT market",
+    "zone": "bentway",
+    "category": "Sports & Fitness",
+    "source": "STACKT Market",
+    "url": "https://stacktmarket.com/event/adidas-home-of-soccer-toronto/",
+    "start": "2026-06-12",
+    "end": "2026-07-19",
+    "free": true,
+    "amount": 0,
+    "desc": "Official FIFA World Cup watch parties."
+  },
+  {
+    "title": "Dream in High Park: Twelfth Night",
+    "venue": "High Park Amphitheatre",
+    "zone": "highpark",
+    "category": "Art & Culture",
+    "source": "Canadian Stage",
+    "url": "https://www.canadianstage.com/",
+    "start": "2026-07-12",
+    "end": "2026-09-06",
+    "free": false,
+    "amount": 35,
+    "desc": "Outdoor Shakespeare under the stars."
+  }
+]
