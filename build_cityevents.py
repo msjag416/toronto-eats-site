@@ -67,7 +67,13 @@ CAT_RULES = [
 ]
 DEFAULT_CAT = "Festivals"
 
-UA = {"User-Agent": "CityEvents-feed/1.0 (GitHub Actions; static site)"}
+UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
+
+# The City's "Festivals and events json feed" really lives at this live service.
+DIRECT_FEEDS = [
+    "https://secure.toronto.ca/c3api_data/v2/DataAccess.svc/festivals_events/events",
+]
 
 
 def http_text(url):
@@ -114,8 +120,44 @@ def coerce_records(raw):
     return []
 
 
+def fetch_odata(url):
+    """Read an OData feed ({'value':[...]}) following nextLink up to a few pages."""
+    records, pages = [], 0
+    while url and pages < 6:
+        data = json.loads(http_text(url))
+        if not isinstance(data, dict):
+            return coerce_records(data)
+        vals = data.get("value")
+        if not isinstance(vals, list):
+            return coerce_records(data)
+        records.extend(v for v in vals if isinstance(v, dict))
+        url = data.get("@odata.nextLink")
+        pages += 1
+    return records
+
+
 def fetch_records():
-    """Get event records however Toronto serves this dataset (datastore or file)."""
+    """Get event records however Toronto serves this dataset."""
+    # 0) the live festivals data service (the real source behind the portal link)
+    for url in DIRECT_FEEDS:
+        print("Trying direct feed:", url)
+        try:
+            text = http_text(url)
+        except Exception as e:
+            print("  request failed:", e)
+            continue
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError:
+            print("  response was not JSON. First 200 chars:", repr(text[:200]))
+            continue
+        recs = fetch_odata(url) if isinstance(data, dict) and isinstance(data.get("value"), list) else coerce_records(data)
+        if recs:
+            print("Loaded", len(recs), "records via direct feed")
+            return recs
+        print("  parsed but found no records. Top-level type:", type(data).__name__,
+              list(data.keys())[:20] if isinstance(data, dict) else "")
+
     data = http_json("{}/api/3/action/package_show?id={}".format(CKAN, PACKAGE))
     resources = data["result"]["resources"]
     print("Resources in dataset:",
