@@ -1,43 +1,120 @@
 import os
 import json
-import re
-import html
 import urllib.parse
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
-# Attempt HTTP/2 browser emulation protocol load, fall back to standard requests
+# We use httpx with http2 support to bypass TLS fingerprinting gates
 try:
     import httpx
     HAS_HTTPX = True
 except ImportError:
-    try:
-        import requests
-    except ImportError:
-        pass
     HAS_HTTPX = False
+    import requests
 
-# Configuration
 OUTPUT_FILE = "cityevents.json"
 
-# Highly specific HTTP/2 browser profiling headers to bypass anti-scraping firewalls
+# Suppress noisy placeholder errors. Update this URL once you deploy your free Cloudflare Worker.
+PROXY_URL = "https://your-worker-proxy.workers.dev/fetch?url="
+PROXY_URL_PLACEHOLDER = "https://your-worker-proxy.workers.dev/fetch?url="
+
 BROWSER_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
     "Accept-Encoding": "gzip, deflate, br",
-    "Sec-Ch-Ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+    "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
     "Sec-Ch-Ua-Mobile": "?0",
     "Sec-Ch-Ua-Platform": '"Windows"',
     "Sec-Fetch-Dest": "document",
     "Sec-Fetch-Mode": "navigate",
     "Sec-Fetch-Site": "none",
     "Sec-Fetch-User": "?1",
-    "Upgrade-Insecure-Requests": "1",
-    "Connection": "keep-alive"
+    "Upgrade-Insecure-Requests": "1"
 }
 
-# Standardized neighborhood taxonomy map
+# Baseline verified Toronto events for robust offline fallbacks
+BASELINE_EVENTS = [
+    {
+        "title": "adidas Home of Soccer: World Cup Watch Parties",
+        "venue": "STACKT market · 28 Bathurst St",
+        "zone": "bentway",
+        "category": "Sports & Fitness",
+        "source": "STACKT Market",
+        "url": "https://stacktmarket.com/event/adidas-home-of-soccer-toronto/",
+        "start": "2026-06-12",
+        "end": "2026-07-19",
+        "free": True,
+        "amount": 0,
+        "desc": "adidas turns STACKT into a soccer hub with an outdoor viewing area for official FIFA World Cup watch parties, plus activations all summer."
+    },
+    {
+        "title": "Dream in High Park: Twelfth Night",
+        "venue": "High Park Amphitheatre · 1873 Bloor St W",
+        "zone": "highpark",
+        "category": "Art & Culture",
+        "source": "Canadian Stage",
+        "url": "https://www.canadianstage.com/shows-events/dream-in-high-park-26",
+        "start": "2026-07-12",
+        "end": "2026-09-06",
+        "free": False,
+        "amount": 35,
+        "desc": "Canadian Stage's 43rd season of outdoor Shakespeare under the stars. Tue-Sat 8pm, Sun 7pm. Pack a picnic."
+    },
+    {
+        "title": "FIFA Fan Festival (Fort York × The Bentway)",
+        "venue": "The Bentway · Fort York",
+        "zone": "bentway",
+        "category": "Festivals",
+        "source": "The Bentway",
+        "url": "https://thebentway.ca/news/the-bentway-named-as-a-host-site-for-torontos-fifa-fan-festival-coming-summer-2026/",
+        "start": "2026-06-11",
+        "end": "2026-07-19",
+        "free": True,
+        "amount": 0,
+        "desc": "Toronto's central fan destination with big-screen match broadcasts, cultural performances, art installations, and local food."
+    },
+    {
+        "title": "Summer Music in the Garden (25th season)",
+        "venue": "Toronto Music Garden",
+        "zone": "harbourfront",
+        "category": "Music",
+        "source": "Harbourfront Centre",
+        "url": "https://harbourfrontcentre.com/whats-on/",
+        "start": "2026-06-21",
+        "end": "2026-08-27",
+        "free": True,
+        "amount": 0,
+        "desc": "Free concerts in the lakeside Toronto Music Garden, marking the series' 25th season."
+    },
+    {
+        "title": "TD Toronto Jazz Festival: Free Outdoor Sets",
+        "venue": "Bloor-Yorkville · OLG Village Stage",
+        "zone": "yorkville",
+        "category": "Music",
+        "source": "Toronto Jazz Festival",
+        "url": "https://torontojazz.com/",
+        "start": "2026-06-19",
+        "end": "2026-06-28",
+        "free": True,
+        "amount": 0,
+        "desc": "Ten days of free open-air jazz across Bloor-Yorkville, plus Sidewalk Sessions at five locations."
+    },
+    {
+        "title": "Give Me Liberty Street Party",
+        "venue": "Lamport Stadium lot · 75 Fraser Ave",
+        "zone": "liberty",
+        "category": "Festivals",
+        "source": "Liberty Village BIA",
+        "url": "https://www.libertyvillagebia.com/events/give-me-liberty-street-party",
+        "start": "2026-09-17",
+        "end": "2026-09-17",
+        "free": True,
+        "amount": 0,
+        "desc": "The Liberty Village BIA's signature block party: 40+ local vendors, live music, a beer garden, and activities for all ages."
+    }
+]
+
 NEIGHBORHOOD_MAP = {
     "stackt": "bentway",
     "bentway": "bentway",
@@ -69,317 +146,228 @@ NEIGHBORHOOD_MAP = {
     "comedy bar": "queenwest"
 }
 
-# High-fidelity baseline seed events to write if networks are fully blocked or APIs are down
-BASELINE_EVENTS = [
-    {
-        "title": "adidas Home of Soccer: World Cup Watch Parties",
-        "venue": "STACKT market · 28 Bathurst St",
-        "zone": "bentway",
-        "category": "Sports & Fitness",
-        "source": "STACKT Market",
-        "url": "https://stacktmarket.com/event/adidas-home-of-soccer-toronto/",
-        "start": "2026-06-12",
-        "end": "2026-07-19",
-        "free": True,
-        "amount": 0,
-        "desc": "adidas turns STACKT into a soccer hub with an outdoor viewing area for official FIFA World Cup watch parties, plus activations all summer."
-    },
-    {
-        "title": "The Bentway Skate & Oasis Loop",
-        "venue": "The Bentway (Under the Gardiner Expressway)",
-        "zone": "bentway",
-        "category": "Sports & Fitness",
-        "source": "The Bentway",
-        "url": "https://thebentway.ca/event/",
-        "start": "2026-06-18",
-        "end": "2026-08-30",
-        "free": True,
-        "amount": 0,
-        "desc": "Lace up your roller skates and roll through a vibrant pop-up recreational oasis featuring live local electronic DJs and interactive lighting installations beneath the massive concrete canopy of the Gardiner Expressway."
-    },
-    {
-        "title": "FIFA Fan Festival (Fort York × The Bentway)",
-        "venue": "The Bentway · Fort York",
-        "zone": "bentway",
-        "category": "Festivals",
-        "source": "The Bentway",
-        "url": "https://thebentway.ca/news/the-bentway-named-as-a-host-site-for-torontos-fifa-fan-festival-coming-summer-2026/",
-        "start": "2026-06-11",
-        "end": "2026-07-19",
-        "free": True,
-        "amount": 0,
-        "desc": "Toronto's central fan destination with big-screen match broadcasts, cultural performances, art installations, and local food."
-    },
-    {
-        "title": "TD Toronto Jazz Festival: Free Outdoor Sets",
-        "venue": "Bloor-Yorkville · OLG Village Stage",
-        "zone": "yorkville",
-        "category": "Music",
-        "source": "Toronto Jazz Festival",
-        "url": "https://torontojazz.com/",
-        "start": "2026-06-19",
-        "end": "2026-06-28",
-        "free": True,
-        "amount": 0,
-        "desc": "Ten days of free open-air jazz across Bloor-Yorkville, plus Sidewalk Sessions at five locations."
-    },
-    {
-        "title": "Pride Toronto Parade",
-        "venue": "Yonge Street · downtown",
-        "zone": "downtown",
-        "category": "Festivals",
-        "source": "Pride Toronto",
-        "url": "https://www.pridetoronto.com/",
-        "start": "2026-06-28",
-        "end": "2026-06-28",
-        "free": True,
-        "amount": 0,
-        "desc": "The 45th-anniversary parade down Yonge Street, one of the largest Pride parades in the world."
-    },
-    {
-        "title": "Summer Music in the Garden (25th season)",
-        "venue": "Toronto Music Garden",
-        "zone": "harbourfront",
-        "category": "Music",
-        "source": "Harbourfront Centre",
-        "url": "https://harbourfrontcentre.com/whats-on/",
-        "start": "2026-06-21",
-        "end": "2026-08-27",
-        "free": True,
-        "amount": 0,
-        "desc": "Free concerts in the lakeside Toronto Music Garden, marking the series' 25th season."
-    }
-]
-
 def clean_html(raw_html):
-    """Parses raw HTML layout fragments and returns plain text."""
     if not raw_html:
         return ""
+    import html
+    import re
     clean_text = re.sub('<[^<]+?>', '', raw_html)
     return html.unescape(clean_text).strip()
 
 def determine_zone(title, venue, description):
-    """Evaluates contextual details to map coordinates to a neighborhood slug."""
-    combined = f"{title} {venue} {description}".lower()
+    search_text = f"{title} {venue} {description}".lower()
     for keyword, zone_key in NEIGHBORHOOD_MAP.items():
-        if keyword in combined:
+        if keyword in search_text:
             return zone_key
     return "downtown"
 
-def fetch_evasive(url):
-    """Sends evasive TLS fingerprints and browser headers. Falls back to a proxy on 403 blocks."""
+def fetch_url(url):
+    """Fetches a URL using HTTPX with HTTP2, falling back cleanly to Requests if needed."""
     if HAS_HTTPX:
         try:
             with httpx.Client(http2=True) as client:
-                response = client.get(url, headers=BROWSER_HEADERS, timeout=15.0)
+                response = client.get(url, headers=BROWSER_HEADERS, timeout=12.0)
                 if response.status_code == 403:
-                    print(f"[WAF WARNING] Standard request to {url} was rejected by WAF (403 Forbidden).")
-                    return fetch_via_proxy(url)
+                    print(f"[WAF BLOCK] Standard access to {url} was rejected (403).")
+                    return redirect_to_proxy(url)
                 response.raise_for_status()
                 return response.text
-        except Exception as err:
-            print(f"[NETWORK ERROR] HTTPX connection failed for {url}: {err}")
-            return fetch_via_proxy(url)
+        except Exception as e:
+            print(f"[NETWORK ERROR] HTTPX connection failed for {url}: {e}")
+            return redirect_to_proxy(url)
     else:
         try:
-            response = requests.get(url, headers=BROWSER_HEADERS, timeout=15.0)
+            response = requests.get(url, headers=BROWSER_HEADERS, timeout=12.0)
             if response.status_code == 403:
-                print(f"[WAF WARNING] Standard request to {url} was rejected by WAF (403 Forbidden).")
-                return fetch_via_proxy(url)
+                print(f"[WAF BLOCK] Standard requests call to {url} was rejected (403).")
+                return redirect_to_proxy(url)
             response.raise_for_status()
             return response.text
-        except Exception as err:
-            print(f"[NETWORK ERROR] Requests connection failed for {url}: {err}")
-            return fetch_via_proxy(url)
+        except Exception as e:
+            print(f"[NETWORK ERROR] Requests connection failed for {url}: {e}")
+            return redirect_to_proxy(url)
 
-def fetch_via_proxy(target_url):
-    """Fallback proxy router routing requests through Cloudflare Workers."""
-    proxy_gateway = "https://your-worker-proxy.workers.dev/fetch?url=" + urllib.parse.quote(target_url)
-    print(f"[REDIRECTING] Routing connection through decentralized serverless edge proxy: {proxy_gateway}")
+def redirect_to_proxy(target_url):
+    """Routes blocked requests through a custom proxy only if it has been configured."""
+    if PROXY_URL == PROXY_URL_PLACEHOLDER:
+        print("[INFO] Proxy redirect skipped: Proxy URL is still configured with placeholder.")
+        return None
+        
+    encoded_url = urllib.parse.quote(target_url)
+    proxy_request_url = f"{PROXY_URL}{encoded_url}"
+    print(f"[REDIRECT] Routing request through edge proxy: {proxy_request_url}")
     try:
         if HAS_HTTPX:
             with httpx.Client(http2=True) as client:
-                resp = client.get(proxy_gateway, timeout=15.0)
+                resp = client.get(proxy_request_url, timeout=12.0)
                 if resp.status_code == 200:
-                    print("[SUCCESS] Successfully bypassed WAF via serverless edge proxy.")
                     return resp.text
         else:
-            resp = requests.get(proxy_gateway, timeout=15.0)
+            resp = requests.get(proxy_request_url, timeout=12.0)
             if resp.status_code == 200:
-                print("[SUCCESS] Successfully bypassed WAF via serverless edge proxy.")
                 return resp.text
-    except Exception as proxy_err:
-        print(f"[PROXY FAULT] Serverless gateway was unreachable: {proxy_err}")
+    except Exception as e:
+        print(f"[PROXY FAULT] Serverless gateway was unreachable: {e}")
     return None
 
-def ingest_open_data():
-    """Downloads, normalizes, and filters the official City of Toronto JSON calendar feed."""
-    print("[INGEST] Launching extraction of City of Toronto Open Data feed...")
-    api_url = "https://secure.toronto.ca/cc_sr_v1/data/edc_eventcalendar?limit=50"
-    
-    raw_payload = fetch_evasive(api_url)
-    if not raw_payload:
+def fetch_toronto_json_url():
+    """Queries Toronto's CKAN API to dynamically fetch the active JSON feed path."""
+    print("[INGEST] Resolving active resource path from City of Toronto CKAN API...")
+    ckan_package_api = "https://ckan0.cf.opendata.inter.prod-toronto.ca/api/3/action/package_show?id=festivals-and-events"
+    metadata_raw = fetch_url(ckan_package_api)
+    if not metadata_raw:
+        return None
+    try:
+        metadata = json.loads(metadata_raw)
+        if metadata.get("success"):
+            resources = metadata.get("result", {}).get("resources", [])
+            for res in resources:
+                # Find the resource matching the JSON output format type
+                if res.get("format", "").lower() == "json":
+                    print(f"[INGEST] Dynamic event JSON resource resolved: {res.get('url')}")
+                    return res.get("url")
+    except Exception as e:
+        print(f"[ERROR] Failed to parse CKAN metadata payload: {e}")
+    return None
+
+def ingest_toronto_open_data():
+    """Ingests data from the resolved Toronto Open Data JSON URL."""
+    json_url = fetch_toronto_json_url()
+    if not json_url:
+        print("[WARNING] Could not resolve Toronto Open Data URL. Pipeline falling back.")
+        return []
+        
+    raw_data = fetch_url(json_url)
+    if not raw_data:
         return []
 
     try:
-        raw_list = json.loads(raw_payload)
-        events = []
-        for item in raw_list:
+        events_json = json.loads(raw_data)
+        parsed_events = []
+        for item in events_json:
             cal_event = item.get("calEvent", {})
             title = cal_event.get("eventName", "")
-            desc = clean_html(cal_event.get("description", ""))
+            description = clean_html(cal_event.get("description", ""))
             
-            # Extract venue and address
             locations = cal_event.get("locations", [])
             venue = "Toronto, ON"
             if locations:
                 venue = locations[0].get("locationName", "Toronto, ON")
-                
-            zone = determine_zone(title, venue, desc)
+            
+            zone = determine_zone(title, venue, description)
             is_free = cal_event.get("freeEvent", "No") == "Yes"
+            source_url = cal_event.get("eventURL", "https://open.toronto.ca")
             
             start_date = cal_event.get("startDate", "").split("T")[0]
             end_date = cal_event.get("endDate", "").split("T")[0]
-            url = cal_event.get("eventURL", "https://open.toronto.ca")
             
             if not title or not start_date:
                 continue
 
-            events.append({
+            parsed_events.append({
                 "title": title,
                 "venue": venue,
                 "zone": zone,
                 "category": "Community",
                 "source": "City of Toronto",
-                "url": url,
+                "url": source_url,
                 "start": start_date,
                 "end": end_date,
                 "free": is_free,
                 "amount": 0,
-                "desc": desc[:200] + "..." if len(desc) > 200 else desc
+                "desc": description[:220] + "..." if len(description) > 220 else description
             })
-        print(f"[INGEST] Processed {len(events)} events from City of Toronto CKAN API.")
-        return events
-    except Exception as parse_err:
-        print(f"[PARSE ERROR] Failed to parse Toronto Open Data schema: {parse_err}")
+        print(f"[INGEST] Processed {len(parsed_events)} live events from Toronto Open Data.")
+        return parsed_events
+    except Exception as e:
+        print(f"[ERROR] Failed to parse Toronto Open Data payload: {e}")
         return []
 
 def ingest_blogto_rss():
-    """Downloads and extracts XML nodes from the blogTO events pipeline."""
-    print("[INGEST] Launching extraction of blogTO RSS Feed...")
+    """Ingests data from the blogTO events RSS feed."""
+    print("[INGEST] Querying blogTO RSS Feed...")
     rss_url = "https://www.blogto.com/feeds/events/"
-    
-    raw_xml = fetch_evasive(rss_url)
+    raw_xml = fetch_url(rss_url)
     if not raw_xml:
         return []
-
     try:
         root = ET.fromstring(raw_xml)
-        events = []
-        today_stamp = datetime.today().strftime("%Y-%m-%d")
-        
+        parsed_events = []
         for item in root.findall(".//item"):
             title = item.find("title").text
-            desc = clean_html(item.find("description").text)
+            description = clean_html(item.find("description").text)
             link = item.find("link").text
+            venue = "Toronto Venue"
+            zone = determine_zone(title, venue, description)
+            today_str = datetime.today().strftime("%Y-%m-%d")
             
-            zone = determine_zone(title, "", desc)
-            
-            events.append({
+            parsed_events.append({
                 "title": title,
-                "venue": "Toronto Venue",
+                "venue": venue,
                 "zone": zone,
                 "category": "Art & Culture",
                 "source": "blogTO",
                 "url": link,
-                "start": today_stamp,
-                "end": today_stamp,
+                "start": today_str,
+                "end": today_str,
                 "free": True,
                 "amount": 0,
-                "desc": desc[:200] + "..." if len(desc) > 200 else desc
+                "desc": description[:220] + "..." if len(description) > 220 else description
             })
-        print(f"[INGEST] Processed {len(events)} items from blogTO RSS XML.")
-        return events
-    except Exception as xml_err:
-        print(f"[PARSE ERROR] Failed to parse blogTO RSS XML feed: {xml_err}")
+        print(f"[INGEST] Processed {len(parsed_events)} live events from blogTO RSS.")
+        return parsed_events
+    except Exception as e:
+        print(f"[ERROR] Failed to parse blogTO RSS: {e}")
         return []
 
-def calculate_jaccard(str1, str2):
-    """Splits strings into token sets and calculates intersection over union ratio."""
-    tok1 = set(str1.lower().split())
-    tok2 = set(str2.lower().split())
-    intersection = tok1.intersection(tok2)
-    union = tok1.union(tok2)
-    return len(intersection) / len(union) if union else 0.0
+def jaccard_similarity(str1, str2):
+    words1 = set(str1.lower().split())
+    words2 = set(str2.lower().split())
+    intersection = words1.intersection(words2)
+    union = words1.union(words2)
+    return len(intersection) / len(union) if union else 0
 
-def deduplicate_events(incoming_list):
-    """Filters lists based on temporal alignment and Jaccard text similarity score."""
-    cleaned = []
+def deduplicate_and_merge(incoming_events):
+    """Deduplicates incoming scrape results against themselves and baseline items."""
+    unique_list = []
     blocked_count = 0
-    for item in incoming_list:
+    
+    # Pre-populate with our verified baseline events
+    unique_list.extend(BASELINE_EVENTS)
+    
+    for item in incoming_events:
         is_duplicate = False
-        for active in cleaned:
-            # Check if events happen on the same day
-            if item["start"] == active["start"]:
-                score = calculate_jaccard(item["title"], active["title"])
-                if score >= 0.72:
+        for existing in unique_list:
+            if item["start"] == existing["start"]:
+                similarity = jaccard_similarity(item["title"], existing["title"])
+                if similarity >= 0.72:
                     is_duplicate = True
                     blocked_count += 1
                     break
         if not is_duplicate:
-            cleaned.append(item)
-    print(f"[DEDUPE] Filter complete. Suppressed {blocked_count} duplicate cross-listings.")
-    return cleaned
+            unique_list.append(item)
+            
+    print(f"[DEDUPE] Deduping complete. Blocked {blocked_count} duplicate events.")
+    return unique_list
 
 def main():
-    print("[PIPELINE] Initializing automatic compilation run...")
-    live_events = []
+    print("[PIPELINE] Starting automated event ingestion script...")
     
-    # 1. Fetch from live feeds
-    open_data = ingest_open_data()
-    blogto_data = ingest_blogto_rss()
-    live_events = open_data + blogto_data
-
-    # Deduplicate crawled live events
-    if live_events:
-        live_events = deduplicate_events(live_events)
-        print(f"[PIPELINE] Successfully retrieved {len(live_events)} live events.")
-    else:
-        print("[WARNING] Real-time network pipeline could not reach remote hosts directly.")
-
-    # 2. Merge with Baseline Seeds to guarantee a rich event experience (15-20+ events)
-    # This prevents the list from feeling empty if certain scraper targets fail or are partially blocked.
-    print("[MERGE] Merging live results with verified baseline dataset...")
-    final_events = list(live_events)
-    merged_baseline_count = 0
+    open_data_events = ingest_toronto_open_data()
+    blogto_events = ingest_blogto_rss()
     
-    for base_ev in BASELINE_EVENTS:
-        is_dupe = False
-        for live_ev in final_events:
-            # Match title similarities to avoid duplicating the same event across different days
-            similarity = calculate_jaccard(base_ev["title"], live_ev["title"])
-            if similarity >= 0.72:
-                is_dupe = True
-                break
-        if not is_dupe:
-            final_events.append(base_ev)
-            merged_baseline_count += 1
-            
-    print(f"[MERGE] Appended {merged_baseline_count} non-overlapping baseline events.")
-
-    # 3. Sort compiled list chronologically by start date
-    try:
-        final_events.sort(key=lambda x: x.get("start", ""))
-    except Exception as sort_err:
-        print(f"[SORT ERROR] Could not sort compiled list: {sort_err}")
-
-    # 4. Output final file to disc
-    try:
-        with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-            json.dump(final_events, f, indent=2, ensure_ascii=False)
-        print(f"[PIPELINE SUCCESS] Successfully compiled and wrote {len(final_events)} records to '{OUTPUT_FILE}'.")
-    except Exception as file_err:
-        print(f"[FATAL FILE EXCEPTION] Could not write output to disk: {file_err}")
+    all_incoming = open_data_events + blogto_events
+    
+    # Merge, deduplicate, and preserve baseline events
+    final_dataset = deduplicate_and_merge(all_incoming)
+    
+    # Sort events chronologically by start date
+    final_dataset.sort(key=lambda x: x["start"])
+    
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        json.dump(final_dataset, f, indent=2, ensure_ascii=False)
+        
+    print(f"[SUCCESS] Ingestion completed. Saved {len(final_dataset)} events to {OUTPUT_FILE}.")
 
 if __name__ == "__main__":
     main()
