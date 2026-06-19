@@ -470,7 +470,7 @@
 
   <footer>
     <div>© <span id="year"></span> MsJAG · CityEvents · Curated Toronto event intelligence</div>
-    <div><a href="https://torontoeatsandreviews.com/tvguide.html" target="_blank" rel="noopener noreferrer">TV Guide ↗</a> · <a href="https://torontoeatsandreviews.com/">torontoeatsandreviews.com</a></div>
+    <div>Event data includes <a href="https://open.toronto.ca/dataset/festivals-events/" target="_blank" rel="noopener">City of Toronto Open Data</a> · <a href="https://torontoeatsandreviews.com/tvguide.html" target="_blank" rel="noopener noreferrer">TV Guide ↗</a> · <a href="https://torontoeatsandreviews.com/">torontoeatsandreviews.com</a></div>
   </footer>
 </div>
 
@@ -954,19 +954,25 @@ function downloadCityEventsJson(){
 
 async function loadEvents(){
   try{
-    const res=await fetch("events.json?t="+Date.now(),{cache:"no-store"});
+    const res=await fetch("cityevents.json?t="+Date.now(),{cache:"no-store"});
     if(!res.ok) throw new Error("no feed file");
     const data=await res.json();
     const list=Array.isArray(data)?data:(data&&data.events);
     if(!list||!list.length) return false;
-    TorontoEventsDataset.length=0;
-    list.forEach(function(o){ TorontoEventsDataset.push(ev(Object.assign({},o))); });
+    const seen=new Set(TorontoEventsDataset.map(function(e){ return (e.title||"").toLowerCase().trim()+"|"+e.start; }));
+    list.forEach(function(o){
+      if(!o||!o.title||!o.start) return;
+      const key=(o.title||"").toLowerCase().trim()+"|"+o.start;
+      if(seen.has(key)) return;
+      seen.add(key);
+      TorontoEventsDataset.push(ev(Object.assign({},o)));
+    });
     buildChips(); refreshAll(); renderMap();
     const v=document.getElementById("verified-note");
     if(v){
       let when="";
       if(data&&data.generated){ const g=new Date(data.generated); if(!isNaN(g)) when=" Feed updated "+g.toLocaleDateString("en-CA",{month:"short",day:"numeric"})+", "+g.toLocaleTimeString("en-CA",{hour:"2-digit",minute:"2-digit"})+"."; }
-      v.innerHTML='Live Toronto events from the <b>City of Toronto Open Data</b> feed, refreshed automatically each day.'+when+' Tap any event card to confirm it at the source.';
+      v.innerHTML='Curated Toronto events, topped up automatically from a live feed.'+when+' Tap any event card to confirm it at the source.';
     }
     return true;
   }catch(e){ return false; }
