@@ -685,6 +685,13 @@ const REFRESH_MS = 1000 * 60 * 60 * 6;            // background refresh every 6 
 const cache = {};                                  // TVmaze schedule cache: key -> {data, time}
 const leagueCache = {};                            // ESPN scores cache, keyed by league -> {data, time}
 let streamCache = null;                            // TVmaze streaming cache {date, data, time}
+const broadcastCache = {};                         // broadcast-extras cache: date -> {data, time}
+
+/* Broadcast extras feed: paste the address of your deployed Cloudflare Worker
+   (the one that reads TV Insider's network listings and returns small JSON).
+   While it stays as the placeholder below, the guide just uses TVmaze and shows
+   no errors, so it is safe to upload before the Worker exists. */
+const BROADCAST_WORKER_URL = "https://tv-broadcast.msjag416.workers.dev";
 const VALID_VIEWS = ["US","CA","SPORTS","WC","STREAM","MOVIES","EVENTS","TRACKER","MINE"];
 
 // ESPN scoreboard paths per league
@@ -798,6 +805,58 @@ async function fetchSchedule(country, date){
   }
 }
 
+/* ---------- Broadcast extras (fills in shows/specials TVmaze leaves out) ----------
+   Reads a small JSON feed from your Cloudflare Worker (which in turn reads TV
+   Insider's broadcast-network listings) and reshapes each entry to look exactly
+   like a TVmaze schedule item, so the rest of the grid renders it with no other
+   changes. If the Worker URL is still the placeholder, this quietly returns
+   nothing and the guide runs on TVmaze alone. */
+async function loadBroadcastExtras(date){
+  if(!BROADCAST_WORKER_URL || BROADCAST_WORKER_URL.includes("YOUR-WORKER")) return [];
+  const c = broadcastCache[date];
+  if(c && (Date.now()-c.time < 30*60*1000)) return c.data;   // fresh enough
+  try{
+    const res = await fetch(`${BROADCAST_WORKER_URL}?date=${date}`);
+    if(!res.ok) throw new Error("Broadcast feed "+res.status);
+    const rows = await res.json();
+    const items = (Array.isArray(rows)?rows:[]).map(e=>({
+      airtime: e.time || "",                 // "20:00" ET, the same format TVmaze uses
+      name: e.episodeName || "",             // episode/subtitle, if any
+      season: e.season || null,
+      number: e.number || null,
+      runtime: e.runtime || 60,
+      _src: "tvinsider",
+      show: {
+        name: e.title || "Untitled",
+        type: e.type || "Special",           // never "News", so it lands under Broadcast
+        genres: [],
+        network: { name: e.network || "" },  // "FOX"/"ABC"/... -> Broadcast
+        image: null,
+        summary: e.description || ""
+      }
+    })).filter(it=>it.show.name && it.airtime);
+    broadcastCache[date] = { data: items, time: Date.now() };
+    return items;
+  }catch(err){
+    if(c) return c.data;                      // network blip: keep last good data
+    console.warn("Broadcast extras unavailable:", err);
+    return [];
+  }
+}
+
+/* Merge extras into the TVmaze list, dropping anything TVmaze already carries
+   (matched on show name + airtime) so nothing appears twice. */
+function mergeBroadcastExtras(base, extras){
+  if(!extras || !extras.length) return base;
+  const norm = s => String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const have = new Set(base.map(it=>{
+    const s = it.show||{};
+    return norm(s.name)+"|"+(it.airtime||"");
+  }));
+  const add = extras.filter(it=>!have.has(norm(it.show.name)+"|"+(it.airtime||"")));
+  return base.concat(add);
+}
+
 /* For the Sports view we combine US + Canada, then keep only sports programming. */
 async function loadData(){
   if(state.view==="SPORTS"){
@@ -806,6 +865,13 @@ async function loadData(){
       fetchSchedule("CA",state.date).catch(()=>[]),
     ]);
     return [...us,...ca].filter(isSports);
+  }
+  if(state.view==="US"){
+    const [base, extras] = await Promise.all([
+      fetchSchedule("US", state.date),                       // TVmaze (may throw -> error UI, unchanged)
+      loadBroadcastExtras(state.date).catch(()=>[]),         // extras never break the page
+    ]);
+    return mergeBroadcastExtras(base, extras);
   }
   return await fetchSchedule(state.view,state.date);
 }
