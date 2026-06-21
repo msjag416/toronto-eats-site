@@ -2273,7 +2273,24 @@ function renderEvents(){
 /* ---------- Events tab: curated marquee broadcasts (end) ---------- */
 
 /* ---------- rendering ---------- */
+
+/* Safeguard: keep the in-memory caches from growing without bound on a tab left
+   open for a very long time. Each cache is keyed by date or show id, so this just
+   trims the oldest entries once a cache passes a generous size. Pure insurance; a
+   full page refresh already empties them. */
+const CACHE_MAX = 150;
+function trimCache(obj){
+  const keys = Object.keys(obj);
+  if(keys.length > CACHE_MAX){
+    for(const k of keys.slice(0, keys.length - CACHE_MAX)) delete obj[k];
+  }
+}
+function trimCaches(){
+  [cache, broadcastCache, tmdbCache, tmdbNextCache, tmdbCaCache, tmdbRecCache].forEach(trimCache);
+}
+
 function render(){
+  trimCaches();   // keep caches bounded on a long-open session
   writeHash();   // keep the address bar shareable (#view=...&date=...)
   // the date strip only applies to listings-by-day views
   // The date picker only changes the USA TV grid; other tabs are live or date-agnostic.
