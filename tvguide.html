@@ -593,6 +593,7 @@
     <button class="tab" data-view="MOVIES" role="tab" aria-selected="false">Movies</button>
     <button class="tab" data-view="EVENTS" role="tab" aria-selected="false">Events</button>
     <button class="tab" data-view="TRACKER" role="tab" aria-selected="false">Tracker</button>
+    <button class="tab" data-view="TRAKT" role="tab" aria-selected="false">Trakt</button>
     <button class="tab" data-view="MINE" role="tab" aria-selected="false">My Shows</button>
   </nav>
 
@@ -692,7 +693,15 @@ const broadcastCache = {};                         // broadcast-extras cache: da
    While it stays as the placeholder below, the guide just uses TVmaze and shows
    no errors, so it is safe to upload before the Worker exists. */
 const BROADCAST_WORKER_URL = "https://tv-broadcast.msjag416.workers.dev";
-const VALID_VIEWS = ["US","CA","SPORTS","WC","STREAM","MOVIES","EVENTS","TRACKER","MINE"];
+
+/* Trakt watchlist (public read, no login). Create a free Trakt API app to get a
+   Client ID (safe to expose), add your site as an allowed CORS origin in that
+   app, and set your Trakt watchlist to public. Then fill in both lines below.
+   Left as placeholders, the Trakt tab simply shows a short setup note. */
+const TRAKT_CLIENT_ID = "dbc0553d1d53cd41d0636179dad5ee3f923b86429de0a225beeb4087f3bfadfd";
+const TRAKT_USERNAME  = "msjagtvguide";
+let traktCache = null;                              // Trakt watchlist cache {data, time}
+const VALID_VIEWS = ["US","TRAKT","CA","SPORTS","WC","STREAM","MOVIES","EVENTS","TRACKER","MINE"];
 
 // ESPN scoreboard paths per league
 const SPORT_PATH = {
@@ -1964,6 +1973,59 @@ function renderMyShows(){
   });
 }
 
+/* ---- Trakt watchlist: public, read-only ------------------------------------
+   Reads JoAnne's PUBLIC Trakt watchlist with just an app Client ID (no login).
+   Trakt hands back a TMDB id for each show, which feeds the same TMDB lookup and
+   card layout used by My Shows, so status and next-episode dates come for free.
+   Kept entirely separate from My Shows: that stays the curated must-watch list. */
+async function loadTraktWatchlist(){
+  if(!TRAKT_CLIENT_ID || TRAKT_CLIENT_ID.includes("YOUR-TRAKT") ||
+     !TRAKT_USERNAME  || TRAKT_USERNAME.includes("YOUR-TRAKT")) return null;   // not set up yet
+  if(traktCache && Date.now()-traktCache.time < 30*60*1000) return traktCache.data;
+  const res = await fetch(`https://api.trakt.tv/users/${encodeURIComponent(TRAKT_USERNAME)}/watchlist/shows?limit=200`, {
+    headers: { "trakt-api-version":"2", "trakt-api-key":TRAKT_CLIENT_ID }
+  });
+  if(!res.ok) throw new Error("Trakt "+res.status);
+  const rows = await res.json();
+  const entries = (Array.isArray(rows)?rows:[])
+    .map(it => it.show || it)                      // watchlist/shows nests the show under .show
+    .map(s => ({ id: s.ids && s.ids.tmdb, q: s.title }))
+    .filter(e => e.id);                            // a TMDB id is needed to render a card
+  traktCache = { data: entries, time: Date.now() };
+  return entries;
+}
+
+const TRAKT_HEAD = `<h2>\u{1F4FA} Trakt Watchlist <span class="tag">Trakt</span></h2>`;
+function traktPanel(inner){ els.featured.innerHTML=`<div class="nba">${TRAKT_HEAD}${inner}</div>`; }
+
+function renderTraktWatchlist(){
+  traktPanel(`<div class="sub">Loading your Trakt watchlist...</div>`);
+  loadTraktWatchlist().then(entries=>{
+    if(entries===null){
+      traktPanel(`<div class="empty">Trakt isn't connected yet. Once your Trakt Client ID and username are filled in and your watchlist is public, the shows you've saved there will show up here.</div>`);
+      return;
+    }
+    if(!entries.length){
+      traktPanel(`<div class="empty">Your Trakt watchlist looks empty or private. Add shows on Trakt, and make sure the watchlist is set to public.</div>`);
+      return;
+    }
+    Promise.all(entries.map(e => tmdbShowRecord(e.id).catch(()=>null)))
+      .then(recs=>{
+        recs=recs.filter(Boolean);
+        if(!recs.length){ traktPanel(`<div class="empty">Couldn't load show details from TMDB right now. Try again in a moment.</div>`); return; }
+        const cards=recs.map(myShowCard).join("");
+        traktPanel(`
+          <div class="sub">Shows you've saved on Trakt to watch when you have time, with status and the next episode date when there is one. This stays separate from My Shows, which is your must-watch list.</div>
+          <div class="nfx-list">${cards}</div>
+          <div class="src">Watchlist via <a href="https://trakt.tv" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dotted">Trakt</a>; status and episode data via TMDB; Canadian availability via JustWatch.</div>`);
+        fillCanadaProviders();
+      });
+  }).catch(err=>{
+    traktPanel(`<div class="empty">Couldn't reach Trakt right now. If this keeps happening, check that your watchlist is public and your site is listed as an allowed origin in your Trakt app.</div>`);
+    console.warn("Trakt watchlist error:", err);
+  });
+}
+
 function renderTracker(){
   // Recent, popular shows grouped by TMDB status. "Returning Series" covers
   // both ongoing and freshly renewed shows (TMDB has no separate renewed flag);
@@ -2219,7 +2281,7 @@ function render(){
   // the network filter only applies to the USA grid
   els.catfilter.style.display = (state.view==="US") ? "flex" : "none";
   // the search box has nothing to act on the Canada tab (sports panel only)
-  els.searchBox.style.display = (state.view==="CA"||state.view==="TRACKER"||state.view==="MINE") ? "none" : "";
+  els.searchBox.style.display = (state.view==="CA"||state.view==="TRACKER"||state.view==="MINE"||state.view==="TRAKT") ? "none" : "";
 
   // featured panel: NBA on Sports, Canadian sports on Canada, World Cup on WC, Netflix on Streaming
   if(state.view==="SPORTS"){
@@ -2243,6 +2305,9 @@ function render(){
   } else if(state.view==="MINE"){
     els.featured.style.display="block";
     renderMyShows();
+  } else if(state.view==="TRAKT"){
+    els.featured.style.display="block";
+    renderTraktWatchlist();
   } else {
     els.featured.style.display="none";
     els.featured.innerHTML="";
@@ -2280,6 +2345,14 @@ function render(){
 
   // My Shows: personal watchlist panel only
   if(state.view==="MINE"){
+    els.note.style.display="none";
+    els.listings.innerHTML="";
+    els.count.textContent="";
+    return;
+  }
+
+  // Trakt: watchlist panel only
+  if(state.view==="TRAKT"){
     els.note.style.display="none";
     els.listings.innerHTML="";
     els.count.textContent="";
