@@ -711,7 +711,7 @@
                         <textarea id="f-msg" name="message" rows="6" required maxlength="250"></textarea>
                         <div class="counter"><span id="charCount">0</span> / 250</div>
                     </div>
-                    <div class="f full human-check"><div class="cf-turnstile" data-sitekey="0x4AAAAAAFz-2djdVFltrrzC" data-theme="light" data-size="flexible"></div></div>
+                    <div class="f full human-check"><div class="cf-turnstile" data-sitekey="0x4AAAAAAFz-2djdVFltrrzC" data-theme="light" data-size="flexible" data-appearance="interaction-only"></div></div>
                     <button type="submit">Submit Inquiry →</button>
                 </form>
 
@@ -835,7 +835,7 @@
                     if (prev) prev.remove();
                     const e2 = document.createElement('div');
                     e2.className = 'err';
-                    e2.textContent = 'Please complete the "Verify you are human" check above.';
+                    e2.textContent = 'One moment, we are confirming you are human. If a "Verify you are human" box appears above, tick it, then press Submit again.';
                     inquiryForm.insertBefore(e2, inquiryForm.querySelector('button[type="submit"]'));
                     return;
                 }
