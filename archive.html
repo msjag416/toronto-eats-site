@@ -145,6 +145,7 @@
                 <form id="inquiry-form" action="https://formsubmit.co/d65d504c402f1757246b2c912fcf6426" method="POST" class="form">
                     <input type="hidden" name="_subject" value="New Media Inquiry - More Reviews Page">
                     <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_next" value="https://torontoeatsandreviews.com/thanks.html">
                     <input type="hidden" name="_template" value="table">
                     <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
@@ -308,7 +309,11 @@
                 payload.business_type = bizList.length ? bizList.join(', ') : 'n/a (individual)';
 
                 try {
+                    // Stop waiting after 15 seconds instead of hanging
+                    const controller = new AbortController();
+                    const timer = setTimeout(() => controller.abort(), 15000);
                     const response = await fetch('https://formsubmit.co/ajax/d65d504c402f1757246b2c912fcf6426', {
+                        signal: controller.signal,
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -316,6 +321,7 @@
                         },
                         body: JSON.stringify(payload)
                     });
+                    clearTimeout(timer);
                     const result = await response.json();
                     const ok = response.ok && (result.success === true || result.success === 'true');
                     if (ok) {
@@ -326,6 +332,15 @@
                         throw new Error(result.message || 'Submission failed');
                     }
                 } catch (err) {
+                    // Quick send failed: send the same form the standard way instead.
+                    // FormSubmit then emails it and shows the thank-you page.
+                    console.warn('Quick send failed, using standard send:', err && err.message);
+                    if (!inquiryForm.dataset.fallback) {
+                        inquiryForm.dataset.fallback = '1';
+                        submitBtn.textContent = 'Sending…';
+                        HTMLFormElement.prototype.submit.call(inquiryForm);
+                        return;
+                    }
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
                     if (window.turnstile) { try { window.turnstile.reset(); } catch (e) {} }

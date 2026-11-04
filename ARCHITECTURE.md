@@ -10,7 +10,8 @@ A plain-language map of the site. Hosted free on GitHub Pages (repo `msjag416/to
 | `archive.html` | "More Reviews". Holds **every** review in one list called `const reviews = [ ... ]`. This list is the master copy of all reviews. |
 | `sitemap.xml` | The list of pages Google should visit. The builder adds its own pages here; the dates for `index.html` and `archive.html` are still set by hand. |
 | `robots.txt` | Tells Google it may visit every page and where the sitemap is. |
-| `tvguide.html`, `cityevents.html`, `thanks.html` | Separate tools and pages, not part of the review system. |
+| `tvguide.html`, `cityevents.html` | Separate tools, not part of the review system. |
+| `thanks.html` | Thank-you page the contact form lands on if its quick send fails and it uses the standard FormSubmit send instead. |
 
 ## The pages made automatically
 

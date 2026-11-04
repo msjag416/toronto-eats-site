@@ -3,32 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanks for the Tip! - MsJAG</title>
-    
-    <!-- Favicon -->
+    <title>Message Received | Toronto Eats and Reviews</title>
+    <meta name="robots" content="noindex">
     <link rel="icon" href="/favicon.ico" sizes="48x48">
     <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="apple-touch-icon" href="/icon-apple-180.png">
     <meta name="theme-color" content="#faf7f2">
-
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,800;1,9..144,500;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/site.css">
     <style>
-        .bg-brand-green { background-color: #15803d; }
-        .bg-brand-yellow { background-color: #facc15; }
-        .text-brand-green { color: #15803d; }
+        .thanks-page { text-align: center; max-width: 620px; margin: 40px auto; }
+        .thanks-page img { width: 120px; height: 120px; margin: 0 auto 24px; }
+        .thanks-page h1 { font-size: clamp(36px, 6vw, 56px); line-height: 1.05; margin: 0 0 14px; }
+        .thanks-page h1 em { color: var(--accent); }
+        .thanks-page p { font-size: 18px; color: var(--ink-2); margin: 0 0 28px; }
+        .thanks-page .actions { justify-content: center; }
     </style>
 </head>
-<body class="bg-brand-green flex items-center justify-center min-h-screen">
-    <div class="text-center text-white px-6 max-w-2xl">
-        <div class="text-8xl mb-6">🍴</div>
-        <h1 class="text-5xl font-black mb-4">GOT IT. 👍</h1>
-        <p class="text-xl mb-8 text-green-100">
-            I'll check it out if it sounds legit. If it's trash, you'll know. If it's fire, you'll get credit.
-        </p>
-        <a href="/" class="inline-block bg-brand-yellow text-brand-green font-bold py-4 px-8 rounded-lg hover:bg-yellow-300 transition transform hover:scale-105">
-            Back to Reviews
-        </a>
-    </div>
+<body>
+    <header class="site-header">
+        <a href="/" class="logo" aria-label="Toronto Eats and Reviews home"><img class="logo-mark" src="/icon-144.png" width="72" height="72" alt="Toronto Eats and Reviews logo"><span class="logo-text">Toronto Eats and Reviews<span class="dot">.</span></span></a>
+        <div class="tagline">Restaurant, bar &amp; venue reviews by MsJAG · Toronto · Grand Cayman · Canada</div>
+    </header>
+    <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/toronto/">Toronto</a>
+        <a href="/grand-cayman/">Grand Cayman</a>
+        <a href="/archive.html">More Reviews</a>
+    </nav>
+    <main>
+        <section class="thanks-page">
+            <h1>Thank you.<br><em>Message received.</em></h1>
+            <p>Your inquiry is in. I read every message personally and reply within 48 hours for most requests, sooner for time-sensitive ones.</p>
+            <div class="actions">
+                <a class="btn" href="/">Back to the homepage</a>
+                <a class="btn ghost" href="/archive.html">Browse more reviews</a>
+            </div>
+        </section>
+    </main>
+    <footer class="colophon">
+        <div class="col-inner">
+            <div class="brand"><img class="logo-mark" src="/icon-144.png" width="48" height="48" alt="" loading="lazy"><span>Toronto Eats and Reviews<span class="dot">.</span></span></div>
+            <div class="col-meta">
+                &copy; <span id="copyrightYear"></span> Toronto Eats and Reviews · by MsJAG · Independent · Unsponsored
+            </div>
+        </div>
+    </footer>
+    <script>document.getElementById('copyrightYear').textContent = new Date().getFullYear();</script>
 </body>
 </html>
