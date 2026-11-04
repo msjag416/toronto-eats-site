@@ -880,45 +880,56 @@
                 const bizList = formData.getAll('business_type');
                 payload.business_type = bizList.length ? bizList.join(', ') : 'n/a (individual)';
 
-                try {
-                    // Stop waiting after 15 seconds instead of hanging
+                // Sends to one service with a 12-second limit. Returns true if it was accepted.
+                async function sendTo(url, body) {
                     const controller = new AbortController();
-                    const timer = setTimeout(() => controller.abort(), 15000);
-                    const response = await fetch('https://formsubmit.co/ajax/d65d504c402f1757246b2c912fcf6426', {
-                        signal: controller.signal,
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-                    clearTimeout(timer);
-                    const result = await response.json();
-                    const ok = response.ok && (result.success === true || result.success === 'true');
-                    if (ok) {
-                        inquiryForm.style.display = 'none';
-                        thanksCard.style.display = 'block';
-                        thanksCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    } else {
-                        throw new Error(result.message || 'Submission failed');
+                    const timer = setTimeout(() => controller.abort(), 12000);
+                    try {
+                        const response = await fetch(url, {
+                            signal: controller.signal,
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                            body: JSON.stringify(body)
+                        });
+                        const result = await response.json().catch(() => ({}));
+                        if (response.ok && (result.success === true || result.success === 'true')) return true;
+                        console.warn('Send failed at ' + url + ':', result.message || response.status);
+                        return false;
+                    } catch (err) {
+                        console.warn('Send failed at ' + url + ':', err && err.message);
+                        return false;
+                    } finally {
+                        clearTimeout(timer);
                     }
-                } catch (err) {
-                    // Quick send failed: send the same form the standard way instead.
-                    // FormSubmit then emails it and shows the thank-you page.
-                    console.warn('Quick send failed, using standard send:', err && err.message);
-                    if (!inquiryForm.dataset.fallback) {
-                        inquiryForm.dataset.fallback = '1';
-                        submitBtn.textContent = 'Sending…';
-                        HTMLFormElement.prototype.submit.call(inquiryForm);
-                        return;
-                    }
+                }
+
+                // 1st choice: Web3Forms. Backup: FormSubmit. Both deliver to the same Gmail.
+                const web3Body = {
+                    access_key: 'f4373079-8e8c-4e61-8185-63414b463401',
+                    subject: 'Toronto Eats and Reviews: new inquiry (Homepage)',
+                    from_name: 'Toronto Eats and Reviews website',
+                    name: payload.name,
+                    email: payload.email,
+                    'I am contacting you as': payload.sender_type,
+                    'Type of business': payload.business_type,
+                    'Venue / Organization': payload.venue || '(none given)',
+                    'Inquiry type': payload.subject_type,
+                    message: payload.message
+                };
+                let sent = await sendTo('https://api.web3forms.com/submit', web3Body);
+                if (!sent) sent = await sendTo('https://formsubmit.co/ajax/d65d504c402f1757246b2c912fcf6426', payload);
+
+                if (sent) {
+                    inquiryForm.style.display = 'none';
+                    thanksCard.style.display = 'block';
+                    thanksCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
                     if (window.turnstile) { try { window.turnstile.reset(); } catch (e) {} }
                     const errEl = document.createElement('div');
                     errEl.className = 'err';
-                    errEl.textContent = 'Something went wrong. Please try again in a moment.';
+                    errEl.textContent = "Sorry, your message couldn't be sent right now. Your details are still filled in, so please try again in a few minutes.";
                     inquiryForm.insertBefore(errEl, submitBtn);
                 }
             });

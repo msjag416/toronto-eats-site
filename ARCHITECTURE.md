@@ -11,7 +11,7 @@ A plain-language map of the site. Hosted free on GitHub Pages (repo `msjag416/to
 | `sitemap.xml` | The list of pages Google should visit. The builder adds its own pages here; the dates for `index.html` and `archive.html` are still set by hand. |
 | `robots.txt` | Tells Google it may visit every page and where the sitemap is. |
 | `tvguide.html`, `cityevents.html` | Separate tools, not part of the review system. |
-| `thanks.html` | Thank-you page the contact form lands on if its quick send fails and it uses the standard FormSubmit send instead. |
+| `thanks.html` | Thank-you page (kept for FormSubmit's standard send). |
 
 ## The pages made automatically
 
@@ -79,3 +79,7 @@ You can also run the builder yourself with `python build_review_pages.py`.
 * `icon-apple-180.png` is the phone home-screen icon (solid cream, because iPhones turn see-through corners black).
 * `share-card.png` (1200×630) is the picture shown when a page is shared, unless the page has its own food photo.
 * `tvguide.html` and `cityevents.html` keep their own icons.
+
+## Contact form delivery
+
+The form on the homepage and More Reviews sends to **Web3Forms** first (access key in the page code; Web3Forms keys are public by design). If Web3Forms fails or takes longer than 12 seconds, it tries **FormSubmit** as a backup. Both deliver to the same Gmail. If both fail, the visitor sees a "couldn't be sent, please try again" note and their typed message stays in the form. A Cloudflare Turnstile check (hidden unless needed) and a hidden honeypot box block bots first.
