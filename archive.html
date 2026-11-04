@@ -471,6 +471,8 @@
         .pill-Service { background: var(--yellow); color: var(--ink); }
         .pill-default { background: var(--ink); color: var(--paper); }
 
+        .acard h3 a { text-decoration: none; }
+        .acard h3 a:hover { color: var(--accent); }
         .acard h3 {
             font-family: 'Archivo', sans-serif;
             font-weight: 900;
@@ -1063,6 +1065,7 @@
             <div class="brand">MsJAG<span class="dot">.</span></div>
             <div class="col-meta">
                 &copy; <span id="copyrightYear"></span> MsJAG Reviews · Independent · Local · Authority<br>
+                <a href="/toronto/">Toronto</a> · <a href="/grand-cayman/">Grand Cayman</a> · <a href="/mississauga/">Mississauga</a> · <a href="/canada/">Canada</a> · <a href="/world/">World</a><br>
                 <a href="https://maps.app.goo.gl/w3JyVs56oL8oc73r7" target="_blank" rel="noopener">Google Maps</a>
                 ·
                 <a href="https://instagram.com/chowhoundgta" target="_blank" rel="noopener">Instagram</a>
@@ -4090,6 +4093,8 @@
             });
         }
 
+        let reviewLinks = {};
+
         function renderReviews() {
             const filtered = getFiltered();
             grid.innerHTML = '';
@@ -4117,7 +4122,7 @@
                         <span class="pill ${pillClass}">${escapeHtml(r.category)}</span>
                         <span>${escapeHtml(r.date)}</span>
                     </div>
-                    <h3>${escapeHtml(r.name)}</h3>
+                    <h3>${reviewLinks[r.name + '|' + r.date + '|' + (r.address || '')] ? `<a href="${reviewLinks[r.name + '|' + r.date + '|' + (r.address || '')]}">${escapeHtml(r.name)}</a>` : escapeHtml(r.name)}</h3>
                     <div class="where">${escapeHtml(r.address || 'Location n/a')}</div>
                     <div class="scorebar" aria-label="Rated ${ratingNum} out of 5">
                         <span class="score-n ${scoreClass}">${ratingNum}</span>
@@ -4166,6 +4171,13 @@
         // Review rich results. Lodgings (hotels/resorts/inns) get 'Hotel' type,
         // and non-lodging Travel entries (parks, museums, attractions) are
         // skipped from schema entirely to avoid validation errors.
+        // Turns "Nov 01, 2026" into "2026-11-01", the date format Google expects
+        function toIsoDate(d) {
+            const t = new Date(d);
+            if (isNaN(t)) return undefined;
+            return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+        }
+
         function generateSchema() {
             const schemaTypeMap = {
                 'Dining': 'Restaurant',
@@ -4216,12 +4228,9 @@
                         "worstRating": "1",
                         "bestRating": "5"
                     },
-                    "author": {
-                        "@type": "Person",
-                        "name": "MsJAG",
-                        "url": "https://maps.app.goo.gl/w3JyVs56oL8oc73r7"
-                    },
-                    "datePublished": r.date,
+                    "author": { "@type": "Person", "@id": "https://torontoeatsandreviews.com/#person", "name": "MsJAG" },
+                    "publisher": { "@type": "Organization", "@id": "https://torontoeatsandreviews.com/#organization", "name": "MsJAG Reviews" },
+                    "datePublished": toIsoDate(r.date),
                     "reviewBody": r.comment.substring(0, 500)
                 };
             }).filter(Boolean);
@@ -4240,6 +4249,12 @@
 
         generateSchema();
         renderReviews();
+
+        // Links each card title to that review's own page (list made by build_review_pages.py)
+        fetch('review-links.json')
+            .then(res => res.ok ? res.json() : {})
+            .then(data => { reviewLinks = data || {}; renderReviews(); })
+            .catch(() => {});
     </script>
 
     <!-- ═══ SCROLL TO TOP BUTTON (MOBILE) ═══ -->
