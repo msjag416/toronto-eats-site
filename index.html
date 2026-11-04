@@ -672,6 +672,23 @@
                     <input type="hidden" name="_template" value="table">
                     <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
+                    <fieldset class="f full who" id="who-group">
+                        <legend>I am contacting you as <span class="req">*</span></legend>
+                        <div class="ticks">
+                            <label class="tick"><input type="radio" name="sender_type" value="Business"> <span>A business</span></label>
+                            <label class="tick"><input type="radio" name="sender_type" value="Individual"> <span>An individual</span></label>
+                        </div>
+                        <div class="biz-types" id="biz-types" hidden>
+                            <div class="sub-legend">Type of business (tick all that apply) <span class="req">*</span></div>
+                            <div class="ticks">
+                                <label class="tick"><input type="checkbox" name="business_type" value="Restaurant"> <span>Restaurant</span></label>
+                                <label class="tick"><input type="checkbox" name="business_type" value="Venue"> <span>Venue</span></label>
+                                <label class="tick"><input type="checkbox" name="business_type" value="Event"> <span>Event</span></label>
+                            </div>
+                        </div>
+                        <div class="group-err" id="who-err" role="alert"></div>
+                    </fieldset>
+
                     <div class="f">
                         <label for="f-name">Full Name</label>
                         <input type="text" id="f-name" name="name" required>
@@ -779,6 +796,28 @@
             });
         }
 
+        // Show the business types only for businesses; venue name is optional for individuals
+        (function () {
+            const form = document.getElementById('inquiry-form');
+            if (!form) return;
+            const biz = document.getElementById('biz-types');
+            const venue = document.getElementById('f-venue');
+            const venueLabel = form.querySelector('label[for="f-venue"]');
+            const group = document.getElementById('who-group');
+            const err = document.getElementById('who-err');
+            function update() {
+                const s = form.querySelector('input[name="sender_type"]:checked');
+                const isBiz = s && s.value === 'Business';
+                biz.hidden = !isBiz;
+                if (!isBiz) form.querySelectorAll('input[name="business_type"]').forEach(c => { c.checked = false; });
+                venue.required = !(s && s.value === 'Individual');
+                venueLabel.textContent = (s && s.value === 'Individual') ? 'Venue / Organization (optional)' : 'Venue / Organization';
+                err.textContent = '';
+                group.classList.remove('invalid');
+            }
+            form.querySelectorAll('input[name="sender_type"], input[name="business_type"]').forEach(i => i.addEventListener('change', update));
+        })();
+
         // FormSubmit AJAX handler — inline thank-you, no page reload
         const inquiryForm = document.getElementById('inquiry-form');
         const thanksCard = document.getElementById('inquiry-thanks');
@@ -789,6 +828,22 @@
                 // Honeypot — silently drop bot submissions
                 const honey = inquiryForm.querySelector('input[name="_honey"]');
                 if (honey && honey.value) return;
+
+                // "I am contacting you as" must be answered; businesses must tick at least one type
+                const whoErr = document.getElementById('who-err');
+                const whoGroup = document.getElementById('who-group');
+                const sender = inquiryForm.querySelector('input[name="sender_type"]:checked');
+                const bizTicked = inquiryForm.querySelectorAll('input[name="business_type"]:checked').length;
+                let whoMsg = '';
+                if (!sender) whoMsg = 'Please choose whether you are a business or an individual.';
+                else if (sender.value === 'Business' && !bizTicked) whoMsg = 'Please tick Restaurant, Venue or Event.';
+                if (whoMsg) {
+                    whoErr.textContent = whoMsg;
+                    whoGroup.classList.add('invalid');
+                    whoGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
 
                 const submitBtn = inquiryForm.querySelector('button[type="submit"]');
                 const originalText = submitBtn.textContent;
@@ -804,6 +859,11 @@
                 for (const [k, v] of formData.entries()) {
                     if (!k.startsWith('_honey')) payload[k] = v;
                 }
+
+                // Send the ticked business types as one readable line
+                delete payload.business_type;
+                const bizList = formData.getAll('business_type');
+                payload.business_type = bizList.length ? bizList.join(', ') : 'n/a (individual)';
 
                 try {
                     const response = await fetch('https://formsubmit.co/ajax/d65d504c402f1757246b2c912fcf6426', {
