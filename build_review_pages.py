@@ -336,7 +336,7 @@ def page(title, description, canonical, body, schemas, og_image=None):
         <a href="/" class="wordmark" aria-label="MsJAG Reviews home">MsJAG<span class="dot">.</span></a>
         <nav class="subnav" aria-label="Primary">
             <a href="/">Home</a>
-            <a href="/archive.html">The Vault</a>
+            <a href="/archive.html">More Reviews</a>
 {nav}
         </nav>
     </header>
