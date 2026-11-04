@@ -354,3 +354,9 @@ main:has(.review) > .crumbs { max-width: 780px; margin: 0 auto 18px; }
     .logo { gap: 12px; text-align: left; }
     .logo .logo-mark { width: 52px; height: 52px; }
 }
+
+/* Contact form: larger, darker labels (charcoal, not black) */
+.form label { font-size: 15px; font-weight: 600; letter-spacing: .02em; color: #2b2b2b; }
+.form input, .form textarea { font-size: 16px; color: #1f1f1f; border-color: #dcd6cc; }
+.form input::placeholder, .form textarea::placeholder { color: #7a7a7a; }
+.form .counter { font-size: 13px; color: #5a5a5a; }
