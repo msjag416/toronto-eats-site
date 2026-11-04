@@ -378,3 +378,16 @@ main:has(.review) > .crumbs { max-width: 780px; margin: 0 auto 18px; }
 
 /* "Verify you're human" check (Cloudflare Turnstile) above the Submit button */
 .human-check:empty, .human-check .cf-turnstile:empty { display: none; }
+
+/* Header logo spins twice and settles when a page opens */
+@keyframes logo-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(720deg); }
+}
+.logo .logo-mark {
+    animation: logo-spin 1.6s cubic-bezier(0.22, 0.9, 0.3, 1) 0.15s both;
+    will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+    .logo .logo-mark { animation: none; }
+}
