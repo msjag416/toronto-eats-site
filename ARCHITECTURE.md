@@ -7,7 +7,7 @@ A plain-language map of the site. Hosted free on GitHub Pages (repo `msjag416/to
 | File | What it is |
 |---|---|
 | `index.html` | Homepage. Shows the 7 newest reviews as cards, plus matching Google data (JSON-LD) for those 7. |
-| `archive.html` | "The Vault". Holds **every** review in one list called `const reviews = [ ... ]`. This list is the master copy of all reviews. |
+| `archive.html` | "More Reviews". Holds **every** review in one list called `const reviews = [ ... ]`. This list is the master copy of all reviews. |
 | `sitemap.xml` | The list of pages Google should visit. The builder adds its own pages here; the dates for `index.html` and `archive.html` are still set by hand. |
 | `robots.txt` | Tells Google it may visit every page and where the sitemap is. |
 | `tvguide.html`, `cityevents.html`, `thanks.html` | Separate tools and pages, not part of the review system. |
@@ -31,7 +31,7 @@ It also writes:
 * `sitemap.xml` (keeps the hand-made entries, adds every page above)
 * `review-links.json` (the archive uses this to turn each card title into a link to its own page)
 * `review-photos.json` (remembers which photo goes with which review, so a photo stays on the review page after its card leaves the homepage)
-* `review-pages.css` is the shared style for all of these pages. Same colours and fonts as the main site. Light theme only.
+* `site.css` is the one shared style file for every page (homepage, More Reviews, review pages, city pages). Magazine look: white pages, big photos, Fraunces serif headlines, Inter body text. Light theme only.
 
 **Never edit the files inside `reviews/`, `toronto/`, `grand-cayman/`, `mississauga/`, `canada/` or `world/` by hand.** They are wiped and rebuilt every time.
 

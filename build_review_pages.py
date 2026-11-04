@@ -291,11 +291,12 @@ def sort_newest(items):
 E = html.escape
 
 HUB_NAV = [
+    ("/toronto/restaurants/", "Restaurants"),
+    ("/toronto/nightlife/", "Bars & Nightlife"),
     ("/toronto/", "Toronto"),
     ("/grand-cayman/", "Grand Cayman"),
-    ("/mississauga/", "Mississauga"),
     ("/canada/", "Canada"),
-    ("/world/", "World"),
+    ("/world/", "Travel"),
 ]
 
 
@@ -304,7 +305,7 @@ def page(title, description, canonical, body, schemas, og_image=None):
     schema_tags = "\n".join(
         '<script type="application/ld+json">\n' + json.dumps(s, ensure_ascii=False, indent=1)
         .replace("</", "<\\/") + "\n</script>" for s in schemas)
-    nav = "\n".join(f'            <a href="{u}">{E(t)}</a>' for u, t in HUB_NAV)
+    nav = "\n".join(f'        <a href="{u}">{E(t)}</a>' for u, t in HUB_NAV)
     return f"""<!DOCTYPE html>
 <html lang="en-CA">
 <head>
@@ -328,26 +329,28 @@ def page(title, description, canonical, body, schemas, og_image=None):
 {schema_tags}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62.5..125,500..900&family=Archivo+Narrow:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/review-pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,800;1,9..144,500;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/site.css">
 </head>
 <body>
-    <header class="masthead">
-        <a href="/" class="wordmark" aria-label="MsJAG Reviews home">MsJAG<span class="dot">.</span></a>
-        <nav class="subnav" aria-label="Primary">
-            <a href="/">Home</a>
-            <a href="/archive.html">More Reviews</a>
-{nav}
-        </nav>
+    <div class="topbar"><span>Level 7 Google Local Guide</span><span>Independent · Self-funded</span><span>No sponsored reviews</span></div>
+    <header class="site-header">
+        <a href="/" class="logo" aria-label="Toronto Eats and Reviews home">Toronto Eats and Reviews<span class="dot">.</span></a>
+        <div class="tagline">Restaurant, bar &amp; venue reviews by MsJAG · Toronto · Grand Cayman · Canada</div>
     </header>
+    <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+{nav}
+        <a href="/archive.html">More Reviews</a>
+    </nav>
     <main>
 {body}
     </main>
     <footer class="colophon">
         <div class="col-inner">
-            <div class="brand">MsJAG<span class="dot">.</span></div>
+            <div class="brand">Toronto Eats and Reviews<span class="dot">.</span></div>
             <div class="col-meta">
-                &copy; <span id="copyrightYear"></span> MsJAG Reviews · Independent · Unsponsored<br>
+                &copy; <span id="copyrightYear"></span> Toronto Eats and Reviews · by MsJAG · Independent · Unsponsored<br>
                 <a href="/toronto/">Toronto</a> · <a href="/grand-cayman/">Grand Cayman</a> · <a href="/canada/">Canada</a> · <a href="/archive.html">All reviews</a><br>
                 <a href="{GOOGLE_PROFILE}" target="_blank" rel="noopener">Google Maps</a> ·
                 <a href="https://instagram.com/chowhoundgta" target="_blank" rel="noopener">Instagram</a> ·
@@ -385,10 +388,13 @@ def score_class(n):
 
 def review_card(r):
     when = r["when"].strftime("%b %d, %Y") if r["when"] else E(r.get("date", ""))
+    photo = (f'<a class="rph" href="{r["url"]}" tabindex="-1" aria-hidden="true">'
+             f'<img src="{E(r["photo"])}" alt="" loading="lazy"></a>') if r["photo"] else ""
     return f"""            <article class="rcard s-{score_class(r['rating'])}">
+                {photo}
                 <div class="rmeta"><span class="pill">{E(CATEGORY_WORDS.get(r['category'], r['category']))}</span><span>{when}</span><span>{E(short_place(r['place']))}</span></div>
                 <h3><a href="{r['url']}">{E(r['name'])}</a></h3>
-                <div class="score"><span class="stars" aria-label="{r['rating']} out of 5 stars">{stars(r['rating'])}</span> <b>{E(r['label'])}</b></div>
+                <span class="badge {'' if r['rating'] >= 4 else ('mixed' if r['rating'] == 3 else 'low')}" aria-label="{r['rating']} out of 5 stars">{r['rating']}/5 · {E(r['label'])}</span>
                 <p>{E(snippet(r['comment'], 180))}</p>
                 <a class="more" href="{r['url']}">Read the full review →</a>
             </article>"""
