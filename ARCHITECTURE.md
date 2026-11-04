@@ -70,3 +70,11 @@ You can also run the builder yourself with `python build_review_pages.py`.
 
 * Light designs only, never dark themes.
 * Every page has the footer with the JavaScript copyright year.
+
+## Logo and icons
+
+* `toronto-eats-logo.png` is the site logo Google reads (Organization logo).
+* `favicon.ico`, `icon-32.png`, `icon-48.png`, `icon-192.png`, `icon-512.png` are the browser-tab icons (round, see-through corners).
+* `icon-apple-180.png` is the phone home-screen icon (solid cream, because iPhones turn see-through corners black).
+* `share-card.png` (1200×630) is the picture shown when a page is shared, unless the page has its own food photo.
+* `tvguide.html` and `cityevents.html` keep their own icons.

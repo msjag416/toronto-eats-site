@@ -436,7 +436,7 @@ HUB_NAV = [
 
 
 def page(title, description, canonical, body, schemas, og_image=None, geo=("CA-ON", "Toronto")):
-    og_image = og_image or f"{SITE}/msjag-logo.PNG"
+    og_image = og_image or f"{SITE}/share-card.png"
     geo_region, geo_place = geo
     schema_tags = "\n".join(
         '<script type="application/ld+json">\n' + json.dumps(s, ensure_ascii=False, indent=1)
@@ -447,7 +447,11 @@ def page(title, description, canonical, body, schemas, og_image=None, geo=("CA-O
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="apple-touch-icon" href="/icon-apple-180.png">
+    <meta name="theme-color" content="#faf7f2">
     <title>{E(title)}</title>
     <meta name="description" content="{E(description)}">
     <link rel="canonical" href="{SITE}{canonical}">
