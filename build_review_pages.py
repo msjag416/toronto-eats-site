@@ -592,7 +592,16 @@ def build_hub(slug, title, h1, intro, items, trail, extra="", link_more=None, pi
 {sections_by_category(items, link_more)}"""
     desc = re.sub(r"<[^>]+>", "", intro)
     desc = snippet(desc, 158)
-    return url, page(title, desc, url, body, [item_list_schema(title, url, items_sorted), crumbs_schema(trail, url)])
+    # Share image: newest photo from a 4 or 5 star review, otherwise any photo
+    share_photo = next((x["photo"] for x in sort_newest(items) if x["photo"] and x["rating"] >= 4), None) \
+        or next((x["photo"] for x in sort_newest(items) if x["photo"]), None)
+    return url, page(title, desc, url, body, [item_list_schema(title, url, items_sorted), crumbs_schema(trail, url)],
+                     og_image=share_photo)
+
+
+def share_photo_for(items):
+    return next((x["photo"] for x in sort_newest(items) if x["photo"] and x["rating"] >= 4), None) \
+        or next((x["photo"] for x in sort_newest(items) if x["photo"]), None)
 
 
 def write(path, text):
@@ -757,7 +766,7 @@ def main():
     write(url, page("Canada Restaurant, Hotel & Business Reviews | MsJAG",
                     snippet(f"{len(canada_all)} honest reviews of restaurants, bars, hotels and businesses across Canada, "
                             f"from Toronto and Mississauga to {cities_named}, by Level 7 Google Local Guide MsJAG.", 158),
-                    url, body, [item_list_schema("Canada reviews", url, sort_best(canada_all)), crumbs_schema(trail, url)]))
+                    url, body, [item_list_schema("Canada reviews", url, sort_best(canada_all)), crumbs_schema(trail, url)], og_image=share_photo_for(canada_all)))
     sitemap.append((SITE + url, newest_iso(canada_all), "weekly", "0.8"))
 
     # World: everything outside Canada and Cayman, grouped by country
@@ -790,7 +799,7 @@ def main():
     url = "/world/"
     write(url, page("Hotel, Resort & Restaurant Reviews Around the World | MsJAG",
                     snippet(f"{len(wo)} honest hotel, resort and restaurant reviews from {countries} and more, by Toronto's MsJAG.", 158),
-                    url, body, [item_list_schema("Travel reviews", url, sort_best(wo)), crumbs_schema(trail, url)]))
+                    url, body, [item_list_schema("Travel reviews", url, sort_best(wo)), crumbs_schema(trail, url)], og_image=share_photo_for(wo)))
     sitemap.append((SITE + url, newest_iso(wo), "monthly", "0.7"))
 
     build_sitemap(sitemap)

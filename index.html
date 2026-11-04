@@ -1740,6 +1740,26 @@
         // Dynamic copyright year
         document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
+        // Links each review card name to its full review page (list made by build_review_pages.py)
+        fetch('review-links.json')
+            .then(res => res.ok ? res.json() : {})
+            .then(links => {
+                const byName = {};
+                Object.keys(links).forEach(k => { const n = k.split('|')[0]; if (!byName[n]) byName[n] = links[k]; });
+                document.querySelectorAll('#reviews article.card h3').forEach(h => {
+                    const url = byName[h.textContent.trim()];
+                    if (url && !h.querySelector('a')) {
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.textContent = h.textContent;
+                        a.style.textDecoration = 'none';
+                        h.textContent = '';
+                        h.appendChild(a);
+                    }
+                });
+            })
+            .catch(() => {});
+
         // Back-to-top button — fades in near the bottom of the page on mobile
         const backToTop = document.getElementById('back-to-top');
         if (backToTop) {

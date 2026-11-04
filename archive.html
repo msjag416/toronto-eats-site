@@ -471,6 +471,7 @@
         .pill-Service { background: var(--yellow); color: var(--ink); }
         .pill-default { background: var(--ink); color: var(--paper); }
 
+        .acard-photo { display: block; max-width: none; width: calc(100% + 48px); margin: -24px -24px 18px; aspect-ratio: 4 / 3; object-fit: cover; border-bottom: 2px solid var(--ink); }
         .acard h3 a { text-decoration: none; }
         .acard h3 a:hover { color: var(--accent); }
         .acard h3 {
@@ -4094,6 +4095,7 @@
         }
 
         let reviewLinks = {};
+        let reviewPhotos = {};
 
         function renderReviews() {
             const filtered = getFiltered();
@@ -4116,7 +4118,9 @@
 
                 const card = document.createElement('article');
                 card.className = 'acard';
+                const photo = reviewPhotos[r.name];
                 card.innerHTML = `
+                    ${photo ? `<img class="acard-photo" src="${escapeHtml(photo)}" alt="${escapeHtml(r.name)} photo by MsJAG" loading="lazy">` : ''}
                     <div class="acard-num" aria-hidden="true">${cardNum}</div>
                     <div class="acard-head">
                         <span class="pill ${pillClass}">${escapeHtml(r.category)}</span>
@@ -4254,6 +4258,12 @@
         fetch('review-links.json')
             .then(res => res.ok ? res.json() : {})
             .then(data => { reviewLinks = data || {}; renderReviews(); })
+            .catch(() => {});
+
+        // Photos for archive cards (list kept by build_review_pages.py)
+        fetch('review-photos.json')
+            .then(res => res.ok ? res.json() : {})
+            .then(data => { reviewPhotos = data || {}; renderReviews(); })
             .catch(() => {});
     </script>
 
