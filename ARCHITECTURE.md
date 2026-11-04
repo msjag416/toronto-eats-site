@@ -21,6 +21,10 @@ A plain-language map of the site. Hosted free on GitHub Pages (repo `msjag416/to
 | `/reviews/<name-city>.html` | One page per review: full text, stars, score label, address, directions button, photo if there is one, and 6 related reviews. |
 | `/toronto/` | All Toronto reviews (includes North York, Etobicoke, East York, York, Scarborough). |
 | `/toronto/restaurants/`, `/toronto/nightlife/`, `/toronto/services/` | Toronto reviews by topic. |
+| `/toronto/neighbourhoods/` and `/toronto/neighbourhoods/<name>/` | Toronto reviews by neighbourhood (worked out from the postal code, or the street for a few downtown streets). A neighbourhood needs 3+ reviews to get a page. These are the pages for "restaurant near me" searches. |
+| `/toronto/<cuisine>/` (pizza, burgers, caribbean, sushi…) | Toronto reviews by cuisine or feature, found from the business name and review text. Needs 3+ reviews. |
+| `/toronto/best-restaurants/` | Every 5-star Toronto restaurant, newest first. |
+| `/thumbs/*.webp` | Small, fast copies of the review photos for cards. Made automatically from the full photos. |
 | `/grand-cayman/` | All Grand Cayman reviews. |
 | `/mississauga/` | All Mississauga reviews. |
 | `/canada/` | Every Canadian review, grouped by city. |
@@ -29,6 +33,7 @@ A plain-language map of the site. Hosted free on GitHub Pages (repo `msjag416/to
 It also writes:
 
 * `sitemap.xml` (keeps the hand-made entries, adds every page above)
+* The neighbourhood and cuisine links on the homepage, between the `<!-- NEIGHBOURHOODS:START -->` and `END` comments. Don't edit between those comments by hand.
 * `review-links.json` (the archive uses this to turn each card title into a link to its own page)
 * `review-photos.json` (remembers which photo goes with which review, so a photo stays on the review page after its card leaves the homepage)
 * `site.css` is the one shared style file for every page (homepage, More Reviews, review pages, city pages). Magazine look: white pages, big photos, Fraunces serif headlines, Inter body text. Light theme only.

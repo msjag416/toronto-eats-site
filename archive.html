@@ -16,7 +16,10 @@
     <meta property="og:image" content="https://torontoeatsandreviews.com/msjag-logo.PNG">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="en_CA">
-    <meta property="og:site_name" content="MsJAG Reviews">
+    <meta property="og:site_name" content="Toronto Eats and Reviews">
+    <meta name="geo.region" content="CA-ON">
+    <meta name="geo.placename" content="Toronto">
+    <meta name="robots" content="index, follow, max-image-preview:large">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="More Reviews | 359 Independent Toronto &amp; Global Reviews by MsJAG">
@@ -3244,6 +3247,12 @@
             resultCount.textContent = `Showing ${toShow.length} of ${filtered.length} reviews`;
             loadMoreWrap.style.display = (visibleCount >= filtered.length) ? 'none' : 'block';
         }
+
+        // A link like archive.html?q=pizza opens the page already searched
+        try {
+            const q = new URLSearchParams(window.location.search).get('q');
+            if (q) { searchInput.value = q; currentSearch = q; }
+        } catch (e) {}
 
         searchInput.addEventListener('input', (e) => {
             currentSearch = e.target.value;

@@ -322,3 +322,25 @@ main:has(.review) > .crumbs { max-width: 780px; margin: 0 auto 18px; }
 @media (max-width: 640px) { .about { text-align: left; } .about .actions { justify-content: flex-start; } }
 .about .lede a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 .about .lede a:hover { color: #b93d0c; }
+
+/* ── Near-me pages: neighbourhood and cuisine browsing ── */
+.chips-h { font-size: 20px; margin: 26px 0 10px; }
+.chips-h em { color: var(--accent); }
+.chips.small a { padding: 5px 12px; font-size: 13px; border-width: 1px; }
+.hood-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+.hood-card { display: flex; flex-direction: column; gap: 6px; padding: 20px; border: 1.5px solid var(--line); border-radius: 4px; background: var(--cream); transition: border-color .2s, transform .15s; }
+.hood-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.hood-card b { font: 700 21px/1.2 var(--serif); }
+.hood-card span { font-size: 13px; color: var(--accent); font-weight: 600; }
+.hood-card small { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.faqs { max-width: 860px; }
+.faq { border-bottom: 1px solid var(--line); padding: 4px 0; }
+.faq summary { cursor: pointer; font: 700 18px/1.4 var(--serif); padding: 12px 0; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; color: var(--accent); font-size: 22px; flex-shrink: 0; }
+.faq[open] summary::after { content: '–'; }
+.faq-a { color: var(--ink-2); padding: 0 0 16px; font-size: 16px; }
+.faq-a a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.cities + .chips { margin-top: 22px; }
+@media (max-width: 900px) { .hood-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .hood-grid { grid-template-columns: 1fr; } }

@@ -47,6 +47,137 @@ PROVINCE_NAMES = {v.lower(): k for k, v in PROVINCES.items()}
 TORONTO_AREAS = {"toronto", "north york", "etobicoke", "east york", "york", "scarborough"}
 
 
+# ─────────────────────────── Toronto neighbourhoods ───────────────────────────
+# Postal-code prefixes (the first three characters) grouped into the names people search for.
+
+NEIGHBOURHOODS = [
+    ("King West & Entertainment District", ["M5V"], "King Street West, the Entertainment District, CityPlace and the Fashion District."),
+    ("Liberty Village & Parkdale", ["M6K"], "Liberty Village, Parkdale and the west end of King and Queen."),
+    ("Queen West & Trinity Bellwoods", ["M6J"], "Queen West, Ossington and the streets around Trinity Bellwoods Park."),
+    ("Harbourfront & Union Station", ["M5J"], "The waterfront, Union Station, Scotiabank Arena and the South Core."),
+    ("Financial District", ["M5H", "M5K", "M5L", "M5X", "M5C"], "Bay Street, the PATH, King and Adelaide, and the Old Town edge of downtown."),
+    ("Downtown Yonge & Dundas", ["M5G", "M5B"], "Yonge-Dundas Square, the Eaton Centre, TMU and the hospital row on University."),
+    ("Yorkville & The Annex", ["M5R", "M5S"], "Yorkville, Bloor Street, the Annex and the U of T campus."),
+    ("Kensington Market & Chinatown", ["M5T"], "Kensington Market, Chinatown and the Spadina strip."),
+    ("Distillery District & Corktown", ["M5A"], "The Distillery District, Corktown, Regent Park and the Canary District."),
+    ("St. Lawrence Market", ["M5E"], "St. Lawrence Market, Front Street East and the Esplanade."),
+    ("Rosedale, Cabbagetown & Summerhill", ["M4W", "M4X", "M4T", "M4V"], "Rosedale, Cabbagetown, Summerhill and Moore Park."),
+    ("Church-Wellesley Village", ["M4Y"], "The Village, Church Street and Yonge north of Wellesley."),
+    ("Midtown: Yonge & Eglinton", ["M4P", "M4S", "M4R", "M5N", "M5P"], "Yonge and Eglinton, Davisville and Forest Hill."),
+    ("Little Italy & Dovercourt", ["M6G", "M6H"], "Little Italy, Little Portugal, Christie Pits and Dovercourt."),
+    ("Leslieville, Riverdale & The Beaches", ["M4M", "M4L", "M4K", "M4E", "M4J", "M4C"], "Leslieville, Riverdale, the Danforth and the Beaches."),
+    ("Leaside", ["M4G", "M4H"], "Leaside and Thorncliffe Park."),
+    ("Don Mills", ["M3C", "M3B", "M3A", "M4A"], "Don Mills, the Shops at Don Mills and Victoria Village."),
+    ("The Junction, High Park & Roncesvalles", ["M6N", "M6P", "M6S", "M6R"], "The Junction, High Park, Bloor West Village and Roncesvalles."),
+    ("Lawrence Park & Yorkdale", ["M6A", "M6B", "M5M", "M4N"], "Lawrence Park, Bedford Park and the Yorkdale area."),
+    ("St. Clair West", ["M6C", "M6E"], "St. Clair West, Oakwood Village and Humewood."),
+    ("Etobicoke", ["M8", "M9"], "Etobicoke, from the Lakeshore to Rexdale."),
+    ("Scarborough", ["M1"], "Scarborough."),
+    ("North York", ["M2", "M3H", "M3J", "M3K", "M3L", "M3M", "M3N"], "North York, Willowdale, Bayview Village and Downsview."),
+]
+MIN_PER_PAGE = 3  # a neighbourhood or cuisine page needs at least this many reviews
+
+
+# Downtown streets we can place without a postal code (number, street) -> postal prefix
+STREET_RULES = [
+    (r"\bqueen st(reet)? w", lambda n: "M5V" if n < 500 else ("M6J" if n < 1000 else "M6K")),
+    (r"\bking st(reet)? w", lambda n: "M5V" if n < 800 else "M6K"),
+    (r"\b(front|wellington|adelaide|richmond) st(reet)? w", lambda n: "M5V" if n < 700 else "M6K"),
+    (r"\b(blue jays way|john st|peter st|duncan st|mercer st|widmer st)\b", lambda n: "M5V"),
+    (r"\bqueen st(reet)? e", lambda n: "M5A" if n < 700 else "M4M"),
+    (r"\bking st(reet)? e", lambda n: "M5C" if n < 200 else "M5A"),
+]
+
+
+def street_fsa(address):
+    low = address.lower()
+    m = re.match(r"\s*(\d+)", low)
+    number = int(m.group(1)) if m else 0
+    for pattern, rule in STREET_RULES:
+        if re.search(pattern, low):
+            return rule(number)
+    return None
+
+
+def neighbourhood_for(r):
+    """Returns (name, slug, blurb) for a Toronto review, or None."""
+    if r["place"]["hub"] != "toronto":
+        return None
+    address = r.get("address", "")
+    m = re.search(r"\b(M\d[A-Z])\s?\d[A-Z]\d\b", address, re.I)
+    fsa = m.group(1).upper() if m else street_fsa(address)
+    if not fsa:
+        return None
+    for name, prefixes, blurb in NEIGHBOURHOODS:
+        if any(fsa.startswith(pfx) for pfx in prefixes):
+            return (name, slugify(name), blurb)
+    return None
+
+
+# ─────────────────────────── Toronto cuisines & features ───────────────────────────
+# Found from the review text. A match in the business name counts for a lot; words in the
+# review count less, so one passing mention of "coffee" in a dinner review doesn't tag it.
+
+CUISINES = [
+    ("Pizza", "pizza", r"\bpizz"),
+    ("Burgers", "burgers", r"\bburger"),
+    ("Sushi & Japanese", "sushi", r"\bsushi\b|\bjapanese\b|\bramen\b|\bizakaya\b|\bsashimi\b"),
+    ("Thai", "thai", r"\bthai\b|\bpad thai\b"),
+    ("Italian", "italian", r"\bitalian\b|\bpasta\b|\btrattoria\b|\bosteria\b"),
+    ("Indian", "indian", r"\bindian\b|\bcurry\b|\btandoor|\bbiryani\b|\bnaan\b"),
+    ("Chinese", "chinese", r"\bchinese\b|\bdim sum\b|\bcantonese\b|\bszechuan\b|\bdumpling"),
+    ("Caribbean", "caribbean", r"\bcaribbean\b|\bjamaican\b|\bjerk\b|\broti\b|\btrini"),
+    ("Mexican", "mexican", r"\bmexican\b|\btaco|\bburrito"),
+    ("Steakhouses", "steakhouses", r"\bsteak"),
+    ("Seafood", "seafood", r"\bseafood\b|\boyster|\blobster\b|\bcrab\b|\bshrimp\b|\bcalamari\b|\bmussels\b|\bceviche\b"),
+    ("Brunch & Breakfast", "brunch", r"\bbrunch\b|\bbreakfast\b|\beggs benedict\b|\bpancake"),
+    ("Coffee Shops & Cafés", "coffee-shops", r"\bcoffee\b|\bcaf[eé]\b|\bespresso\b|\blatte\b|\bcappuccino\b"),
+    ("Desserts & Bakeries", "desserts", r"\bdessert|\bbakery\b|\bice cream\b|\bgelato\b|\bpastr|\bcroissant|\bdonut|\bdoughnut|\bcheesecake\b"),
+    ("Pubs & Breweries", "pubs", r"\bpub\b|\bgastropub\b|\bbrewery\b|\bcraft beer\b|\btaproom\b"),
+    ("Patios & Rooftops", "patios", r"\bpatio\b|\brooftop\b"),
+    ("Wings", "wings", r"\bwings\b"),
+]
+
+
+def cuisine_tags(r):
+    if r["place"]["hub"] != "toronto" or r["category"] not in ("Dining", "Nightlife"):
+        return []
+    name = r["name"].lower()
+    text = r["comment"].lower()
+    tags = []
+    for label, slug, pattern in CUISINES:
+        # Tag only when the cuisine is in the business name, or comes up at least three times in the review
+        score = 3 * len(re.findall(pattern, name)) + len(re.findall(pattern, text))
+        if score >= 3:
+            if slug == "seafood" and re.search(r"\bvegan\b|\bplant-based\b", name + " " + text):
+                continue
+            tags.append((label, slug))
+    return tags
+
+
+# ─────────────────────────── small, fast photo copies ───────────────────────────
+
+def make_thumb(photo_url):
+    """Makes a 640px-wide WebP copy of a photo for cards. Returns (url, width, height) or None."""
+    name = photo_url.rsplit("/", 1)[-1]
+    src = os.path.join(ROOT, name)
+    if not os.path.exists(src):
+        return None
+    out_name = os.path.splitext(name)[0] + ".webp"
+    out = os.path.join(ROOT, "thumbs", out_name)
+    try:
+        from PIL import Image
+        if not os.path.exists(out) or os.path.getmtime(out) < os.path.getmtime(src):
+            os.makedirs(os.path.dirname(out), exist_ok=True)
+            im = Image.open(src).convert("RGB")
+            im.thumbnail((640, 640))
+            im.save(out, "WEBP", quality=78, method=6)
+        w, h = Image.open(out).size
+        return (f"/thumbs/{out_name}", w, h)
+    except Exception:
+        return None
+
+
 # ─────────────────────────── reading the archive ───────────────────────────
 
 def load_reviews():
@@ -242,6 +373,10 @@ def prepare(reviews, photos):
                 r["year_tag"] = f" ({r['place']['street']})"
             else:
                 r["year_tag"] = f" ({r['place']['street'] or ''} {r['when'].year if r['when'] else ''})".replace("( ", "(").replace(" )", ")")
+    for r in out:
+        r["hood"] = neighbourhood_for(r)
+        r["tags"] = cuisine_tags(r)
+        r["thumb"] = make_thumb(r["photo"]) if r["photo"] else None
     return out
 
 
@@ -300,8 +435,9 @@ HUB_NAV = [
 ]
 
 
-def page(title, description, canonical, body, schemas, og_image=None):
+def page(title, description, canonical, body, schemas, og_image=None, geo=("CA-ON", "Toronto")):
     og_image = og_image or f"{SITE}/msjag-logo.PNG"
+    geo_region, geo_place = geo
     schema_tags = "\n".join(
         '<script type="application/ld+json">\n' + json.dumps(s, ensure_ascii=False, indent=1)
         .replace("</", "<\\/") + "\n</script>" for s in schemas)
@@ -326,6 +462,9 @@ def page(title, description, canonical, body, schemas, og_image=None):
     <meta name="twitter:title" content="{E(title)}">
     <meta name="twitter:description" content="{E(description)}">
     <meta name="twitter:image" content="{E(og_image)}">
+    <meta name="geo.region" content="{E(geo_region)}">
+    <meta name="geo.placename" content="{E(geo_place)}">
+    <meta name="robots" content="index, follow, max-image-preview:large">
 {schema_tags}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -388,8 +527,14 @@ def score_class(n):
 
 def review_card(r):
     when = r["when"].strftime("%b %d, %Y") if r["when"] else E(r.get("date", ""))
-    photo = (f'<a class="rph" href="{r["url"]}" tabindex="-1" aria-hidden="true">'
-             f'<img src="{E(r["photo"])}" alt="" loading="lazy"></a>') if r["photo"] else ""
+    photo = ""
+    if r["thumb"]:
+        u, w, h = r["thumb"]
+        photo = (f'<a class="rph" href="{r["url"]}" tabindex="-1" aria-hidden="true">'
+                 f'<img src="{E(u)}" width="{w}" height="{h}" alt="" loading="lazy" decoding="async"></a>')
+    elif r["photo"]:
+        photo = (f'<a class="rph" href="{r["url"]}" tabindex="-1" aria-hidden="true">'
+                 f'<img src="{E(r["photo"])}" alt="" loading="lazy"></a>')
     return f"""            <article class="rcard s-{score_class(r['rating'])}">
                 {photo}
                 <div class="rmeta"><span class="pill">{E(CATEGORY_WORDS.get(r['category'], r['category']))}</span><span>{when}</span><span>{E(short_place(r['place']))}</span></div>
@@ -436,11 +581,27 @@ def build_review_page(r, all_reviews):
         trail.append((TORONTO_TOPICS[r["category"]][0], f"/toronto/{TORONTO_TOPICS[r['category']][1]}/"))
     trail.append((r["name"], None))
 
-    # Related reviews: same place first, same category first, best first
-    same = [x for x in all_reviews if x is not r and (hub_for(x) == hub if hub else True)]
-    same = sort_best([x for x in same if x["category"] == r["category"]])[:4] + \
-        sort_best([x for x in same if x["category"] != r["category"]])[:2]
+    # Related reviews: same neighbourhood first, then same city and category, best first
+    hood = r["hood"]
+    pool = [x for x in all_reviews if x is not r and (hub_for(x) == hub if hub else True)]
+    nearby = sort_best([x for x in pool if hood and x["hood"] and x["hood"][1] == hood[1]])
+    rest = [x for x in pool if x not in nearby]
+    same = nearby[:4] + sort_best([x for x in rest if x["category"] == r["category"]])[:4] + \
+        sort_best([x for x in rest if x["category"] != r["category"]])[:2]
     related = "\n".join(review_card(x) for x in same[:6])
+    related_heading = f"More near {hood[0]}" if nearby else (f"More reviews in {HUB_INFO[hub][0]}" if hub else "More reviews from MsJAG")
+    hood_line = ""
+    if hood:
+        hood_count = sum(1 for x in all_reviews if x["hood"] and x["hood"][1] == hood[1])
+        if hood_count >= MIN_PER_PAGE:
+            hood_line = f' · <a href="/toronto/neighbourhoods/{hood[1]}/">{E(hood[0])}</a>'
+        else:
+            hood_line = f" · {E(hood[0])}"
+    tag_line = ""
+    live_tags = [(l, sl) for l, sl in r["tags"] if sl in LIVE_CUISINE_SLUGS]
+    if live_tags:
+        tag_line = '            <div class="chips small">' + "".join(
+            f'<a href="/toronto/{slug}/">{E(label)}</a>' for label, slug in live_tags) + "</div>\n"
 
     photo_html = ""
     if r["photo"]:
@@ -452,7 +613,7 @@ def build_review_page(r, all_reviews):
         <article class="review">
             <div class="rmeta"><span class="pill">{E(CATEGORY_WORDS.get(r['category'], r['category']))}</span><span>Reviewed {when_text}</span></div>
             <h1>{E(r['name'])} <span class="h1-sub">Review</span></h1>
-            <p class="where">{E(address_line) if address_line else 'Online business'}</p>
+            <p class="where">{E(address_line) if address_line else 'Online business'}{hood_line}</p>
             <div class="verdict s-{score_class(r['rating'])}">
                 <span class="stars" aria-hidden="true">{stars(r['rating'])}</span>
                 <span class="num">{r['rating']}/5</span>
@@ -461,14 +622,14 @@ def build_review_page(r, all_reviews):
 {photo_html}            <div class="text">
 {body_text}
             </div>
-            <p class="byline">Reviewed by <a href="/">MsJAG</a>, Level 7 Google Local Guide. Self-funded visit, no sponsorship.</p>
+{tag_line}            <p class="byline">Reviewed by <a href="/">MsJAG</a>, Level 7 Google Local Guide. Self-funded visit, no sponsorship.</p>
             <div class="actions">
                 {f'<a class="btn" href="{maps_url}" target="_blank" rel="noopener">Get directions</a>' if address_line else ''}
                 <a class="btn ghost" href="/archive.html">All {len(all_reviews)} reviews</a>
             </div>
         </article>
         <section class="related">
-            <h2>More reviews {('in ' + HUB_INFO[hub][0]) if hub else 'from MsJAG'}</h2>
+            <h2>{E(related_heading)}</h2>
             <div class="grid">
 {related}
             </div>
@@ -490,6 +651,8 @@ def build_review_page(r, all_reviews):
         item["address"] = addr
     if r["photo"]:
         item["image"] = r["photo"]
+    if address_line:
+        item["hasMap"] = maps_url
     review_schema = {
         "@context": "https://schema.org",
         "@type": "Review",
@@ -502,11 +665,21 @@ def build_review_page(r, all_reviews):
         "publisher": {"@type": "Organization", "@id": f"{SITE}/#organization", "name": "MsJAG Reviews", "url": f"{SITE}/"},
         "reviewBody": r["comment"],
         "inLanguage": "en-CA",
+        "mainEntityOfPage": {"@type": "WebPage", "@id": SITE + r["url"]},
+        "isPartOf": {"@id": f"{SITE}/#website"},
     }
     if r["iso"]:
         review_schema["datePublished"] = r["iso"]
+    if hub in ("toronto", "mississauga"):
+        geo = ("CA-ON", "Toronto")
+    elif hub == "grand-cayman":
+        geo = ("KY", "Grand Cayman")
+    elif p["country"] == "CA":
+        geo = ("CA", p["city"] or "Canada")
+    else:
+        geo = (p["country"] or "", p["city"] or p["country_name"] or "")
     html_out = page(title, desc, r["url"], body,
-                    [review_schema, crumbs_schema(trail, r["url"])], og_image=r["photo"])
+                    [review_schema, crumbs_schema(trail, r["url"])], og_image=r["photo"], geo=geo)
     return html_out
 
 
@@ -584,9 +757,40 @@ def picks_section(items, heading):
         </section>"""
 
 
-def build_hub(slug, title, h1, intro, items, trail, extra="", link_more=None, picks_heading=None):
+LIVE_CUISINE_SLUGS = set()  # filled in main() once we know which cuisine pages exist
+
+
+def faq_html_and_schema(faqs):
+    """faqs: list of (question, answer_html, answer_text)."""
+    if not faqs:
+        return "", None
+    items = "\n".join(f"""            <details class="faq">
+                <summary>{E(q)}</summary>
+                <div class="faq-a">{a_html}</div>
+            </details>""" for q, a_html, _ in faqs)
+    html_block = f"""        <section class="sec faqs" aria-labelledby="faq-h">
+            <div class="sec-head"><div><h2 id="faq-h">Good to <em>know.</em></h2></div></div>
+{items}
+        </section>"""
+    schema = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a_text}} for q, _, a_text in faqs]}
+    return html_block, schema
+
+
+def build_hub(slug, title, h1, intro, items, trail, extra="", link_more=None, picks_heading=None,
+              extra_end="", faqs=None, description=None, ranked=False):
     url = f"/{slug}/"
     items_sorted = sort_best(items)
+    faq_block, faq_schema = faq_html_and_schema(faqs or [])
+    if ranked:
+        cards = "\n".join(review_card(x) for x in items_sorted)
+        listing = f"""        <section class="group">
+            <div class="grid">
+{cards}
+            </div>
+        </section>"""
+    else:
+        listing = sections_by_category(items, link_more)
     body = f"""{crumbs_html(trail)}
         <section class="hub-head">
             <h1>{h1}</h1>
@@ -595,14 +799,16 @@ def build_hub(slug, title, h1, intro, items, trail, extra="", link_more=None, pi
         </section>
 {extra}
 {picks_section(items, picks_heading) if picks_heading else ''}
-{sections_by_category(items, link_more)}"""
-    desc = re.sub(r"<[^>]+>", "", intro)
-    desc = snippet(desc, 158)
+{listing}
+{extra_end}
+{faq_block}"""
+    desc = description or snippet(re.sub(r"<[^>]+>", "", intro), 158)
+    schemas = [item_list_schema(title, url, items_sorted), crumbs_schema(trail, url)]
+    if faq_schema:
+        schemas.append(faq_schema)
     # Share image: newest photo from a 4 or 5 star review, otherwise any photo
-    share_photo = next((x["photo"] for x in sort_newest(items) if x["photo"] and x["rating"] >= 4), None) \
-        or next((x["photo"] for x in sort_newest(items) if x["photo"]), None)
-    return url, page(title, desc, url, body, [item_list_schema(title, url, items_sorted), crumbs_schema(trail, url)],
-                     og_image=share_photo)
+    share_photo = share_photo_for(items)
+    return url, page(title, desc, url, body, schemas, og_image=share_photo)
 
 
 def share_photo_for(items):
@@ -671,6 +877,16 @@ def main():
 
     sitemap = []
 
+    # Which Toronto cuisine pages will exist (needs enough reviews each)
+    tor_all = [r for r in reviews if r["place"]["hub"] == "toronto"]
+    cuisine_groups = {}
+    for label, slug, _ in CUISINES:
+        group = [r for r in tor_all if (label, slug) in r["tags"]]
+        if len(group) >= MIN_PER_PAGE:
+            cuisine_groups[slug] = (label, group)
+    LIVE_CUISINE_SLUGS.clear()
+    LIVE_CUISINE_SLUGS.update(cuisine_groups)
+
     # Link list the archive page uses to point each card at its own page
     links = {f"{r['name']}|{r.get('date', '')}|{r.get('address', '')}": r["url"] for r in reviews}
     json.dump(links, open(os.path.join(ROOT, "review-links.json"), "w", encoding="utf-8"), ensure_ascii=False)
@@ -687,19 +903,160 @@ def main():
 
     # Toronto
     tor = by_hub["toronto"]
+    tor_trail = [("Home", "/"), ("Canada", "/canada/"), ("Toronto", "/toronto/")]
+
+    # Neighbourhoods with enough reviews to deserve a page
+    hoods = {}
+    for r in tor:
+        if r["hood"]:
+            hoods.setdefault(r["hood"][1], {"name": r["hood"][0], "blurb": r["hood"][2], "items": []})["items"].append(r)
+    hoods = {k: v for k, v in hoods.items() if len(v["items"]) >= MIN_PER_PAGE}
+    hoods_sorted = sorted(hoods.items(), key=lambda kv: -len(kv[1]["items"]))
+
+    def chips(pairs, heading=None, cls=""):
+        inner = "".join(f'<a href="{u}">{E(t)}</a>' for u, t in pairs)
+        head = f'        <h2 class="chips-h">{heading}</h2>\n' if heading else ""
+        return f'{head}        <div class="chips {cls}">{inner}</div>'
+
+    hood_pairs = [(f"/toronto/neighbourhoods/{k}/", f"{v['name']} ({len(v['items'])})") for k, v in hoods_sorted]
+    cuisine_pairs = [(f"/toronto/{slug}/", f"{label} ({len(group)})")
+                     for slug, (label, group) in sorted(cuisine_groups.items(), key=lambda kv: -len(kv[1][1]))]
+    topic_pairs = [(f"/toronto/{s}/", n) for _, (n, s) in TORONTO_TOPICS.items()] + [("/toronto/best-restaurants/", "Best restaurants")]
     topic_links = {c: f"/toronto/{s}/" for c, (_, s) in TORONTO_TOPICS.items()}
-    topic_strip = "        <div class=\"chips\">" + "".join(
-        f'<a href="/toronto/{s}/">{E(n)}</a>' for _, (n, s) in TORONTO_TOPICS.items()) + "</div>"
+
+    tor_extra = "\n".join([
+        chips(topic_pairs),
+        chips(hood_pairs, "Restaurants near you: browse Toronto by <em>neighbourhood.</em>"),
+        chips(cuisine_pairs, "Browse by <em>cuisine.</em>"),
+    ])
+
+    picks5 = sort_newest([r for r in tor if r["rating"] == 5 and r["category"] == "Dining"])[:3]
+    top_hood = hoods_sorted[0][1] if hoods_sorted else None
+    tor_faqs = [
+        ("How do I find a good restaurant near me in Toronto?",
+         "Start with the neighbourhood list above. Each neighbourhood page shows every place reviewed there, with Editor's Picks first, a street address and a Get directions link to Google Maps. "
+         + (f'The most-reviewed area is <a href="/toronto/neighbourhoods/{hoods_sorted[0][0]}/">{E(top_hood["name"])}</a> with {len(top_hood["items"])} reviews.' if top_hood else ""),
+         "Start with the neighbourhood list on this page. Each neighbourhood page shows every place reviewed there, with Editor's Picks first, a street address and a Get directions link to Google Maps."
+         + (f" The most-reviewed area is {top_hood['name']} with {len(top_hood['items'])} reviews." if top_hood else "")),
+        ("What are the newest Editor's Pick restaurants in Toronto?",
+         "The latest 5-star restaurant reviews are " + ", ".join(f'<a href="{r["url"]}">{E(r["name"])}</a>' for r in picks5) + '. See the full ranked list on the <a href="/toronto/best-restaurants/">best restaurants in Toronto</a> page.',
+         "The latest 5-star restaurant reviews are " + ", ".join(r["name"] for r in picks5) + ". The full ranked list is on the best restaurants in Toronto page."),
+        ("How are places rated?",
+         "Every review gets a score out of 5: <b>5 is an Editor's Pick</b>, 4 is Recommended, 3 is Mixed, 2 is Not Recommended and 1 is Avoid. The score covers service, food or product quality, consistency and value.",
+         "Every review gets a score out of 5: 5 is an Editor's Pick, 4 is Recommended, 3 is Mixed, 2 is Not Recommended and 1 is Avoid. The score covers service, food or product quality, consistency and value."),
+        ("Are any of these Toronto reviews sponsored?",
+         "No. Every visit is paid for by MsJAG. There are no comped meals, press trips or affiliate links, and businesses can't pay to change a score.",
+         "No. Every visit is paid for by MsJAG. There are no comped meals, press trips or affiliate links, and businesses can't pay to change a score."),
+        ("Who writes these reviews?",
+         'MsJAG (JoAnne Gomez), a Level 7 Google Local Guide based in Toronto whose venue photos have more than 9 million views on Google Maps. <a href="/#about">Read more about the reviewer</a>.',
+         "MsJAG (JoAnne Gomez), a Level 7 Google Local Guide based in Toronto whose venue photos have more than 9 million views on Google Maps."),
+    ]
     url, out = build_hub(
-        "toronto", "Toronto Restaurant, Bar & Venue Reviews | MsJAG",
+        "toronto", "Toronto Restaurant & Bar Reviews by Neighbourhood | MsJAG",
         "Toronto <em>reviews.</em>",
         f"Honest, unsponsored reviews of {len(tor)} Toronto restaurants, bars, nightclubs, hotels, clinics and shops, "
-        "from downtown and King West to North York, Etobicoke and East York. Every visit is self-funded and "
-        "written by MsJAG, a Level 7 Google Local Guide.",
+        f"sorted by neighbourhood so you can find somewhere good near you, from King West and Queen West to "
+        "North York and Etobicoke. Every visit is self-funded and written by MsJAG, a Level 7 Google Local Guide.",
         tor, [("Home", "/"), ("Canada", "/canada/"), ("Toronto", None)],
-        extra=topic_strip, link_more=topic_links, picks_heading="Latest Toronto Editor's Picks")
+        extra=tor_extra, link_more=topic_links, picks_heading="Latest Toronto Editor's Picks", faqs=tor_faqs,
+        description=f"{len(tor)} honest Toronto restaurant, bar and venue reviews sorted by neighbourhood, from King West to North York. Find somewhere good near you. By MsJAG, Level 7 Google Local Guide.")
     write(url, out)
     sitemap.append((SITE + url, newest_iso(tor), "weekly", "0.9"))
+
+    # Neighbourhood index and one page per neighbourhood
+    hood_cards = "\n".join(f"""            <a class="hood-card" href="/toronto/neighbourhoods/{k}/">
+                <b>{E(v['name'])}</b><span>{len(v['items'])} reviews · {sum(1 for x in v['items'] if x['rating'] == 5)} Editor's Picks</span>
+                <small>{E(v['blurb'])}</small>
+            </a>""" for k, v in hoods_sorted)
+    url = "/toronto/neighbourhoods/"
+    body = f"""{crumbs_html(tor_trail + [("Neighbourhoods", None)])}
+        <section class="hub-head">
+            <h1>Toronto by <em>neighbourhood.</em></h1>
+            <p class="intro">Looking for a restaurant, bar or shop near you? Pick your part of Toronto. {len(hoods)} neighbourhoods, {sum(len(v['items']) for v in hoods.values())} honest reviews, every one visited and paid for by MsJAG.</p>
+        </section>
+        <div class="hood-grid">
+{hood_cards}
+        </div>"""
+    write(url, page("Toronto Restaurants & Bars Near You, by Neighbourhood | MsJAG",
+                    f"Find reviewed restaurants, bars and shops near you in {len(hoods)} Toronto neighbourhoods, from King West and Liberty Village to Leslieville and North York.",
+                    url, body, [crumbs_schema(tor_trail + [("Neighbourhoods", None)], url),
+                                {"@context": "https://schema.org", "@type": "CollectionPage", "name": "Toronto neighbourhoods", "url": SITE + url,
+                                 "isPartOf": {"@id": f"{SITE}/#website"},
+                                 "hasPart": [{"@type": "WebPage", "name": v["name"], "url": f"{SITE}/toronto/neighbourhoods/{k}/"} for k, v in hoods_sorted]}],
+                    og_image=share_photo_for(tor)))
+    sitemap.append((SITE + url, newest_iso(tor), "weekly", "0.8"))
+
+    for k, v in hoods_sorted:
+        items = v["items"]
+        dining = sum(1 for x in items if x["category"] == "Dining")
+        night = sum(1 for x in items if x["category"] == "Nightlife")
+        other_hoods = [(f"/toronto/neighbourhoods/{k2}/", v2["name"]) for k2, v2 in hoods_sorted if k2 != k][:8]
+        url, out = build_hub(
+            f"toronto/neighbourhoods/{k}",
+            f"{v['name']} Restaurants & Bars: {len(items)} Honest Reviews | MsJAG"[:70] if len(f"{v['name']} Restaurants & Bars: {len(items)} Honest Reviews | MsJAG") <= 70 else f"{v['name']}: {len(items)} Honest Reviews | MsJAG",
+            f"{E(v['name'])} <em>reviews.</em>",
+            f"{len(items)} honest reviews of restaurants, bars and local businesses in {v['name']} ({v['blurb'].rstrip('.')}), "
+            f"with {dining} restaurant and {night} nightlife reviews. Editor's Picks first, then everything else, each with an address and directions. "
+            "Every visit is self-funded by MsJAG, a Level 7 Google Local Guide.",
+            items, tor_trail + [("Neighbourhoods", "/toronto/neighbourhoods/"), (v["name"], None)],
+            picks_heading=f"Editor's Picks in {v['name']}" if any(x["rating"] == 5 for x in items) else None,
+            extra_end=chips(other_hoods, "Nearby <em>neighbourhoods.</em>"),
+            description=snippet(f"Restaurants, bars and shops near you in {v['name']}, Toronto: {len(items)} honest reviews with addresses and directions, Editor's Picks first. By MsJAG, Level 7 Google Local Guide.", 158))
+        write(url, out)
+        sitemap.append((SITE + url, newest_iso(items), "weekly", "0.8"))
+
+    # One page per cuisine or feature
+    for slug, (label, group) in cuisine_groups.items():
+        others = [(f"/toronto/{s2}/", l2) for s2, (l2, _) in cuisine_groups.items() if s2 != slug][:10]
+        url, out = build_hub(
+            f"toronto/{slug}",
+            f"Best {label} in Toronto: {len(group)} Honest Reviews | MsJAG",
+            f"Toronto <em>{E(label.lower())}.</em>",
+            f"{len(group)} honest Toronto reviews for {label.lower()}, ranked with Editor's Picks first so the best {label.lower()} in Toronto is at the top. "
+            "Every place was visited and paid for by MsJAG, a Level 7 Google Local Guide. Each review has the address and directions.",
+            group, tor_trail + [(label, None)], ranked=True,
+            extra_end=chips(others, "More Toronto <em>cuisines.</em>"),
+            description=snippet(f"Best {label.lower()} in Toronto: {len(group)} honest reviews ranked with Editor's Picks first, with addresses and directions. Unsponsored, by MsJAG, Level 7 Google Local Guide.", 158))
+        write(url, out)
+        sitemap.append((SITE + url, newest_iso(group), "weekly", "0.7"))
+
+    # Best restaurants in Toronto: every 5-star restaurant, newest first
+    best = sort_newest([r for r in tor if r["category"] == "Dining" and r["rating"] == 5])
+    best_hoods = sorted({r["hood"][0] for r in best if r["hood"]})
+    url, out = build_hub(
+        "toronto/best-restaurants",
+        f"Best Restaurants in Toronto: {len(best)} Editor's Picks | MsJAG",
+        "Best restaurants in <em>Toronto.</em>",
+        f"Every Toronto restaurant that earned a 5 out of 5 Editor's Pick, newest first. {len(best)} places across "
+        f"{len(best_hoods)} neighbourhoods, each visited and paid for by MsJAG, a Level 7 Google Local Guide, with no sponsored reviews.",
+        best, tor_trail + [("Best restaurants", None)], ranked=True,
+        extra_end=chips(hood_pairs, "Find the best restaurants near you by <em>neighbourhood.</em>"),
+        faqs=[("What makes a restaurant an Editor's Pick?",
+               "A 5 out of 5 score. The food, service, consistency and value all held up on a self-funded visit. A 4 is Recommended, a 3 is Mixed, and 2 or 1 means skip it.",
+               "A 5 out of 5 score. The food, service, consistency and value all held up on a self-funded visit. A 4 is Recommended, a 3 is Mixed, and 2 or 1 means skip it."),
+              ("How often is this list updated?",
+               "Every time a new review is published. The newest Editor's Picks appear at the top.",
+               "Every time a new review is published. The newest Editor's Picks appear at the top.")],
+        description=f"The best restaurants in Toronto according to {len(best)} unsponsored 5-star reviews by MsJAG, Level 7 Google Local Guide. Newest picks first, with addresses and directions.")
+    write(url, out)
+    sitemap.append((SITE + url, newest_iso(best), "weekly", "0.9"))
+
+    # Homepage: refresh the neighbourhood and cuisine links between the marker comments
+    idx_path = os.path.join(ROOT, "index.html")
+    idx = open(idx_path, encoding="utf-8").read()
+    start_mark, end_mark = "<!-- NEIGHBOURHOODS:START -->", "<!-- NEIGHBOURHOODS:END -->"
+    if start_mark in idx and end_mark in idx:
+        block = ("\n            <h3 class=\"chips-h\">Restaurants near you: browse Toronto by neighbourhood</h3>\n"
+                 "            <div class=\"chips\">" + "".join(f'<a href="{u}">{E(t)}</a>' for u, t in hood_pairs[:12])
+                 + '<a href="/toronto/neighbourhoods/">All neighbourhoods →</a></div>\n'
+                 "            <h3 class=\"chips-h\">Browse Toronto by cuisine</h3>\n"
+                 "            <div class=\"chips\">" + "".join(f'<a href="{u}">{E(t)}</a>' for u, t in cuisine_pairs)
+                 + '<a href="/toronto/best-restaurants/">Best restaurants in Toronto →</a></div>\n            ')
+        a = idx.index(start_mark) + len(start_mark)
+        b_ = idx.index(end_mark)
+        new_idx = idx[:a] + block + idx[b_:]
+        if new_idx != idx:
+            open(idx_path, "w", encoding="utf-8").write(new_idx)
 
     for cat, (name, s) in TORONTO_TOPICS.items():
         group = [r for r in tor if r["category"] == cat]
