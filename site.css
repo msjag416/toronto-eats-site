@@ -375,3 +375,6 @@ main:has(.review) > .crumbs { max-width: 780px; margin: 0 auto 18px; }
 .group-err { color: var(--low); font-size: 14px; font-weight: 600; margin-top: 8px; min-height: 0; }
 .group-err:empty { display: none; }
 .who.invalid .ticks .tick { border-color: var(--low); }
+
+/* "Verify you're human" check (Cloudflare Turnstile) above the Submit button */
+.human-check { min-height: 65px; }

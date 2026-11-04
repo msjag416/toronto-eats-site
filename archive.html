@@ -61,6 +61,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,800;1,9..144,500;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="site.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -185,6 +186,7 @@
                         <textarea id="f-msg" name="message" rows="6" required maxlength="250"></textarea>
                         <div class="counter"><span id="charCount">0</span> / 250</div>
                     </div>
+                    <div class="f full human-check"><div class="cf-turnstile" data-sitekey="0x4AAAAAAFz-2djdVFltrrzC" data-theme="light" data-size="flexible"></div></div>
                     <button type="submit">Submit Inquiry →</button>
                 </form>
 
@@ -255,6 +257,18 @@
             inquiryForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
+                // "Verify you're human" check (Cloudflare Turnstile) must be completed
+                const human = inquiryForm.querySelector('[name="cf-turnstile-response"]');
+                if (!human || !human.value) {
+                    const prev = inquiryForm.querySelector('.err');
+                    if (prev) prev.remove();
+                    const e2 = document.createElement('div');
+                    e2.className = 'err';
+                    e2.textContent = 'Please complete the "Verify you are human" check above.';
+                    inquiryForm.insertBefore(e2, inquiryForm.querySelector('button[type="submit"]'));
+                    return;
+                }
+
                 const honey = inquiryForm.querySelector('input[name="_honey"]');
                 if (honey && honey.value) return;
 
@@ -285,7 +299,7 @@
                 const formData = new FormData(inquiryForm);
                 const payload = {};
                 for (const [k, v] of formData.entries()) {
-                    if (!k.startsWith('_honey')) payload[k] = v;
+                    if (!k.startsWith('_honey') && k !== 'cf-turnstile-response') payload[k] = v;
                 }
 
                 // Send the ticked business types as one readable line
@@ -314,6 +328,7 @@
                 } catch (err) {
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
+                    if (window.turnstile) { try { window.turnstile.reset(); } catch (e) {} }
                     const errEl = document.createElement('div');
                     errEl.className = 'err';
                     errEl.textContent = 'Something went wrong. Please try again in a moment.';
