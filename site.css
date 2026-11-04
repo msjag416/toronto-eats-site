@@ -320,3 +320,5 @@ main:has(.review) > .crumbs { max-width: 780px; margin: 0 auto 18px; }
 .about .lede { margin: 0 0 14px; }
 .about .actions { margin-top: 8px; }
 @media (max-width: 640px) { .about { text-align: left; } .about .actions { justify-content: flex-start; } }
+.about .lede a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.about .lede a:hover { color: #b93d0c; }
