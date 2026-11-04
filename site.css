@@ -346,13 +346,13 @@ main:has(.review) > .crumbs { max-width: 780px; margin: 0 auto 18px; }
 @media (max-width: 560px) { .hood-grid { grid-template-columns: 1fr; } }
 
 /* Small round logo beside the name (header and footer) */
-.logo { display: inline-flex; align-items: center; gap: 18px; }
-.logo .logo-mark { width: 72px; height: 72px; flex-shrink: 0; }
+.logo { display: inline-flex; align-items: center; gap: 22px; }
+.logo .logo-mark { width: 112px; height: 112px; flex-shrink: 0; }
 .col-inner .brand { display: inline-flex; align-items: center; gap: 12px; }
-.col-inner .brand .logo-mark { width: 48px; height: 48px; }
+.col-inner .brand .logo-mark { width: 56px; height: 56px; }
 @media (max-width: 640px) {
     .logo { gap: 12px; text-align: left; }
-    .logo .logo-mark { width: 52px; height: 52px; }
+    .logo .logo-mark { width: 76px; height: 76px; }
 }
 
 /* Contact form: larger, darker labels (charcoal, not black) */
