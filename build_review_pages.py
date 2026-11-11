@@ -476,7 +476,7 @@ def page(title, description, canonical, body, schemas, og_image=None, geo=("CA-O
     <link rel="stylesheet" href="/site.css">
 </head>
 <body>
-    <div class="topbar"><span>Level 7 Google Local Guide</span><span>Independent · Self-funded</span><span>No sponsored reviews</span></div>
+    <div class="topbar"><span>Level 7 Google Local Guide</span><span>Independent</span><span>No paid reviews</span></div>
     <header class="site-header">
         <a href="/" class="logo" aria-label="Toronto Eats and Reviews home"><img class="logo-mark" src="/icon-512.png" width="112" height="112" alt="Toronto Eats and Reviews logo"><span class="logo-text">Toronto Eats and Reviews<span class="dot">.</span></span></a>
         <div class="tagline">Restaurant, bar &amp; venue reviews by MsJAG · Toronto · Grand Cayman · Canada</div>
@@ -493,7 +493,7 @@ def page(title, description, canonical, body, schemas, og_image=None, geo=("CA-O
         <div class="col-inner">
             <div class="brand"><img class="logo-mark" src="/icon-192.png" width="56" height="56" alt="" loading="lazy"><span>Toronto Eats and Reviews<span class="dot">.</span></span></div>
             <div class="col-meta">
-                &copy; <span id="copyrightYear"></span> Toronto Eats and Reviews · by MsJAG · Independent · Unsponsored<br>
+                &copy; <span id="copyrightYear"></span> Toronto Eats and Reviews · by MsJAG · Independent · No paid reviews<br>
                 <a href="/toronto/">Toronto</a> · <a href="/grand-cayman/">Grand Cayman</a> · <a href="/canada/">Canada</a> · <a href="/archive.html">All reviews</a><br>
                 <a href="{GOOGLE_PROFILE}" target="_blank" rel="noopener">Google Maps</a> ·
                 <a href="https://instagram.com/chowhoundgta" target="_blank" rel="noopener">Instagram</a> ·
@@ -626,7 +626,7 @@ def build_review_page(r, all_reviews):
 {photo_html}            <div class="text">
 {body_text}
             </div>
-{tag_line}            <p class="byline">Reviewed by <a href="/">MsJAG</a>, Level 7 Google Local Guide. Self-funded visit, no sponsorship.</p>
+{tag_line}            <p class="byline">Reviewed by <a href="/">MsJAG</a>, Level 7 Google Local Guide. {"Hosted visit: the venue invited me. The score is my own." if r.get("hosted") else "Independent review. No payment accepted."}</p>
             <div class="actions">
                 {f'<a class="btn" href="{maps_url}" target="_blank" rel="noopener">Get directions</a>' if address_line else ''}
                 <a class="btn ghost" href="/archive.html">All {len(all_reviews)} reviews</a>
@@ -949,8 +949,8 @@ def main():
          "Every review gets a score out of 5: <b>5 is an Editor's Pick</b>, 4 is Recommended, 3 is Mixed, 2 is Not Recommended and 1 is Avoid. The score covers service, food or product quality, consistency and value.",
          "Every review gets a score out of 5: 5 is an Editor's Pick, 4 is Recommended, 3 is Mixed, 2 is Not Recommended and 1 is Avoid. The score covers service, food or product quality, consistency and value."),
         ("Are any of these Toronto reviews sponsored?",
-         "No. Every visit is paid for by MsJAG. There are no comped meals, press trips or affiliate links, and businesses can't pay to change a score.",
-         "No. Every visit is paid for by MsJAG. There are no comped meals, press trips or affiliate links, and businesses can't pay to change a score."),
+         "No. Businesses can't pay for a review or change a score. There are no affiliate links. Invitations to previews and openings are accepted, and any hosted visit is labelled on the review.",
+         "No. Businesses can't pay for a review or change a score. There are no affiliate links. Invitations to previews and openings are accepted, and any hosted visit is labelled on the review."),
         ("Who writes these reviews?",
          'MsJAG (JoAnne Gomez), a Level 7 Google Local Guide based in Toronto whose venue photos have more than 9 million views on Google Maps. <a href="/#about">Read more about the reviewer</a>.',
          "MsJAG (JoAnne Gomez), a Level 7 Google Local Guide based in Toronto whose venue photos have more than 9 million views on Google Maps."),
@@ -958,9 +958,9 @@ def main():
     url, out = build_hub(
         "toronto", "Toronto Restaurant & Bar Reviews by Neighbourhood | MsJAG",
         "Toronto <em>reviews.</em>",
-        f"Honest, unsponsored reviews of {len(tor)} Toronto restaurants, bars, nightclubs, hotels, clinics and shops, "
+        f"Honest, independent reviews of {len(tor)} Toronto restaurants, bars, nightclubs, hotels, clinics and shops, "
         f"sorted by neighbourhood so you can find somewhere good near you, from King West and Queen West to "
-        "North York and Etobicoke. Every visit is self-funded and written by MsJAG, a Level 7 Google Local Guide.",
+        "North York and Etobicoke. Every review is written by MsJAG, a Level 7 Google Local Guide.",
         tor, [("Home", "/"), ("Canada", "/canada/"), ("Toronto", None)],
         extra=tor_extra, link_more=topic_links, picks_heading="Latest Toronto Editor's Picks", faqs=tor_faqs,
         description=f"{len(tor)} honest Toronto restaurant, bar and venue reviews sorted by neighbourhood, from King West to North York. Find somewhere good near you. By MsJAG, Level 7 Google Local Guide.")
@@ -976,7 +976,7 @@ def main():
     body = f"""{crumbs_html(tor_trail + [("Neighbourhoods", None)])}
         <section class="hub-head">
             <h1>Toronto by <em>neighbourhood.</em></h1>
-            <p class="intro">Looking for a restaurant, bar or shop near you? Pick your part of Toronto. {len(hoods)} neighbourhoods, {sum(len(v['items']) for v in hoods.values())} honest reviews, every one visited and paid for by MsJAG.</p>
+            <p class="intro">Looking for a restaurant, bar or shop near you? Pick your part of Toronto. {len(hoods)} neighbourhoods, {sum(len(v['items']) for v in hoods.values())} honest reviews, every one written by MsJAG.</p>
         </section>
         <div class="hood-grid">
 {hood_cards}
@@ -1001,7 +1001,7 @@ def main():
             f"{E(v['name'])} <em>reviews.</em>",
             f"{len(items)} honest reviews of restaurants, bars and local businesses in {v['name']} ({v['blurb'].rstrip('.')}), "
             f"with {dining} restaurant and {night} nightlife reviews. Editor's Picks first, then everything else, each with an address and directions. "
-            "Every visit is self-funded by MsJAG, a Level 7 Google Local Guide.",
+            "Every review is independent and written by MsJAG, a Level 7 Google Local Guide.",
             items, tor_trail + [("Neighbourhoods", "/toronto/neighbourhoods/"), (v["name"], None)],
             picks_heading=f"Editor's Picks in {v['name']}" if any(x["rating"] == 5 for x in items) else None,
             extra_end=chips(other_hoods, "Nearby <em>neighbourhoods.</em>"),
@@ -1017,10 +1017,10 @@ def main():
             f"Best {label} in Toronto: {len(group)} Honest Reviews | MsJAG",
             f"Toronto <em>{E(label.lower())}.</em>",
             f"{len(group)} honest Toronto reviews for {label.lower()}, ranked with Editor's Picks first so the best {label.lower()} in Toronto is at the top. "
-            "Every place was visited and paid for by MsJAG, a Level 7 Google Local Guide. Each review has the address and directions.",
+            "Every place was visited and reviewed by MsJAG, a Level 7 Google Local Guide. Each review has the address and directions.",
             group, tor_trail + [(label, None)], ranked=True,
             extra_end=chips(others, "More Toronto <em>cuisines.</em>"),
-            description=snippet(f"Best {label.lower()} in Toronto: {len(group)} honest reviews ranked with Editor's Picks first, with addresses and directions. Unsponsored, by MsJAG, Level 7 Google Local Guide.", 158))
+            description=snippet(f"Best {label.lower()} in Toronto: {len(group)} honest reviews ranked with Editor's Picks first, with addresses and directions. Independent, by MsJAG, Level 7 Google Local Guide.", 158))
         write(url, out)
         sitemap.append((SITE + url, newest_iso(group), "weekly", "0.7"))
 
@@ -1032,16 +1032,16 @@ def main():
         f"Best Restaurants in Toronto: {len(best)} Editor's Picks | MsJAG",
         "Best restaurants in <em>Toronto.</em>",
         f"Every Toronto restaurant that earned a 5 out of 5 Editor's Pick, newest first. {len(best)} places across "
-        f"{len(best_hoods)} neighbourhoods, each visited and paid for by MsJAG, a Level 7 Google Local Guide, with no sponsored reviews.",
+        f"{len(best_hoods)} neighbourhoods, each visited and reviewed by MsJAG, a Level 7 Google Local Guide, with no paid reviews.",
         best, tor_trail + [("Best restaurants", None)], ranked=True,
         extra_end=chips(hood_pairs, "Find the best restaurants near you by <em>neighbourhood.</em>"),
         faqs=[("What makes a restaurant an Editor's Pick?",
-               "A 5 out of 5 score. The food, service, consistency and value all held up on a self-funded visit. A 4 is Recommended, a 3 is Mixed, and 2 or 1 means skip it.",
-               "A 5 out of 5 score. The food, service, consistency and value all held up on a self-funded visit. A 4 is Recommended, a 3 is Mixed, and 2 or 1 means skip it."),
+               "A 5 out of 5 score. The food, service, consistency and value all held up on the visit. A 4 is Recommended, a 3 is Mixed, and 2 or 1 means skip it.",
+               "A 5 out of 5 score. The food, service, consistency and value all held up on the visit. A 4 is Recommended, a 3 is Mixed, and 2 or 1 means skip it."),
               ("How often is this list updated?",
                "Every time a new review is published. The newest Editor's Picks appear at the top.",
                "Every time a new review is published. The newest Editor's Picks appear at the top.")],
-        description=f"The best restaurants in Toronto according to {len(best)} unsponsored 5-star reviews by MsJAG, Level 7 Google Local Guide. Newest picks first, with addresses and directions.")
+        description=f"The best restaurants in Toronto according to {len(best)} independent 5-star reviews by MsJAG, Level 7 Google Local Guide. Newest picks first, with addresses and directions.")
     write(url, out)
     sitemap.append((SITE + url, newest_iso(best), "weekly", "0.9"))
 
@@ -1071,8 +1071,8 @@ def main():
         url, out = build_hub(
             f"toronto/{s}", f"Best {name} in Toronto: {len(group)} Honest Reviews | MsJAG",
             f"Toronto <em>{E(name.lower())}.</em>",
-            f"{len(group)} {nice} reviews, ranked with Editor's Picks first. Every place was visited and paid "
-            "for by MsJAG, with no sponsored posts and no free meals.",
+            f"{len(group)} {nice} reviews, ranked with Editor's Picks first. Every place was visited and reviewed "
+            "by MsJAG, with no paid reviews.",
             group, [("Home", "/"), ("Canada", "/canada/"), ("Toronto", "/toronto/"), (name, None)])
         write(url, out)
         sitemap.append((SITE + url, newest_iso(group), "weekly", "0.8"))
@@ -1124,7 +1124,7 @@ def main():
     body = f"""{crumbs_html(trail)}
         <section class="hub-head">
             <h1>Canada <em>reviews.</em></h1>
-            <p class="intro">{len(canada_all)} honest reviews of restaurants, bars, hotels and businesses across Canada, from Toronto and Mississauga to {E(cities_named)}. Every visit is self-funded and reviewed by MsJAG, a Level 7 Google Local Guide.</p>
+            <p class="intro">{len(canada_all)} honest reviews of restaurants, bars, hotels and businesses across Canada, from Toronto and Mississauga to {E(cities_named)}. Every place was visited and reviewed by MsJAG, a Level 7 Google Local Guide.</p>
 {stats_line(canada_all)}
         </section>
 {city_chips}

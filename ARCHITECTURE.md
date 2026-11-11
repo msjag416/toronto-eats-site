@@ -83,3 +83,13 @@ You can also run the builder yourself with `python build_review_pages.py`.
 ## Contact form delivery
 
 The form on the homepage and More Reviews sends to **Web3Forms** first (access key in the page code; Web3Forms keys are public by design). If Web3Forms fails or takes longer than 12 seconds, it tries **FormSubmit** as a backup. Both deliver to the same Gmail. If both fail, the visitor sees a "couldn't be sent, please try again" note and their typed message stays in the form. A Cloudflare Turnstile check (hidden unless needed) and a hidden honeypot box block bots first.
+
+## Editorial policy wording (updated Nov 11, 2026)
+
+The site says "Independent" and "No paid reviews". It does not say every visit is self-funded, because
+JoAnne accepts invitations to previews and openings. The wording lives in `index.html` (policy quote,
+About section, top bar, footer), `archive.html`, `thanks.html`, and the templates in `build_review_pages.py`.
+
+To mark an invited visit, add `"hosted": true` to that review's entry in the `const reviews` list in
+`archive.html`. Its review page then shows "Hosted visit: the venue invited me. The score is my own."
+Every other review page shows "Independent review. No payment accepted."
