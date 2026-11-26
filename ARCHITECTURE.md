@@ -26,6 +26,7 @@ A plain-language map of the site. Hosted free on GitHub Pages (repo `msjag416/to
 | `/toronto/<cuisine>/` (pizza, burgers, caribbean, sushi…) | Toronto reviews by cuisine or feature, found from the business name and review text. Needs 3+ reviews. |
 | `/toronto/best-restaurants/` | Every 5-star Toronto restaurant, newest first. |
 | `/thumbs/*.webp` | Small, fast copies of the review photos for cards. Made automatically from the full photos. |
+| `/hero/*.webp` | 1200px WebP copies of the review photos for the big photo at the top of each review page, so it loads fast on phones. Made automatically. The share image (og:image) still uses the original JPG. |
 | `/grand-cayman/` | All Grand Cayman reviews. |
 | `/mississauga/` | All Mississauga reviews. |
 | `/canada/` | Every Canadian review, grouped by city. |
@@ -57,6 +58,22 @@ You can also run the builder yourself with `python build_review_pages.py`.
 * Anything else → World, grouped by the last part of the address (the country).
 * No address (online businesses) → still gets its own review page, just not listed on a city page.
 
+## Search titles and descriptions (updated Nov 26, 2026)
+
+* Review page titles show the score so they stand out next to Tripadvisor and Yelp, for example
+  "Wilbur's Taco Shop Review, Toronto, ON: 5/5 | MsJAG". `review_title()` tries the longest version first and
+  uses the first one that fits in 60 characters. Long Google listing names are cut at the first dash or bar, and
+  a city that's already in the business name isn't repeated.
+* Review descriptions (`review_description()`) start with the score, label and street, then the start of the review.
+  Rating-only reviews get a one-line description instead of "(Rating only - no written review)".
+* Neighbourhood pages put restaurants and bars first: their Editor's Picks row only shows restaurants and bars.
+* `HOOD_INTROS` holds hand-written openings for neighbourhood pages (Liberty Village so far). Other neighbourhoods use
+  the standard opening.
+* `STREET_RULES` places Liberty Village streets (Atlantic Ave, Liberty St, Hanna Ave and others) in Liberty Village
+  when the address has no postal code.
+* Site wording is in JoAnne's voice and avoids her banned words (no "honest", "never", "often"). Her own review text
+  is never changed.
+
 ## Google data on each page
 
 * Review pages carry a `Review` block (business type, address, rating out of 5, date, author MsJAG) and a `BreadcrumbList`.
@@ -86,7 +103,7 @@ The form on the homepage and More Reviews sends to **Web3Forms** first (access k
 
 ## Editorial policy wording (updated Nov 11, 2026)
 
-The site says "Independent" and "No paid reviews". It does not say every visit is self-funded, because
+The site says "Independent", "No paid reviews" and "No one can buy a score". It does not say every visit is self-funded, because
 JoAnne accepts invitations to previews and openings. The wording lives in `index.html` (policy quote,
 About section, top bar, footer), `archive.html`, `thanks.html`, and the templates in `build_review_pages.py`.
 

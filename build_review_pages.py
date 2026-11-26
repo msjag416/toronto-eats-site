@@ -77,6 +77,16 @@ NEIGHBOURHOODS = [
 ]
 MIN_PER_PAGE = 3  # a neighbourhood or cuisine page needs at least this many reviews
 
+# Hand-written openings for neighbourhood pages. {n}, {dining} and {night} are filled in with the counts.
+HOOD_INTROS = {
+    "liberty-village-and-parkdale": (
+        "We live in Liberty Village, so these places are close to home for us. I've reviewed {dining} restaurants "
+        "and {night} bars and clubs here, from Wilbur's Taco Shop on Atlantic Ave to Matt's Burger Lab on Queen Street, "
+        "plus the grocery stores and shops we use. Some earned an Editor's Pick, and some, like Burger Drops, I'd tell "
+        "you to skip. Most reviews have the date I went and what we ordered, and every one has my score out of 5, the "
+        "address and a directions link. This page also covers Parkdale and the west end of King and Queen."),
+}
+
 
 # Downtown streets we can place without a postal code (number, street) -> postal prefix
 STREET_RULES = [
@@ -86,6 +96,9 @@ STREET_RULES = [
     (r"\b(blue jays way|john st|peter st|duncan st|mercer st|widmer st)\b", lambda n: "M5V"),
     (r"\bqueen st(reet)? e", lambda n: "M5A" if n < 700 else "M4M"),
     (r"\bking st(reet)? e", lambda n: "M5C" if n < 200 else "M5A"),
+    # Liberty Village streets
+    (r"\b(atlantic ave|east liberty st|liberty st|hanna ave|fraser ave|mowat ave|jefferson ave|pirandello st|"
+     r"lynn williams st|western battery rd|sudbury st|snooker st|joe shuster way)\b", lambda n: "M6K"),
 ]
 
 
@@ -174,6 +187,27 @@ def make_thumb(photo_url):
             im.save(out, "WEBP", quality=78, method=6)
         w, h = Image.open(out).size
         return (f"/thumbs/{out_name}", w, h)
+    except Exception:
+        return None
+
+
+def make_hero(photo_url):
+    """Makes a 1200px-wide WebP copy for the big photo on a review page. Returns (url, width, height) or None."""
+    name = photo_url.rsplit("/", 1)[-1]
+    src = os.path.join(ROOT, name)
+    if not os.path.exists(src):
+        return None
+    out_name = os.path.splitext(name)[0] + ".webp"
+    out = os.path.join(ROOT, "hero", out_name)
+    try:
+        from PIL import Image
+        if not os.path.exists(out) or os.path.getmtime(out) < os.path.getmtime(src):
+            os.makedirs(os.path.dirname(out), exist_ok=True)
+            im = Image.open(src).convert("RGB")
+            im.thumbnail((1200, 1200))
+            im.save(out, "WEBP", quality=72, method=6)
+        w, h = Image.open(out).size
+        return (f"/hero/{out_name}", w, h)
     except Exception:
         return None
 
@@ -377,6 +411,7 @@ def prepare(reviews, photos):
         r["hood"] = neighbourhood_for(r)
         r["tags"] = cuisine_tags(r)
         r["thumb"] = make_thumb(r["photo"]) if r["photo"] else None
+        r["hero"] = make_hero(r["photo"]) if r["photo"] else None
     return out
 
 
@@ -480,6 +515,8 @@ def page(title, description, canonical, body, schemas, og_image=None, geo=("CA-O
     <header class="site-header">
         <a href="/" class="logo" aria-label="Toronto Eats and Reviews home"><img class="logo-mark" src="/icon-512.png" width="112" height="112" alt="Toronto Eats and Reviews logo"><span class="logo-text">Toronto Eats and Reviews<span class="dot">.</span></span></a>
         <div class="tagline">Restaurant, bar &amp; venue reviews by MsJAG · Toronto · Grand Cayman · Canada</div>
+        <a class="lg-badge" href="{GOOGLE_PROFILE}" target="_blank" rel="noopener" aria-label="Google Local Guide Level 7, see my Google reviews"><img src="/local-guide-level-7.png" width="520" height="328" alt="Google Local Guide Level 7 badge"></a>
+        <button type="button" class="qr-open">Share this site · QR code</button>
     </header>
     <nav class="site-nav" aria-label="Primary">
         <a href="/">Home</a>
@@ -565,13 +602,49 @@ HUB_INFO = {
 
 # ─────────────────────────── review pages ───────────────────────────
 
+TITLE_MAX = 60  # Google cuts titles longer than about 60 characters
+
+
+def review_title(r, where_short):
+    """Search title with the score in it, so it stands out next to Tripadvisor and Yelp.
+    Tries the longest version first and uses the first one that fits in 60 characters."""
+    name, tag, score = r["name"], r["year_tag"], f"{r['rating']}/5"
+    if len(name) > 40:
+        # Long Google listing names like "ASK Computers- iPhone Repair Toronto, ...": keep the part before the dash or bar
+        name = re.split(r"\s*[|–—:]\s*|\s*-\s+", name)[0].strip() or name
+    city = r["place"]["city"] or where_short
+    options = []
+    if city.lower() not in name.lower():  # "Soluna Toronto" doesn't need ", Toronto" again
+        options += [f"{name} Review{tag}, {where_short}: {score} | MsJAG",
+                    f"{name} Review{tag}, {city}: {score} | MsJAG",
+                    f"{name} Review{tag}, {city}: {score}"]
+    options += [f"{name} Review{tag}: {score} | MsJAG",
+                f"{name} Review{tag}: {score}"]
+    for t in options:
+        if len(t) <= TITLE_MAX:
+            return t
+    # Very long business names: shorten the name itself
+    room = TITLE_MAX - len(f" Review: {score}")
+    return f"{name[:room].rsplit(' ', 1)[0].rstrip(' -,:|')} Review: {score}"
+
+
+def review_description(r):
+    """Search description: score, label, street, then the start of the review."""
+    street = r["place"]["street"]
+    lead = f"{r['rating']}/5, {r['label']}"
+    if street:
+        lead += f" · {street}"
+    text = r["comment"].strip()
+    if not text or text.lower().startswith("(rating only"):
+        where = location_line(r["place"]) or "online"
+        return snippet(f"{r['name']}, {where}: rated {r['rating']} out of 5 ({r['label']}) by MsJAG, a Level 7 Google Local Guide.", 155)
+    return f"{lead}. " + snippet(text, 150 - len(lead))
+
 def build_review_page(r, all_reviews):
     p = r["place"]
     where_short = short_place(p)
-    title = f"{r['name']} Review, {where_short}{r['year_tag']} | MsJAG"
-    if len(title) > 70:
-        title = f"{r['name']} Review{r['year_tag']} | MsJAG"
-    desc = f"{r['label']} ({r['rating']}/5): {snippet(r['comment'], 130)}"
+    title = review_title(r, where_short)
+    desc = review_description(r)
     paragraphs = [para.strip() for para in r["comment"].split("\n\n") if para.strip()]
     body_text = "\n".join(f"            <p>{E(para).replace(chr(10), '<br>')}</p>" for para in paragraphs)
     maps_url = "https://www.google.com/maps/search/?api=1&query=" + quote_plus(f"{r['name']} {r.get('address', '')}".strip())
@@ -610,7 +683,8 @@ def build_review_page(r, all_reviews):
 
     photo_html = ""
     if r["photo"]:
-        photo_html = f"""        <figure class="hero-photo"><img src="{E(r['photo'])}" alt="{E(r['name'])}, {E(where_short)}, photo by MsJAG" width="1200" height="800" loading="eager"></figure>\n"""
+        src, w, h = r["hero"] if r["hero"] else (r["photo"], 1200, 800)
+        photo_html = f"""        <figure class="hero-photo"><img src="{E(src)}" alt="{E(r['name'])}, {E(where_short)}, photo by MsJAG" width="{w}" height="{h}" loading="eager" fetchpriority="high" decoding="async"></figure>\n"""
 
     when_text = r["when"].strftime("%B %d, %Y").replace(" 0", " ") if r["when"] else E(r.get("date", ""))
     address_line = location_line(p)
@@ -783,7 +857,7 @@ def faq_html_and_schema(faqs):
 
 
 def build_hub(slug, title, h1, intro, items, trail, extra="", link_more=None, picks_heading=None,
-              extra_end="", faqs=None, description=None, ranked=False):
+              extra_end="", faqs=None, description=None, ranked=False, picks_items=None):
     url = f"/{slug}/"
     items_sorted = sort_best(items)
     faq_block, faq_schema = faq_html_and_schema(faqs or [])
@@ -803,7 +877,7 @@ def build_hub(slug, title, h1, intro, items, trail, extra="", link_more=None, pi
 {stats_line(items)}
         </section>
 {extra}
-{picks_section(items, picks_heading) if picks_heading else ''}
+{picks_section(picks_items if picks_items is not None else items, picks_heading) if picks_heading else ''}
 {listing}
 {extra_end}
 {faq_block}"""
@@ -959,12 +1033,12 @@ def main():
     url, out = build_hub(
         "toronto", "Toronto Restaurant & Bar Reviews by Neighbourhood | MsJAG",
         "Toronto <em>reviews.</em>",
-        f"Honest, independent reviews of {len(tor)} Toronto restaurants, bars, nightclubs, hotels, clinics and shops, "
+        f"{len(tor)} independent reviews of Toronto restaurants, bars, nightclubs, hotels, clinics and shops, "
         f"sorted by neighbourhood so you can find somewhere good near you, from King West and Queen West to "
-        "North York and Etobicoke. Every review is written by MsJAG, a Level 7 Google Local Guide.",
+        "North York and Etobicoke. Every review is from my own visit or order. I'm MsJAG, a Level 7 Google Local Guide.",
         tor, [("Home", "/"), ("Canada", "/canada/"), ("Toronto", None)],
         extra=tor_extra, link_more=topic_links, picks_heading="Latest Toronto Editor's Picks", faqs=tor_faqs,
-        description=f"{len(tor)} honest Toronto restaurant, bar and venue reviews sorted by neighbourhood, from King West to North York. Find somewhere good near you. By MsJAG, Level 7 Google Local Guide.")
+        description=f"{len(tor)} Toronto restaurant, bar and venue reviews by neighbourhood, from King West to North York, with addresses and directions. By MsJAG, Local Guide.")
     write(url, out)
     sitemap.append((SITE + url, newest_iso(tor), "weekly", "0.9"))
 
@@ -977,12 +1051,12 @@ def main():
     body = f"""{crumbs_html(tor_trail + [("Neighbourhoods", None)])}
         <section class="hub-head">
             <h1>Toronto by <em>neighbourhood.</em></h1>
-            <p class="intro">Looking for a restaurant, bar or shop near you? Pick your part of Toronto. {len(hoods)} neighbourhoods, {sum(len(v['items']) for v in hoods.values())} honest reviews, every one written by MsJAG.</p>
+            <p class="intro">Pick your part of Toronto to see the restaurants, bars and shops I've reviewed there. {len(hoods)} neighbourhoods, {sum(len(v['items']) for v in hoods.values())} reviews, every one written by me, MsJAG.</p>
         </section>
         <div class="hood-grid">
 {hood_cards}
         </div>"""
-    write(url, page("Toronto Restaurants & Bars Near You, by Neighbourhood | MsJAG",
+    write(url, page("Toronto Restaurants & Bars by Neighbourhood | MsJAG",
                     f"Find reviewed restaurants, bars and shops near you in {len(hoods)} Toronto neighbourhoods, from King West and Liberty Village to Leslieville and North York.",
                     url, body, [crumbs_schema(tor_trail + [("Neighbourhoods", None)], url),
                                 {"@context": "https://schema.org", "@type": "CollectionPage", "name": "Toronto neighbourhoods", "url": SITE + url,
@@ -995,18 +1069,28 @@ def main():
         items = v["items"]
         dining = sum(1 for x in items if x["category"] == "Dining")
         night = sum(1 for x in items if x["category"] == "Nightlife")
+        food = [x for x in items if x["category"] in ("Dining", "Nightlife")]
         other_hoods = [(f"/toronto/neighbourhoods/{k2}/", v2["name"]) for k2, v2 in hoods_sorted if k2 != k][:8]
+        title_options = [f"{v['name']} Restaurants & Bars: {len(items)} Reviews | MsJAG",
+                         f"{v['name']} Restaurants: {len(items)} Reviews | MsJAG",
+                         f"{v['name']} Restaurants & Bars: {len(items)} Reviews",
+                         f"{v['name']} Restaurants: {len(items)} Reviews",
+                         f"{v['name']}: {len(items)} Reviews | MsJAG"]
+        intro = HOOD_INTROS.get(k, (
+            f"I've reviewed {len(items)} places in {v['name']} ({v['blurb'].rstrip('.')}): {dining} restaurants, "
+            f"{night} bars and clubs, and the shops and services around them. Restaurants and bars come first, "
+            "with my Editor's Picks at the top, and every review has the address and a directions link."))
+        intro = intro.format(n=len(items), dining=dining, night=night)
         url, out = build_hub(
             f"toronto/neighbourhoods/{k}",
-            f"{v['name']} Restaurants & Bars: {len(items)} Honest Reviews | MsJAG"[:70] if len(f"{v['name']} Restaurants & Bars: {len(items)} Honest Reviews | MsJAG") <= 70 else f"{v['name']}: {len(items)} Honest Reviews | MsJAG",
+            next((t for t in title_options if len(t) <= TITLE_MAX), title_options[-1]),
             f"{E(v['name'])} <em>reviews.</em>",
-            f"{len(items)} honest reviews of restaurants, bars and local businesses in {v['name']} ({v['blurb'].rstrip('.')}), "
-            f"with {dining} restaurant and {night} nightlife reviews. Editor's Picks first, then everything else, each with an address and directions. "
-            "Every review is independent and written by MsJAG, a Level 7 Google Local Guide.",
+            intro,
             items, tor_trail + [("Neighbourhoods", "/toronto/neighbourhoods/"), (v["name"], None)],
-            picks_heading=f"Editor's Picks in {v['name']}" if any(x["rating"] == 5 for x in items) else None,
+            picks_heading=f"Editor's Picks in {v['name']}" if any(x["rating"] == 5 for x in food) else None,
+            picks_items=food,
             extra_end=chips(other_hoods, "Nearby <em>neighbourhoods.</em>"),
-            description=snippet(f"Restaurants, bars and shops near you in {v['name']}, Toronto: {len(items)} honest reviews with addresses and directions, Editor's Picks first. By MsJAG, Level 7 Google Local Guide.", 158))
+            description=snippet(f"{v['name']} restaurants and bars reviewed by MsJAG, a Level 7 Google Local Guide: {len(items)} reviews with scores, addresses and directions.", 158))
         write(url, out)
         sitemap.append((SITE + url, newest_iso(items), "weekly", "0.8"))
 
@@ -1015,13 +1099,13 @@ def main():
         others = [(f"/toronto/{s2}/", l2) for s2, (l2, _) in cuisine_groups.items() if s2 != slug][:10]
         url, out = build_hub(
             f"toronto/{slug}",
-            f"Best {label} in Toronto: {len(group)} Honest Reviews | MsJAG",
+            f"Best {label} in Toronto: {len(group)} Reviews | MsJAG",
             f"Toronto <em>{E(label.lower())}.</em>",
-            f"{len(group)} honest Toronto reviews for {label.lower()}, ranked with Editor's Picks first so the best {label.lower()} in Toronto is at the top. "
-            "Every place was visited and reviewed by MsJAG, a Level 7 Google Local Guide. Each review has the address and directions.",
+            f"{len(group)} Toronto reviews in {E(label)}, with my Editor's Picks at the top. "
+            "Every review is from my own visit or order, and each one has the address and a directions link. I'm MsJAG, a Level 7 Google Local Guide.",
             group, tor_trail + [(label, None)], ranked=True,
             extra_end=chips(others, "More Toronto <em>cuisines.</em>"),
-            description=snippet(f"Best {label.lower()} in Toronto: {len(group)} honest reviews ranked with Editor's Picks first, with addresses and directions. Independent, by MsJAG, Level 7 Google Local Guide.", 158))
+            description=snippet(f"The best {label} in Toronto, from {len(group)} reviews by MsJAG, a Level 7 Google Local Guide. Editor's Picks first, with scores, addresses and directions.", 158))
         write(url, out)
         sitemap.append((SITE + url, newest_iso(group), "weekly", "0.7"))
 
@@ -1039,10 +1123,10 @@ def main():
         faqs=[("What makes a restaurant an Editor's Pick?",
                "A 5 out of 5 score. The food, service, consistency and value all held up on the visit. A 4 is Recommended, a 3 is Mixed, and 2 or 1 means skip it.",
                "A 5 out of 5 score. The food, service, consistency and value all held up on the visit. A 4 is Recommended, a 3 is Mixed, and 2 or 1 means skip it."),
-              ("How often is this list updated?",
+              ("When is this list updated?",
                "Every time a new review is published. The newest Editor's Picks appear at the top.",
                "Every time a new review is published. The newest Editor's Picks appear at the top.")],
-        description=f"The best restaurants in Toronto according to {len(best)} independent 5-star reviews by MsJAG, Level 7 Google Local Guide. Newest picks first, with addresses and directions.")
+        description=f"The best restaurants in Toronto, from {len(best)} 5-star reviews by MsJAG, a Level 7 Google Local Guide. Newest picks first, with addresses and directions.")
     write(url, out)
     sitemap.append((SITE + url, newest_iso(best), "weekly", "0.9"))
 
@@ -1070,7 +1154,7 @@ def main():
         nice = {"Dining": "Toronto restaurant", "Nightlife": "Toronto bar and nightclub",
                 "Service": "Toronto service, clinic and shop"}[cat]
         url, out = build_hub(
-            f"toronto/{s}", f"Best {name} in Toronto: {len(group)} Honest Reviews | MsJAG",
+            f"toronto/{s}", f"Best {name} in Toronto: {len(group)} Reviews | MsJAG",
             f"Toronto <em>{E(name.lower())}.</em>",
             f"{len(group)} {nice} reviews, ranked with Editor's Picks first. Every place was visited and reviewed "
             "by MsJAG, with no paid reviews.",
@@ -1083,9 +1167,9 @@ def main():
     url, out = build_hub(
         "grand-cayman", "Grand Cayman Restaurant, Bar & Beach Reviews | MsJAG",
         "Grand Cayman <em>reviews.</em>",
-        f"{len(gc)} honest reviews of Grand Cayman restaurants, beach bars, beaches, nightlife and local services "
-        "in George Town, Seven Mile Beach and Rum Point. Written by MsJAG, a Level 7 Google Local Guide who "
-        "visits the island often.",
+        f"{len(gc)} reviews of Grand Cayman restaurants, beach bars, beaches, nightlife and local services "
+        "in George Town, Seven Mile Beach and Rum Point, from my trips to the island. I'm MsJAG, a Level 7 "
+        "Google Local Guide from Toronto.",
         gc, [("Home", "/"), ("Grand Cayman", None)], picks_heading="Grand Cayman Editor's Picks")
     write(url, out)
     sitemap.append((SITE + url, newest_iso(gc), "weekly", "0.9"))
@@ -1095,7 +1179,7 @@ def main():
     url, out = build_hub(
         "mississauga", "Mississauga Restaurant & Venue Reviews | MsJAG",
         "Mississauga <em>reviews.</em>",
-        f"{len(mi)} honest reviews of Mississauga restaurants, bars and local businesses by MsJAG, "
+        f"{len(mi)} reviews of Mississauga restaurants, bars and local businesses by MsJAG, "
         "a Level 7 Google Local Guide from Toronto.",
         mi, [("Home", "/"), ("Canada", "/canada/"), ("Mississauga", None)])
     write(url, out)
@@ -1125,14 +1209,14 @@ def main():
     body = f"""{crumbs_html(trail)}
         <section class="hub-head">
             <h1>Canada <em>reviews.</em></h1>
-            <p class="intro">{len(canada_all)} honest reviews of restaurants, bars, hotels and businesses across Canada, from Toronto and Mississauga to {E(cities_named)}. Every place was visited and reviewed by MsJAG, a Level 7 Google Local Guide.</p>
+            <p class="intro">{len(canada_all)} reviews of restaurants, bars, hotels and businesses across Canada, from Toronto and Mississauga to {E(cities_named)}. Every review is from my own visit, stay or order. I'm MsJAG, a Level 7 Google Local Guide.</p>
 {stats_line(canada_all)}
         </section>
 {city_chips}
 """ + "\n".join(groups)
     url = "/canada/"
     write(url, page("Canada Restaurant, Hotel & Business Reviews | MsJAG",
-                    snippet(f"{len(canada_all)} honest reviews of restaurants, bars, hotels and businesses across Canada, "
+                    snippet(f"{len(canada_all)} reviews of restaurants, bars, hotels and businesses across Canada, "
                             f"from Toronto and Mississauga to {cities_named}, by Level 7 Google Local Guide MsJAG.", 158),
                     url, body, [item_list_schema("Canada reviews", url, sort_best(canada_all)), crumbs_schema(trail, url)], og_image=share_photo_for(canada_all)))
     sitemap.append((SITE + url, newest_iso(canada_all), "weekly", "0.8"))
@@ -1159,14 +1243,14 @@ def main():
     body = f"""{crumbs_html(trail)}
         <section class="hub-head">
             <h1>Travel <em>reviews.</em></h1>
-            <p class="intro">{len(wo)} honest hotel, resort, restaurant and nightlife reviews from trips to {E(countries)} and more, written by MsJAG, a Level 7 Google Local Guide from Toronto.</p>
+            <p class="intro">{len(wo)} hotel, resort, restaurant and nightlife reviews from my trips to {E(countries)} and more. I'm MsJAG, a Level 7 Google Local Guide from Toronto.</p>
 {stats_line(wo)}
         </section>
 {chips}
 """ + "\n".join(groups)
     url = "/world/"
     write(url, page("Hotel, Resort & Restaurant Reviews Around the World | MsJAG",
-                    snippet(f"{len(wo)} honest hotel, resort and restaurant reviews from {countries} and more, by Toronto's MsJAG.", 158),
+                    snippet(f"{len(wo)} hotel, resort and restaurant reviews from {countries} and more, by Toronto's MsJAG.", 158),
                     url, body, [item_list_schema("Travel reviews", url, sort_best(wo)), crumbs_schema(trail, url)], og_image=share_photo_for(wo)))
     sitemap.append((SITE + url, newest_iso(wo), "monthly", "0.7"))
 
