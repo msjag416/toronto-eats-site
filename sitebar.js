@@ -57,6 +57,16 @@
     window.addEventListener('scroll', function () {
         if (!links.hidden && Math.abs(window.scrollY - openedAt) > 40) closeMenu();
     }, { passive: true });
+    // Phones: close it as soon as a finger drags on the screen
+    var touchY = null;
+    document.addEventListener('touchstart', function (e) { touchY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+        if (!links.hidden && touchY !== null && Math.abs(e.touches[0].clientY - touchY) > 25) closeMenu();
+    }, { passive: true });
+    // Tapping anywhere outside the menu closes it too
+    document.addEventListener('click', function (e) {
+        if (!links.hidden && !links.contains(e.target) && !btn.contains(e.target)) closeMenu();
+    });
     links.addEventListener('click', function (e) { if (e.target.closest('a')) closeMenu(); });
     new IntersectionObserver(function (entries) {
         var show = !entries[0].isIntersecting;
