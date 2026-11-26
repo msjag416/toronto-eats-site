@@ -47,10 +47,16 @@
     links.innerHTML = nav.innerHTML;
     bar.querySelector('.sb-qr').addEventListener('click', openQR);
     function closeMenu() { links.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+    var openedAt = 0;
     btn.addEventListener('click', function () {
         links.hidden = !links.hidden;
         btn.setAttribute('aria-expanded', String(!links.hidden));
+        openedAt = window.scrollY;
     });
+    // Close the open menu once the reader keeps scrolling (up or down)
+    window.addEventListener('scroll', function () {
+        if (!links.hidden && Math.abs(window.scrollY - openedAt) > 40) closeMenu();
+    }, { passive: true });
     links.addEventListener('click', function (e) { if (e.target.closest('a')) closeMenu(); });
     new IntersectionObserver(function (entries) {
         var show = !entries[0].isIntersecting;
