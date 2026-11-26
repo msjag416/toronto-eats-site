@@ -38,7 +38,7 @@ It also writes:
 * The neighbourhood and cuisine links on the homepage, between the `<!-- NEIGHBOURHOODS:START -->` and `END` comments. Don't edit between those comments by hand.
 * `review-links.json` (the archive uses this to turn each card title into a link to its own page)
 * `review-photos.json` (remembers which photo goes with which review, so a photo stays on the review page after its card leaves the homepage)
-* `site.css` is the one shared style file for every page (homepage, More Reviews, review pages, city pages). Magazine look: white pages, big photos, Fraunces serif headlines, Inter body text. Light theme only.
+* `site.css` is the one shared style file for every page (homepage, More Reviews, review pages, city pages). Since Nov 26, 2026 it ends with a "2026 LOOK" block: warm Cloud Dancer paper background (#F0EEE9), orange accents (#E8590C for big words, #BE3F0B for small text so it stays readable), Bricolage Grotesque headings, Inter body text, frosted menu bars, pressable buttons, cards that lift on hover, hand-drawn score marks from `/marks/` (circle on 4s and 5s, squiggle on 1s and 2s), and headings that get bolder as they scroll into view. Deleting that block brings back the old look. Light theme only.
 
 **Never edit the files inside `reviews/`, `toronto/`, `grand-cayman/`, `mississauga/`, `canada/` or `world/` by hand.** They are wiped and rebuilt every time.
 
@@ -88,6 +88,13 @@ You can also run the builder yourself with `python build_review_pages.py`.
 
 * Light designs only, never dark themes.
 * Every page has the footer with the JavaScript copyright year.
+
+## Homepage extras (Nov 26, 2026)
+
+* The big headline is `<h1 class="hero-h">Where to eat in <span class="hero-city">Toronto.</span></h1>` with the keyword sentence under it in `.hero-sub`.
+* The 7 newest reviews show in a grid of mixed sizes: card 1 big on the left, cards 2 to 5 small, cards 6 and 7 wide. The order is the page order, so adding a new card at the top keeps working as before.
+* A handwritten note can sit on any card: `<span class="hand-note" aria-hidden="true">your note</span>` right after the card's `card-num`. Wilbur's has one now.
+* The 9.1M+ and 736 numbers count up when they scroll into view (small script near the copyright year).
 
 ## Logo and icons
 

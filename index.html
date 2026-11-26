@@ -333,7 +333,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,800;1,9..144,500;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Caveat:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="site.css">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
@@ -366,7 +366,8 @@
     </nav>
 
     <main>
-        <h1 class="intro-h1">Independent restaurant, bar and venue reviews from Toronto, Grand Cayman and across Canada, by a Level 7 Google Local Guide.</h1>
+        <h1 class="hero-h">Where to eat in <span class="hero-city">Toronto.</span></h1>
+        <p class="hero-sub">Independent restaurant, bar and venue reviews from Toronto, Grand Cayman and across Canada, by a Level 7 Google Local Guide. Every score is out of 5, and no one can buy one.</p>
 
         <!-- ═══ LATEST REVIEWS (the 7 newest — add new cards at the top) ═══ -->
         <section id="reviews" class="sec" aria-labelledby="verdicts-h">
@@ -386,6 +387,7 @@
                 <!-- Wilbur's Taco Shop -->
                 <article class="card">
                     <div class="card-num" aria-hidden="true">01</div>
+                    <span class="hand-note" aria-hidden="true">a couple of blocks from home!</span>
                     <div class="thumb">
                         <div class="tl">IMG_5B8381E0</div>
                         <img src="wilburs-taco-shop-liberty-village-toronto.jpg" alt="Baja fish taco and steak taco with tortilla chips and self-serve salsas at Wilbur's Taco Shop, Atlantic Avenue, Liberty Village, Toronto" width="900" height="1200" loading="lazy">
@@ -749,6 +751,25 @@
     <script>
         // Dynamic copyright year
         document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+        // Count the big numbers up when they scroll into view (9.1M+, 736)
+        (function () {
+            if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            document.querySelectorAll('.trust .big').forEach(function (el) {
+                var m = el.textContent.trim().match(/^([\d.]+)(.*)$/);
+                if (!m) return;
+                var end = parseFloat(m[1]), dec = (m[1].split('.')[1] || '').length, rest = m[2], done = false;
+                new IntersectionObserver(function (es, ob) {
+                    if (done || !es[0].isIntersecting) return;
+                    done = true; ob.disconnect();
+                    var t0 = performance.now();
+                    (function step(t) {
+                        var p = Math.min(1, (t - t0) / 1200), e = 1 - Math.pow(1 - p, 3);
+                        el.textContent = (end * e).toFixed(dec) + rest;
+                        if (p < 1) requestAnimationFrame(step);
+                    })(t0);
+                }, { threshold: 0.6 }).observe(el);
+            });
+        })();
 
         // Links each review card name to its full review page (list made by build_review_pages.py)
         fetch('review-links.json')
