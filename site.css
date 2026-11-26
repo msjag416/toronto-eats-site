@@ -583,6 +583,9 @@ h1 em, h2 em, h3 em, .h1-sub, .inquiry h2 .u, .chips-h em { font-style: normal !
     .sec-head h2, .hub-head h1, .related h2, .group h2, .about h2, .page-hero h1 { animation: none !important; }
 }
 
+/* Review tiles: one shade lighter than the other panels */
+.verdicts .card, .rcard, .acard { background: #FFFFFF; }
+
 /* Panels */
 .trust, .inquiry-inner, .catstats .stat, .colophon, .guide-badge { background: var(--cream); }
 .trust, .inquiry-inner { border: 1px solid #E2D8CB; border-radius: 18px; }
