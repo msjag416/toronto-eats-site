@@ -552,9 +552,11 @@ h1 em, h2 em, h3 em, .h1-sub, .inquiry h2 .u, .chips-h em { font-style: normal !
 
 /* Homepage headline with a hand-drawn underline */
 @keyframes breathe { from { font-variation-settings: "wght" 300, "wdth" 75; } to { font-variation-settings: "wght" 800, "wdth" 100; } }
+@keyframes firm { from { font-variation-settings: "wght" 400; } to { font-variation-settings: "wght" 750; } }
 .hero-h {
-    font-family: var(--serif); font-size: clamp(52px, 9.5vw, 140px); line-height: .95; letter-spacing: -.04em;
-    margin: 18px 0 18px; animation: breathe 1.6s cubic-bezier(.2, .7, .2, 1) both;
+    font-family: var(--serif); font-size: clamp(40px, 10.5vw, 140px); line-height: .95; letter-spacing: -.04em;
+    margin: 18px 0 18px; white-space: nowrap; /* two fixed lines, so the animation never moves the page */
+    animation: breathe 1.6s cubic-bezier(.2, .7, .2, 1) both;
 }
 .hero-city { position: relative; display: inline-block; color: var(--accent-bright); white-space: nowrap; }
 .hero-city::after {
@@ -573,7 +575,7 @@ h1 em, h2 em, h3 em, .h1-sub, .inquiry h2 .u, .chips-h em { font-style: normal !
 /* Headings get bolder as they scroll into view (browsers that support it) */
 @supports (animation-timeline: view()) {
     .sec-head h2, .hub-head h1, .related h2, .group h2, .about h2, .page-hero h1 {
-        animation: breathe linear both; animation-timeline: view(); animation-range: entry 0% cover 40%;
+        animation: firm linear both; animation-timeline: view(); animation-range: entry 0% cover 40%;
     }
 }
 @media (prefers-reduced-motion: reduce) {
