@@ -391,3 +391,10 @@ main:has(.review) > .crumbs { max-width: 780px; margin: 0 auto 18px; }
 @media (prefers-reduced-motion: reduce) {
     .logo .logo-mark { animation: none; }
 }
+
+/* Google Local Guide Level 7 badge in the header */
+.lg-badge { display: block; width: fit-content; margin: 0 auto 22px; }
+.lg-badge img { display: block; height: 130px; width: auto; }
+@media (max-width: 640px) {
+    .lg-badge img { height: 96px; }
+}
