@@ -398,3 +398,43 @@ main:has(.review) > .crumbs { max-width: 780px; margin: 0 auto 18px; }
 @media (max-width: 640px) {
     .lg-badge img { height: 96px; }
 }
+
+/* Share QR code button and pop-up */
+.qr-open { display: block; margin: -8px auto 20px; font: 600 13px var(--sans); color: var(--accent); background: #fff; border: 1.5px solid var(--accent); border-radius: 99px; padding: 7px 16px; cursor: pointer; }
+.qr-open:hover { background: var(--accent); color: #fff; }
+.qr-box { border: none; border-radius: 18px; padding: 26px 26px 20px; text-align: center; background: #fff; color: var(--ink); max-width: 92vw; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+.qr-box::backdrop { background: rgba(255,255,255,.85); }
+.qr-box img { display: block; width: min(300px, 72vw); height: auto; margin: 0 auto; }
+.qr-title { font-family: var(--serif); font-weight: 800; font-size: 22px; margin: 0 0 12px; }
+.qr-title .dot { color: var(--accent); }
+.qr-url { font-size: 14px; color: var(--ink-2); margin: 10px 0 16px; }
+.qr-actions { display: flex; gap: 10px; justify-content: center; }
+.qr-actions a, .qr-actions button { font: 600 14px var(--sans); border-radius: 99px; padding: 8px 18px; cursor: pointer; border: 1.5px solid var(--ink); background: #fff; color: var(--ink); text-decoration: none; }
+.qr-actions a { background: var(--ink); color: #fff; }
+
+/* Slim bar that stays at the top after scrolling (homepage) */
+body.has-stickybar .site-nav { position: static; }
+.stickybar { position: fixed; top: 0; left: 0; right: 0; z-index: 60; display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(255,255,255,.97); backdrop-filter: saturate(1.4) blur(6px); border-bottom: 1px solid var(--line); box-shadow: 0 4px 18px rgba(0,0,0,.06); transform: translateY(-110%); transition: transform .25s ease; }
+.stickybar.show { transform: translateY(0); }
+.sb-title { display: flex; align-items: center; gap: 10px; margin-right: auto; font: 800 20px/1.1 var(--serif); letter-spacing: -0.01em; color: var(--ink); }
+.sb-title img { width: 36px; height: 36px; flex-shrink: 0; }
+.sb-title .dot { color: var(--accent); }
+.sb-badge { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); white-space: nowrap; }
+.sb-badge img { width: 30px; height: 30px; }
+.sb-qr { font: 700 12px var(--sans); letter-spacing: .06em; color: var(--accent); background: #fff; border: 1.5px solid var(--accent); border-radius: 99px; padding: 6px 12px; cursor: pointer; }
+.sb-menu { width: 40px; height: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; background: #fff; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; padding: 0; }
+.sb-menu span { display: block; width: 20px; height: 2px; background: var(--ink); border-radius: 2px; }
+.sb-links { position: absolute; top: 100%; right: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.12); padding: 8px; min-width: 220px; display: flex; flex-direction: column; }
+.sb-links[hidden] { display: none; }
+.sb-links a { padding: 11px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+.sb-links a:hover { background: var(--cream); color: var(--accent); }
+@media (max-width: 640px) {
+    .stickybar { gap: 8px; padding: 8px 10px; }
+    .sb-title { font-size: 15px; gap: 7px; }
+    .sb-title img { width: 30px; height: 30px; }
+    .sb-name { max-width: 108px; line-height: 1.05; }
+    .sb-badge { gap: 4px; font-size: 11px; line-height: 1.15; }
+    .sb-badge span { white-space: normal; width: 62px; }
+    .sb-badge b { display: block; }
+    .sb-badge img { width: 28px; height: 28px; }
+}

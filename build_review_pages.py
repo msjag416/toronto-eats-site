@@ -502,6 +502,7 @@ def page(title, description, canonical, body, schemas, og_image=None, geo=("CA-O
         </div>
     </footer>
     <script>document.getElementById('copyrightYear').textContent = new Date().getFullYear();</script>
+    <script src="/sitebar.js" defer></script>
 </body>
 </html>
 """
